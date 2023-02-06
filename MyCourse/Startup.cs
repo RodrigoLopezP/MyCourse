@@ -38,9 +38,7 @@ namespace MyCourse
                 //id -> il metodo deve avere un param di input = id . Altrimenti non riceverà niente, sarà null
             });
 
-
             // app.UseMvcWithDefaultRoute();
-
             // app.Run(async (context) =>
             // {
             //     if(!String.IsNullOrEmpty(context.Request.Query["nome"]))
@@ -52,7 +50,6 @@ namespace MyCourse
             //     {
             //         await context.Response.WriteAsync("Test ciao ciao" );
             //     }
-
             // });
         }
     }
