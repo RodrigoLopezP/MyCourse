@@ -2,5 +2,12 @@
     "emmet.includeLanguages": {
         "aspnetcorerazor": "html",
         "razor": "html"
-    }
+    },
+
+    "browserSync.config": {
+        "proxy":"localhost:5000",
+        "files": ["Views/**/*.cshtml", "wwwroot/**/*","bin/reload.txt"]
+    },
+    "fontAwesomeAutocomplete.patterns": ["**/*.cshtml"],
+    "fontAwesomeAutocomplete.triggerWord": "f-"
 }
