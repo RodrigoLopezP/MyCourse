@@ -1,2 +1,65 @@
 
-    <h1>View - Courses Detail</h1>
+<section class="course-info">
+    <div class="row">
+        <div class="col-md-9">
+            <h1>Modello</h1>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <a href="#" class="btn btn-warning btn-lg btn-block subscribe-course">Iscriviti</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9">
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+        </div>
+        <div class="col-md-3">
+            <aside>
+                <author>di Model.Author</author>
+                <div class="rating" title="Rating">
+                  
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+
+                </div>
+                <div class="price">
+                    Model.CurrentPrice
+
+                        <br><s>Model.FullPrice</s>
+                    
+                </div>
+                <img src="~/doge.jpg" class="img-fluid course-image" alt="Title">
+            </aside>
+        </div>
+    </div>
+</section>
+
+<section class="course-lessons">
+	<h2>Lezioni Model.Lessons.Count</h2>
+
+	<hr>
+    @for (int i = 1; i <= 10; i++)
+    {
+        <div class="row">
+	    	<div class="col-md-9 d-flex align-items-center">
+	    	    <a href="#">lesson.Title @i</a>
+	    	</div>
+	    	<div class="col-md-3 d-flex align-items-center lesson-duration">
+	    		<i class="far fa-clock"></i>
+                <time>lesson.Duration</time>
+	    	</div>
+	    </div>
+    }
+
+    <hr>
+    <div class="row course-duration">
+		<div class="col-md-9 d-flex align-items-center">
+            Totale
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+            <i class="far fa-clock"></i><time>Model.TotalCourseDuration.ToString</time>
+        </div>
+    </div>
+</section>

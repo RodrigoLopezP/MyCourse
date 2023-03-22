@@ -1,26 +1,44 @@
+    @model List<CourseViewModel>
     <h1>Catalogo dei corsi</h1>
-    @for(int i=1;i<=10;i++){
-    <div class="row border">
+
+    @foreach (CourseViewModel course in Model)
+    {
+  
+    <div class="row course">
         <div class="col-md-1">
-            <img class="img-fluid" src="~/doge.jpg" width="50" alt="Img corso 1">
+            <img class="img-fluid" src="@course.ImagePath" width="50" alt="Img corso 1">
         </div>
         <div class="col-md-5">
-            <h2>Titolo del corso</h2>
-            <author>Nome Cognome autore</author>
+            <h2>@course.Title</h2>
+            <author>di @course.Author</author>
+        </div>
+        <div class="col-md-2 rating" title="@course.Rating">
+            @for(int i=1;i<=5;i++){
+                if (course.Rating>=i)
+                {
+                    <i class="fas fa-star"></i>
+                }
+                else if (course.Rating > i-1)
+                {
+                    <i class="fas fa-star-half-alt"></i>
+                }
+                else
+                {
+                    <i class="far fa-star"></i>
+                }
+            }
+        </div>
+        <div class="col-md-2 price">
+            @course.FullPrice
+            @if(!course.CurrentPrice.Equals(course.FullPrice))
+            {
+            <br>
+            <s>@course.CurrentPrice</s>
+            }
         </div>
         <div class="col-md-2">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-        </div>
-        <div class="col-md-2">
-            EUR 100.99 <br/>
-            <s>EUR 12.99</s>
-        </div>
-        <div class="col-md-2">
-            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="5"> Più dettagli del corso qui</a>
+            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Più dettagli del corso qui</a>
         </div>
     </div>
+    <hr>
     }
