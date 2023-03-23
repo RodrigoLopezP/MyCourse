@@ -10,7 +10,7 @@ namespace MyCourse.Controllers
     {
         public IActionResult Index() 
         {
-            return Content("Sono index del amongus");
+            return View();
         }
 
         public IActionResult Sus(string id) 
