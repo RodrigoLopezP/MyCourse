@@ -12,6 +12,7 @@ namespace MyCourse.Controllers
     {
         public IActionResult Index() 
         {
+            ViewBag.Title="Catalogo dei corsi";
             var courseService=new CourseService();
             List<CourseViewModel> courses=courseService.GetCourses();
             return View(courses);
@@ -21,7 +22,8 @@ namespace MyCourse.Controllers
         {
             var courseService = new CourseService();
             CourseDetailViewModel viewModel= courseService.GetCourse(id);
-            return View();
+            ViewBag.Title=viewModel.Title;
+            return View(viewModel);
         }
 
         public IActionResult Doge(string anni) 
