@@ -8,9 +8,9 @@ using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Models.Services.Application
 {
-     public class CourseService
+     public class CourseService:ICourseService
      {
-          public List<CourseViewModel> GetCourses()
+          public List<CourseViewModel> GetCourses() 
           {
           var courseList = new List<CourseViewModel>();
             var rand = new Random();

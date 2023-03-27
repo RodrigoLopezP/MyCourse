@@ -10,30 +10,24 @@ namespace MyCourse.Controllers
 {
     public class CoursesController:Controller
     {
+       private readonly ICourseService courseService;
+
+        public CoursesController(ICourseService courseService)
+        {
+            this.courseService=courseService;
+        }
         public IActionResult Index() 
         {
             ViewBag.Title="Catalogo dei corsi";
-            var courseService=new CourseService();
             List<CourseViewModel> courses=courseService.GetCourses();
             return View(courses);
         }
 
         public IActionResult Detail(int id) 
         {
-            var courseService = new CourseService();
             CourseDetailViewModel viewModel= courseService.GetCourse(id);
             ViewBag.Title=viewModel.Title;
             return View(viewModel);
-        }
-
-        public IActionResult Doge(string anni) 
-        {
-            return Content($"Il doge ha esattamente {anni} anni -> non funziona perché la var di input è 'anni' e non 'id'");
-        }
-
-        public IActionResult Puggo(string id) 
-        {
-            return Content($"Il puggo ha esattamente {id} anni");
         }
     }
 }
