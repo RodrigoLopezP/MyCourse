@@ -6,7 +6,7 @@
   
     <div class="row course">
         <div class="col-md-1">
-            <img class="img-fluid" src="@course.ImagePath" width="50" alt="Img corso 1">
+            <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
         </div>
         <div class="col-md-5">
             <h2>@course.Title</h2>
@@ -37,7 +37,7 @@
             }
         </div>
         <div class="col-md-2">
-            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Più dettagli del corso qui sul corso @course.Id</a>
+            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Più dettagli del corso qui @course.Id</a>
         </div>
     </div>
     <hr>
