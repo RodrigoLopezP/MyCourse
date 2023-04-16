@@ -9,13 +9,13 @@ namespace MyCourse.Models.Services.Infrastructure
 {
      public class SqliteDatabaseAccessor : IDatabaseAccessor
      {
-          public DataSet Query(FormattableString fQuery)
+          public async Task<DataSet> QueryAsync(FormattableString fQuery)
           {
                #region formattazione query 
                /*Grazie al ciclo sotto è possibile passare la query in stringa con un formato più comprensibile
                in parole semplice cambia i parametri scritti in parentesi grafe con un chiocciola davanti
                il quale è il formato che accetta SQL
-               Si creerà una lista,, che nella linea 36 circa verrà passata alla var sqlitecommand cmd
+               Si creerà una lista, che nella linea 36 circa verrà passata alla var sqlitecommand cmd
                così la connessione avrà query e argomenti per poter eseguirsi correttamente */
                var queryArguments= fQuery.GetArguments();
                var sqliteParameters= new List<SqliteParameter>();
@@ -28,17 +28,16 @@ namespace MyCourse.Models.Services.Infrastructure
                string query= fQuery.ToString();
                #endregion
 
-               
                /*invece di usare sqlconnection.open e .close, scrivere USING
                Così in caso di errore di una query, il programm automaticamente chiuderà la connessione
                */
                using (var conn= new SqliteConnection("Data Source=Data/MyCourse.db"))
                {
-                    conn.Open();
-                    using(var cmd= new SqliteCommand(query,conn))
+                    await conn.OpenAsync();
+                    using(var cmd= new SqliteCommand(query,conn)) //la query viene manda al database
                     {
                          cmd.Parameters.AddRange(sqliteParameters);
-                         using(var reader = cmd.ExecuteReader())
+                         using(var reader = await cmd.ExecuteReaderAsync())
                          {
                               var dataSet=new DataSet();
                               //inizio workaround
