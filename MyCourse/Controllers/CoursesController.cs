@@ -16,16 +16,16 @@ namespace MyCourse.Controllers
         {
             this.courseService=courseService;
         }
-        public IActionResult Index() 
+        public async Task<IActionResult> Index() 
         {
             ViewBag.Title="Catalogo dei corsi";
-            List<CourseViewModel> courses=courseService.GetCourses();
+            List<CourseViewModel> courses=await courseService.GetCoursesAsync();
             return View(courses);
         }
 
-        public IActionResult Detail(int id) 
+        public async Task<IActionResult> Detail(int id) 
         {
-            CourseDetailViewModel viewModel= courseService.GetCourse(id);
+            CourseDetailViewModel viewModel=await courseService.GetCourseAsync(id);
             ViewBag.Title=viewModel.Title;
             return View(viewModel);
         }

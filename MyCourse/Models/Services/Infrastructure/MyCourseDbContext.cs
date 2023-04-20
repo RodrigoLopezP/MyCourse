@@ -1,8 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using MyCourse.Models.Entities;
 
-namespace MyCourse.Models.Entities
+namespace MyCourse.Models.Services.Infrastructure
 {
     public partial class MyCourseDbContext : DbContext
     {
@@ -48,7 +49,7 @@ namespace MyCourse.Models.Entities
                     builder.Property(money=> money.Currency) //SU c# CURRENCY è una ENUM, sul DB questa è un campo txt
                     .HasConversion<string>()  //per convertire questa stringa dal db a una ENUM
                     .HasColumnName("CurrentPrice_Currency");
-                    builder.Property(money=> money.Currency).HasColumnName("CurrentPrice_Amount");
+                    builder.Property(money=> money.Amount).HasColumnName("CurrentPrice_Amount");
                 });
 
                 //qua sotto viene usata la versione ridotta--vvvv------------------------

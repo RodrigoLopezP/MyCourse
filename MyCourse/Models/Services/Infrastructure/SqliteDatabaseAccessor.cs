@@ -9,7 +9,7 @@ namespace MyCourse.Models.Services.Infrastructure
 {
      public class SqliteDatabaseAccessor : IDatabaseAccessor
      {
-          public DataSet Query(FormattableString fQuery)
+          public async Task<DataSet> QueryAsync(FormattableString fQuery)
           {
                #region formattazione query 
                /*Grazie al ciclo sotto è possibile passare la query in stringa con un formato più comprensibile
@@ -34,11 +34,11 @@ namespace MyCourse.Models.Services.Infrastructure
                */
                using (var conn= new SqliteConnection("Data Source=Data/MyCourse.db"))
                {
-                    conn.Open();
+                    await conn.OpenAsync();
                     using(var cmd= new SqliteCommand(query,conn))
                     {
                          cmd.Parameters.AddRange(sqliteParameters);
-                         using(var reader = cmd.ExecuteReader())
+                         using(var reader = await cmd.ExecuteReaderAsync())
                          {
                               var dataSet=new DataSet();
                               //inizio workaround

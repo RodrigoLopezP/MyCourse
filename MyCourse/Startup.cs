@@ -20,8 +20,14 @@ namespace MyCourse
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddTransient<ICourseService, AdoNetCourseService>();
+            // services.AddTransient<ICourseService, AdoNetCourseService>();
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
+
+            //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
+            services.AddTransient<ICourseService, EfCoreCourseService>();
+            services.AddDbContext<MyCourseDbContext>();  //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose
+            //services.AddScoped<MyCourseDbContext>();  //Metodo alternativo per indicare il servizio DbContext
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
