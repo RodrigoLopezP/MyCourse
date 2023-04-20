@@ -37,6 +37,35 @@ namespace MyCourse.Models.Entities
                 entity.HasKey(course => course.Id); //Superfluo se la propietà si chiama proprio "Id", oppure "CousesId", in quel caso EF capisce che è una PK
                 //In caso di PK con più colonne, si deve scrive il riga di codice commentata qua sotto
                 //entity.HasKey(course=> new {course.Id, course.Author});
+
+                /*-----vvv--Mapping per gli owned types--vvvvv-----------------(cosa sono? controllare documentazione lezione 11)--*/
+                /*
+                Le righe sotto sono superflue, in teoria basterebbe scrivere
+                 entity.OwnsOne(course => course.CurrentPrice);
+                 In caso che le propietà si chiamino CurrentPrice_qualcosa
+                */
+                entity.OwnsOne(course => course.CurrentPrice, builder=>{
+                    builder.Property(money=> money.Currency) //SU c# CURRENCY è una ENUM, sul DB questa è un campo txt
+                    .HasConversion<string>()  //per convertire questa stringa dal db a una ENUM
+                    .HasColumnName("CurrentPrice_Currency");
+                    builder.Property(money=> money.Currency).HasColumnName("CurrentPrice_Amount");
+                });
+
+                //qua sotto viene usata la versione ridotta--vvvv------------------------
+                    entity.OwnsOne(course => course.FullPrice, builder=>{
+                        builder.Property(money=> money.Currency).HasConversion<string>();
+                });
+                //-fine versione ridotta--------------------------------------------------------------------
+
+
+                //-Inizio Mapping per le relazioni-vvvv----------------------
+                entity
+                    .HasMany(course => course.Lessons)
+                    .WithOne(lesson => lesson.Course)
+                    .HasForeignKey(lesson => lesson.CourseId); // QUESTA riga è superflua SE ha il sufisso "id": Es. "CourseId"
+                //---Fine mapping per le relazioni
+                //Questa operazione si poteva fare ANCHE nel modelbuilder di "LESSONS", com'è comentato qua sotto
+
                 #region Mapping generato automaticamente dal tool di reverse engineering
                 /*
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -84,6 +113,11 @@ namespace MyCourse.Models.Entities
 
             modelBuilder.Entity<Lesson>(entity =>
             {
+                /* Qua è come sarebbe il mapping delle relazione da Lesson, invece che da Course
+                entity
+                    .HasOne(lesson => lesson.Course)
+                    .WithMany(course => course.Lessons)
+                */
                 #region Mapping generato automaticamente dal tool di reverse engineering
                 /*
                 entity.Property(e => e.Id).ValueGeneratedNever();
