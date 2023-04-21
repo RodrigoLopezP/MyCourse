@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using MyCourse.Models.Services.Application;
 using MyCourse.Models.Services.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyCourse
 {
@@ -20,14 +21,19 @@ namespace MyCourse
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            
             // services.AddTransient<ICourseService, AdoNetCourseService>();
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
 
             //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
             services.AddTransient<ICourseService, EfCoreCourseService>();
-            services.AddDbContext<MyCourseDbContext>();  //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose
+            // services.AddDbContext<MyCourseDbContext>();  //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose // sez11-lez69 RIMPIAZZATO CON addDbContextPool, per migliorare le prestazioni
             //services.AddScoped<MyCourseDbContext>();  //Metodo alternativo per indicare il servizio DbContext
-
+            services.AddDbContextPool<MyCourseDbContext>(optionsBuilder =>
+            {
+                #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlite("DataSource=data/MyCourse.db");
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
