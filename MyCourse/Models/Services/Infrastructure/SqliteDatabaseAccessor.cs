@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyCourse.Models.Options;
 
@@ -11,13 +12,19 @@ namespace MyCourse.Models.Services.Infrastructure
 {
      public class SqliteDatabaseAccessor : IDatabaseAccessor
      {
+          private readonly ILogger<SqliteDatabaseAccessor> logger;
           private readonly IOptionsMonitor<ConnectionStringsOptions> connectionStrOpts;
-          public SqliteDatabaseAccessor(IOptionsMonitor<ConnectionStringsOptions> connectionStringsOptions)
+          public SqliteDatabaseAccessor(ILogger<SqliteDatabaseAccessor> logger ,IOptionsMonitor<ConnectionStringsOptions> connectionStringsOptions)
           {
+               this.logger = logger;
                this.connectionStrOpts=connectionStringsOptions;
           }
           public async Task<DataSet> QueryAsync(FormattableString fQuery)
           {
+               /*Lez 12 - sez 76 - servizio di loggingh
+               *Aggiungo un log dentro questo metodo, dato che ho creato il _log di tipo ILogging nel ctor sopra
+               */
+               logger.LogInformation(fQuery.Format, fQuery.GetArguments());
                #region formattazione query 
                /*Grazie al ciclo sotto è possibile passare la query in stringa con un formato più comprensibile
                in parole semplice cambia i parametri scritti in parentesi grafe con un chiocciola davanti

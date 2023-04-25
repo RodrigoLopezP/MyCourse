@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyCourse.Models.Options;
 using MyCourse.Models.Services.Infrastructure;
@@ -14,20 +15,24 @@ namespace MyCourse.Models.Services.Application
      {
           private readonly IDatabaseAccessor db;
           private readonly IOptionsMonitor<CoursesOptions> coursesOpts;
-          /*Lez-12-72 - Leggere la configurazione del appsetting.json in modo tipizzato
-          *
-          */
-          public AdoNetCourseService(IDatabaseAccessor db, IOptionsMonitor<CoursesOptions> coursesOptions)
+          /*Lez-12-72 - IOptionsMonitor<CoursesOptions> coursesOptions 
+          *-Leggere la configurazione del appsetting.json in modo tipizzato */
+          /*Lez-12-72 - IOptionsMonitor<CoursesOptions> coursesOptions 
+          *-Leggere la configurazione del appsetting.json in modo tipizzato */
+          private readonly ILogger<AdoNetCourseService> _logger;
+          public AdoNetCourseService( ILogger<AdoNetCourseService> logger ,IDatabaseAccessor db, IOptionsMonitor<CoursesOptions> coursesOptions)
           {
+               _logger = logger;
                this.coursesOpts = coursesOptions;
                this.db=db;
           }
           public async Task<CourseDetailViewModel> GetCourseAsync(int id)
           {
+               _logger.LogInformation("Course {id} requested", id);
+
                FormattableString query =$@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency FROM Courses WHERE Id={id}
                ; SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id}";
                DataSet dataSet=await db.QueryAsync(query);
-
 
                //Course
                var courseTable= dataSet.Tables[0];
@@ -56,6 +61,7 @@ namespace MyCourse.Models.Services.Application
 
           public async Task<List<CourseViewModel>> GetCoursesAsync()
           {
+               // _logger.LogInformation("Course {coursesOpts.CurrentValue.PerPage} requested",coursesOpts.CurrentValue.PerPage);
                FormattableString query=$"SELECT Courses.id, Courses.Title, Courses.ImagePath, Courses.Author, Courses.Rating, Courses.FullPrice_Amount, Courses.FullPrice_Currency, Courses.CurrentPrice_Amount, Courses.CurrentPrice_Currency  FROM Courses";
                DataSet dataSet= await db.QueryAsync(query);
                var dataTable= dataSet.Tables[0];
