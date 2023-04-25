@@ -23,7 +23,7 @@ namespace MyCourse.Models.Services.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
-
+            
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.ToTable("Courses"); //Se la tabella si chiama uguale alla proprietà espressa qui accanto, allora il codice è superfluo e si può anbche non scrivere

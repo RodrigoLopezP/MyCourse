@@ -50,7 +50,7 @@ namespace MyCourse.Models.Services.Application
 
         public async Task<List<CourseViewModel>> GetCoursesAsync()
         {
-            List<CourseViewModel> courses= await dbContext.Courses
+            IQueryable<CourseViewModel> queryEF= dbContext.Courses
             .AsNoTracking()//EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
             .Select(course => new CourseViewModel{
                 Id = course.Id,
@@ -60,7 +60,9 @@ namespace MyCourse.Models.Services.Application
                 Rating = course.Rating,
                 CurrentPrice=course.CurrentPrice,
                 FullPrice=course.FullPrice,
-            }).ToListAsync();
+            });
+
+            List<CourseViewModel> courses=  await queryEF.ToListAsync();
             return courses;
         }
     }

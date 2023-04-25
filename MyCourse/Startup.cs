@@ -11,11 +11,22 @@ using System.IO;
 using MyCourse.Models.Services.Application;
 using MyCourse.Models.Services.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using MyCourse.Models.Options;
 
 namespace MyCourse
 {
     public class Startup
     {
+        /*Sez-12-72-configurazione tipizzata
+        *Si crea la var Configurazione di tipo IConfiguration
+        *E si crea il costruttore per ottenere il i valore da appsetting.json, se esistente
+        *nella solution
+        */
+        public IConfiguration Configuration{get;}
+        public Startup(IConfiguration config){ 
+            Configuration=config;
+        }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -26,14 +37,26 @@ namespace MyCourse
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
 
             //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
-            services.AddTransient<ICourseService, EfCoreCourseService>();
+            services.AddTransient<ICourseService, AdoNetCourseService>();
             // services.AddDbContext<MyCourseDbContext>();  //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose // sez11-lez69 RIMPIAZZATO CON addDbContextPool, per migliorare le prestazioni
             //services.AddScoped<MyCourseDbContext>();  //Metodo alternativo per indicare il servizio DbContext
             services.AddDbContextPool<MyCourseDbContext>(optionsBuilder =>
             {
-                #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlite("DataSource=data/MyCourse.db");
+                //Sez-12-72-Configurazione tipizzata
+                //Questo è il modo basico di prendere un valore dal file appsettings.json               
+                string connectionString =Configuration
+                                            .GetSection("ConnectionStrings")
+                                            .GetValue<string>("Default");
+                optionsBuilder.UseSqlite(connectionString);
             });
+
+            //Options
+            /*Sez-12-72 - In questo modo passiamo la configurazione ottenuta da appsetting.json
+            *a una classe di tipo "ConnectionStringsOptions", che abbiamo creato nella cartella Models
+            *in questo modo prende le variabili dal file di config è tipizzato
+            */
+            services.Configure<ConnectionStringsOptions>(Configuration.GetSection("ConnectionStrings"));
+            services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

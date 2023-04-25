@@ -4,11 +4,18 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Options;
+using MyCourse.Models.Options;
 
 namespace MyCourse.Models.Services.Infrastructure
 {
      public class SqliteDatabaseAccessor : IDatabaseAccessor
      {
+          private readonly IOptionsMonitor<ConnectionStringsOptions> connectionStrOpts;
+          public SqliteDatabaseAccessor(IOptionsMonitor<ConnectionStringsOptions> connectionStringsOptions)
+          {
+               this.connectionStrOpts=connectionStringsOptions;
+          }
           public async Task<DataSet> QueryAsync(FormattableString fQuery)
           {
                #region formattazione query 
@@ -30,9 +37,13 @@ namespace MyCourse.Models.Services.Infrastructure
 
                
                /*invece di usare sqlconnection.open e .close, scrivere USING
-               Così in caso di errore di una query, il programm automaticamente chiuderà la connessione
+               Così in caso di errore di una query, il programm automaticamente chiuderà la connessione*/
+               /*Lez-12-72
+               cambiare il parametetro del SQLITECONNECTION, usando la config dal file json
+               *Se si cambia il valore nel file json, verranno aggiornati anche qui, grazie al IOptionsMonitor
                */
-               using (var conn= new SqliteConnection("Data Source=Data/MyCourse.db"))
+               string connectionString= connectionStrOpts.CurrentValue.Default;
+               using (var conn= new SqliteConnection(connectionString))
                {
                     await conn.OpenAsync();
                     using(var cmd= new SqliteCommand(query,conn))
