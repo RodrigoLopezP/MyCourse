@@ -62,7 +62,7 @@ namespace MyCourse
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime lifetime)
         {
-            if (env.IsDevelopment())
+            if (env.IsEnvironment("Development"))
             {
                 app.UseDeveloperExceptionPage();
 
@@ -72,6 +72,11 @@ namespace MyCourse
                     File.WriteAllText(filePath,DateTime.Now.ToString());
                 });
             }
+            else{
+                app.UseExceptionHandler("/Error");
+            }
+
+
             app.UseStaticFiles();
             app.UseMvc(routeBuilder=>
             {

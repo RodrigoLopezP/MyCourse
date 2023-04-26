@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MyCourse.Models.Exceptions;
 using MyCourse.Models.Options;
 using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ViewModels;
@@ -38,7 +39,8 @@ namespace MyCourse.Models.Services.Application
                var courseTable= dataSet.Tables[0];
                if (courseTable.Rows.Count!=1)
                {
-                    throw new InvalidOperationException($"Non è ritornata esattamente 1 riga durante ottenimento del corso con id {id}'");
+                    _logger.LogWarning("Course {id} non trovato", id);
+                    throw new CourseNotFoundException(id);
                }
                var courseRow = courseTable.Rows[0];
                /*

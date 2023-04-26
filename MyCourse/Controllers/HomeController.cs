@@ -10,6 +10,7 @@ namespace MyCourse.Controllers
     {
         public IActionResult Index() 
         {
+            ViewBag.Title="Home";
             return View();
         }
     }
