@@ -13,6 +13,7 @@ using MyCourse.Models.Services.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MyCourse.Models.Options;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace MyCourse
 {
@@ -57,6 +58,8 @@ namespace MyCourse
             */
             services.Configure<ConnectionStringsOptions>(Configuration.GetSection("ConnectionStrings"));
             services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
+            /*Sez 12 - 81 Rimuovere oggetti dalla cache e limitare uso RAM*/
+            services.Configure<MemoryCacheOptions>(Configuration.GetSection("MemoryCache"));
 
             /*Sez12 - lez79 caching
             Aggiunto servizio caching attraverso dependency injection
