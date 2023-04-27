@@ -57,6 +57,11 @@ namespace MyCourse
             */
             services.Configure<ConnectionStringsOptions>(Configuration.GetSection("ConnectionStrings"));
             services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
+
+            /*Sez12 - lez79 caching
+            Aggiunto servizio caching attraverso dependency injection
+            */
+            services.AddTransient<ICachedCourseService, MemoryCacheCourseService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
