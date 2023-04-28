@@ -32,8 +32,17 @@ namespace MyCourse
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            
+            services.AddResponseCaching();// Sez 12 - 84 - Responde Caching
+            /*Sez 12 - 83 - Aggiunta Response Cache - agg. in config file impostazione per la response cache*/
+            services.AddMvc(options =>{
+                var homeProfile = new CacheProfile();
+                // homeProfile.Duration= Configuration.GetValue<int>("ResponseCache:Home:Duration");
+                // homeProfile.Location=Configuration.GetValue<ResponseCacheLocation>("ResponseCache:Home:Location");
+                // homeProfile.VaryByQueryKeys = new string[]{"page"}; //sez 12 - 84 questa riga di codice è superflua perché questa viene aggiunta dal .Bind sotto, è tutto settato nella config
+                Configuration.Bind("ResponseCache:Home",homeProfile);   
+                options.CacheProfiles.Add("Home",homeProfile);
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
             // services.AddTransient<ICourseService, AdoNetCourseService>();
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
 
@@ -86,6 +95,7 @@ namespace MyCourse
 
 
             app.UseStaticFiles();
+            app.UseResponseCaching();//Sez 12 - 84 - Response Caching
             app.UseMvc(routeBuilder=>
             {
                 // /courses/detail/5
