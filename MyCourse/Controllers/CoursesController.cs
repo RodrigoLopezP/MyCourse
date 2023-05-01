@@ -16,7 +16,11 @@ namespace MyCourse.Controllers
         {
             this.courseService=courseService;
         }
-        public async Task<IActionResult> Index() 
+        public async Task<IActionResult> Index(
+                                        string search=null,
+                                        int page=1,
+                                        string orderBy="price",
+                                        bool ascending=true) 
         {
             ViewBag.Title="Catalogo dei corsi";
             List<CourseViewModel> courses=await courseService.GetCoursesAsync();
