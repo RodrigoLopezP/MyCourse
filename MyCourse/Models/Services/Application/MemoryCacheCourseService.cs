@@ -27,18 +27,21 @@ namespace MyCourse.Models.Services.Application
             return  _memCache.GetOrCreateAsync($"Course{id}", cacheEntry_nomeACaso =>
             {
                 cacheEntry_nomeACaso.SetSize(1);
-                cacheEntry_nomeACaso.SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
+                cacheEntry_nomeACaso.SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
                 return _courseService.GetCourseAsync(id);
             });
         }
 
-        public Task<List<CourseViewModel>> GetCoursesAsync()
+        public Task<List<CourseViewModel>> GetCoursesAsync(string search, int page, string orderBy, bool ascending)
         {
-            return _memCache.GetOrCreateAsync($"Courses",cacheEntry_ciao =>
+            //Sez 13 - 88 - Implementare la funzionalità di riceca- 
+            //Rendo dinamico il nome del GetOrCreate,
+            //Altrimenti per l'applicazione se uso la pagine courses con e senza filtro per lui è uguale, mi fa vedere le stesse info per il tempo assegnato
+            return _memCache.GetOrCreateAsync($"Courses-{search}-{page}-{orderBy}-{ascending}",cacheEntry_ciao =>
             {
                 cacheEntry_ciao.SetSize(1);
-                cacheEntry_ciao.SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
-                return _courseService.GetCoursesAsync();
+                cacheEntry_ciao.SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
+                return _courseService.GetCoursesAsync(search,page, orderBy,ascending);
             });
         }
     }

@@ -8,7 +8,7 @@ namespace MyCourse.Models.Services.Application
 {
     public interface ICourseService
     {
-        Task<List<CourseViewModel>> GetCoursesAsync();
+        Task<List<CourseViewModel>> GetCoursesAsync(string search, int page, string orderBy, bool ascending);
         Task<CourseDetailViewModel> GetCourseAsync(int id);
     }
 }
