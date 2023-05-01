@@ -1,9 +1,29 @@
-    @model List<CourseViewModel>
-    <h1>Catalogo dei corsi</h1>
-
-    @foreach (CourseViewModel course in Model)
-    {
-  
+@model List<CourseViewModel>
+<div class="row">
+    <div class="col-md-8">
+        <h1>@ViewBag.Title</h1>
+    </div>
+    <div class="col-md-4 d-flex align-items-center">
+        <form asp-controller="Courses" asp-action="Index" method="get">
+            <div class="input-group">
+                <input class="form-control" type="text" name="search" placeholder="Cerca...">
+                <div class="input-group-append">
+                    <button class="input-group-text"><i class="fas fa-dog"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-5"><a asp-route-orderby="Title" asp-route-ascending="True">Titolo</a></div>
+    <div class="col-md-2"><a asp-route-orderby="Rating" asp-route-ascending="True">Valutazione</a></div>
+    <div class="col-md-2"><a asp-route-orderby="CurrentPrice" asp-route-ascending="True">Prezzo</a></div>
+    <div class="col-md-2"></div>
+</div>
+@foreach (CourseViewModel course in Model)
+{
+    <hr>
     <div class="row course">
         <div class="col-md-1">
             <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
@@ -13,12 +33,13 @@
             <author>di @course.Author</author>
         </div>
         <div class="col-md-2 rating" title="@course.Rating">
-            @for(int i=1;i<=5;i++){
-                if (course.Rating>=i)
+            @for (int i = 1; i <= 5; i++)
+            {
+                if (course.Rating >= i)
                 {
                     <i class="fas fa-star"></i>
                 }
-                else if (course.Rating > i-1)
+                else if (course.Rating > i - 1)
                 {
                     <i class="fas fa-star-half-alt"></i>
                 }
@@ -30,15 +51,29 @@
         </div>
         <div class="col-md-2 price">
             @course.FullPrice
-            @if(!course.CurrentPrice.Equals(course.FullPrice))
+            @if (!course.CurrentPrice.Equals(course.FullPrice))
             {
-            <br>
-            <s>@course.CurrentPrice</s>
+                <br>
+                <s>@course.CurrentPrice</s>
             }
         </div>
         <div class="col-md-2">
-            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Più dettagli del corso qui @course.Id</a>
+            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Dettaglio</a>
         </div>
     </div>
     <hr>
-    }
+}
+
+<nav aria-label="Paginazione">
+    <ul class="pagination d-flex">
+        <li class="page-item active" aria-current="page">
+            <a class="page-link" asp-route-page="1">Page 1 <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" asp-route-page="2">Page 2</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" asp-route-page="3">Page 3</a>
+        </li>
+    </ul>
+</nav>
