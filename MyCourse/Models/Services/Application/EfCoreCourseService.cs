@@ -11,7 +11,7 @@ using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Models.Services.Application
 {
-     public class EfCoreCourseService : ICourseService
+     public class EfCoreCourseService //: ICourseService
      {
           private readonly MyCourseDbContext dbContext;
           private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;

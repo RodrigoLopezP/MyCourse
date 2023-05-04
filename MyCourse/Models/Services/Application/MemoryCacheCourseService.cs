@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using MyCourse.Models.InputModels;
 using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Models.Services.Application
@@ -24,7 +25,7 @@ namespace MyCourse.Models.Services.Application
         */
         public Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
-            return  _memCache.GetOrCreateAsync($"Course{id}", cacheEntry_nomeACaso =>
+            return _memCache.GetOrCreateAsync($"Course{id}", cacheEntry_nomeACaso =>
             {
                 cacheEntry_nomeACaso.SetSize(1);
                 cacheEntry_nomeACaso.SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
@@ -32,17 +33,27 @@ namespace MyCourse.Models.Services.Application
             });
         }
 
-        public Task<List<CourseViewModel>> GetCoursesAsync(string search, int page, string orderBy, bool ascending)
+        public Task<List<CourseViewModel>> GetCoursesAsync(CourseListInputModel model)
         {
-            //Sez 13 - 88 - Implementare la funzionalità di riceca- 
-            //Rendo dinamico il nome del GetOrCreate,
-            //Altrimenti per l'applicazione se uso la pagine courses con e senza filtro per lui è uguale, mi fa vedere le stesse info per il tempo assegnato
-            return _memCache.GetOrCreateAsync($"Courses-{search}-{page}-{orderBy}-{ascending}",cacheEntry_ciao =>
+            //Metto in cache i risultati solo per le prime 5 pagine del catalogo, che reputo essere
+            //le più visitate dagli utenti, e che perciò mi permettono di avere il maggior beneficio dalla cache.
+            //E inoltre, metto in cache il risultato solo se l'utente non ha cercato nulla 
+            //In questo modo riduco drasticamente il consummo di memoria RAM
+            bool canCache = model.Page <= 5 && string.IsNullOrEmpty(model.Search); // se non ha cercato nulla, e si trova nelle prime 5 pagine, entra nella logica della cache.
+            if (canCache)
             {
-                cacheEntry_ciao.SetSize(1);
-                cacheEntry_ciao.SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
-                return _courseService.GetCoursesAsync(search,page, orderBy,ascending);
-            });
+                //Sezione 13 -91 - 
+                //Sez 13 - 88 - Implementare la funzionalità di riceca- 
+                //Rendo dinamico il nome del GetOrCreate, da "Courses" a "Course nPagina-Orderby-Ascending"
+                //Altrimenti per l'applicazione se uso la pagine courses con e senza filtro per lui è uguale, mi fa vedere le stesse info per il tempo assegnato
+                return _memCache.GetOrCreateAsync($"Courses-{model.Page}-{model.OrderBy}-{model.Ascending}", cacheEntry_ciao =>
+                {
+                    cacheEntry_ciao.SetSize(1);
+                    cacheEntry_ciao.SetAbsoluteExpiration(TimeSpan.FromSeconds(15));
+                    return _courseService.GetCoursesAsync(model);
+                });
+            }
+            return _courseService.GetCoursesAsync(model);
         }
     }
 }

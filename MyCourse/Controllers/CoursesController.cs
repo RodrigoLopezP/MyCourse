@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MyCourse.Models.InputModels;
 using MyCourse.Models.Services.Application;
 using MyCourse.Models.ViewModels;
 
@@ -16,14 +17,10 @@ namespace MyCourse.Controllers
           {
                this.courseService = courseService;
           }
-          public async Task<IActionResult> Index(
-                                          int page, //lo si trova nella view del Courses con l'asp-route-parolaCheVuoi
-                                          string search = null,
-                                          string orderBy = "title",
-                                          bool ascending = true)
+          public async Task<IActionResult> Index(CourseListInputModel model) //Sezione 13 - 91 - Model Binding personalizzato -  invece di passare le variabili una a una, è stata creata una classe con queste dentro, anche per aggiungere la sanitizzazione e altre utilità
           {
                ViewBag.Title = "Catalogo dei corsi";
-               List<CourseViewModel> courses = await courseService.GetCoursesAsync(search,page,orderBy, ascending);
+               List<CourseViewModel> courses = await courseService.GetCoursesAsync(model);
                return View(courses);
           }
 
