@@ -9,7 +9,7 @@ using MyCourse.Models.ValueTypes;
 
 namespace MyCourse.Models.ViewModels
 {
-    public class CourseViewModel
+    public class CourseViewModel //Corso pronto per essere inviato a una view
     {
         public int Id { get; set; }
         public string Title { get; set; }

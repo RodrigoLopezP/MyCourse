@@ -9,5 +9,6 @@
         "files": ["Views/**/*.cshtml", "wwwroot/**/*","bin/reload.txt"]
     },
     "fontAwesomeAutocomplete.patterns": ["**/*.cshtml"],
-    "fontAwesomeAutocomplete.triggerWord": "fa-"
+    "fontAwesomeAutocomplete.triggerWord": "fa-",
+    "fontAwesomeAutocomplete.enableElevatedSortPriority": true
 }
