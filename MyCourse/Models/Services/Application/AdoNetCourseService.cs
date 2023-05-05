@@ -29,6 +29,15 @@ namespace MyCourse.Models.Services.Application
             this.coursesOpts = coursesOptions;
             this.db = db;
         }
+
+        public Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
+        {
+            throw new NotImplementedException();
+        }
+        public Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
+        {
+            throw new NotImplementedException();
+        }
         public async Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
             _logger.LogInformation("Course {id} requested", id);
@@ -63,11 +72,22 @@ namespace MyCourse.Models.Services.Application
             return courseDetailViewModel;
         }
 
-        public async Task<List<CourseViewModel>> GetCoursesAsync(CourseListInputModel courseFilters)
+        public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel courseFilters)
         {
             string trueOrderBy = courseFilters.OrderBy == "CurrentPrice" ? "CurrentPrice_Amount" : courseFilters.OrderBy;
             string direction = courseFilters.Ascending ? "ASC" : "DESC"; // se ascending è TRUE, allora diventa direction diventa ASC
-            FormattableString query = $"SELECT Courses.id, Courses.Title, Courses.ImagePath, Courses.Author, Courses.Rating, Courses.FullPrice_Amount, Courses.FullPrice_Currency, Courses.CurrentPrice_Amount, Courses.CurrentPrice_Currency FROM Courses WHERE Courses.Title LIKE {"%" + courseFilters.Search + "%"} ORDER BY {(Sql)trueOrderBy} {(Sql)direction} LIMIT {courseFilters.Limit} OFFSET {courseFilters.Offset}";
+            
+            FormattableString query = $@"
+            SELECT Courses.id, Courses.Title, Courses.ImagePath, Courses.Author, Courses.Rating, Courses.FullPrice_Amount, Courses.FullPrice_Currency, Courses.CurrentPrice_Amount, Courses.CurrentPrice_Currency
+            FROM Courses
+            WHERE Courses.Title
+            LIKE {"%" + courseFilters.Search + "%"}
+            ORDER BY {(Sql)trueOrderBy} {(Sql)direction}
+            LIMIT {courseFilters.Limit} OFFSET {courseFilters.Offset};
+            SELECT COUNT(*)
+            FROM Courses
+            WHERE Courses.Title LIKE {"%"+courseFilters.Search+"%"}";
+            
             DataSet dataSet = await db.QueryAsync(query);
             var dataTable = dataSet.Tables[0];
             var courseList = new List<CourseViewModel>();
@@ -76,7 +96,14 @@ namespace MyCourse.Models.Services.Application
                 CourseViewModel course = CourseViewModel.FromDataRow(courseRow);
                 courseList.Add(course);
             }
-            return courseList;
+
+            ListViewModel<CourseViewModel> result = new ListViewModel<CourseViewModel>{
+                Results=courseList,
+                TotalCount=Convert.ToInt32(dataSet.Tables[1].Rows[0][0])
+            };
+            return result;
         }
+
+
     }
 }

@@ -9,6 +9,7 @@ namespace MyCourse.Models.Options
     {
         public int PerPage { get; set; }
         public CoursesOrderOptions Order { get; set; }
+        public int inHome { get; set; }
     }
 
     public class CoursesOrderOptions

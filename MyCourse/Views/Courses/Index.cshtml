@@ -31,8 +31,7 @@
                 <i class="fas fa-caret-@(Model.Input.Ascending? "up": "down" )"></i>
             }</a>
     </div>
-    <div class="col-md-2"><a 
-            asp-route-orderby="CurrentPrice" asp-route-search="@Model.Input.Search"
+    <div class="col-md-2"><a asp-route-orderby="CurrentPrice" asp-route-search="@Model.Input.Search"
             asp-route-ascending="@(Model.Input.OrderBy == "CurrentPrice" ? !Model.Input.Ascending : true)">Prezzo
             @if (Model.Input.OrderBy == "CurrentPrice")
             {
@@ -41,7 +40,7 @@
     </div>
     <div class="col-md-2"></div>
 </div>
-@foreach (CourseViewModel course in Model.Courses)
+@foreach (CourseViewModel course in Model.Courses.Results)
 {
     <hr>
     <div class="row course">
@@ -84,16 +83,58 @@
     <hr>
 }
 
+@{
+    int totPages = (int)Math.Ceiling(Model.Courses.TotalCount / (decimal)Model.Input.Limit);
+    <!--ottengo quante pagine far visualizzare-->
+    int currentPage = Model.Input.Page;
+}
+
 <nav aria-label="Paginazione">
-    <ul class="pagination d-flex">
-        <li class="page-item active" aria-current="page">
-            <a class="page-link" asp-route-page="1">Page 1 <span class="sr-only">(current)</span></a>
-        </li>
+    <ul class="pagination d-flex justify-content-center" >
+        <!---Se la pagina corrente è maggiore a 1, allora ci sarà il btn per la pag prec. il math max è per assicurasi che nessuno metta nella url query meno1 o meno3--->
+        @if (Math.Max(currentPage, 1) > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-page="@(currentPage-1)">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </li>
+        }
+        <!-- dalla pag corrente -4, fino alla pag corrente +4 , fammi vedere dei buttons con in numerini-->
+        @for (int p = Math.Max(1, currentPage - 4); p <= Math.Min(totPages, currentPage + 4); p++)
+        {
+            if (p == currentPage)
+            {
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" asp-route-page="@p"
+                    asp-route-search="@Model.Input.Search"
+                    asp-route-orderby="@Model.Input.OrderBy"
+                    asp-route-ascending="@Model.Input.Ascending"
+                    >Page @p <span class="sr-only">(current)</span></a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="@p"
+                    asp-route-search="@Model.Input.Search"
+                    asp-route-orderby="@Model.Input.OrderBy"
+                    asp-route-ascending="@Model.Input.Ascending"
+                    >@p</a>
+                </li>
+            }
+        }
+        <!---Se la pagina corrente è minore al max di pag, allora ci sarà il btn per la prx pag--->
+        @if (currentPage<totPages) 
+        {
         <li class="page-item">
-            <a class="page-link" asp-route-page="2">Page 2</a>
+            <a class="page-link" asp-route-page="@(currentPage+1)"
+                    asp-route-search="@Model.Input.Search"
+                    asp-route-orderby="@Model.Input.OrderBy"
+                    asp-route-ascending="@Model.Input.Ascending">
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </li>
-        <li class="page-item">
-            <a class="page-link" asp-route-page="3">Page 3</a>
-        </li>
+        }
     </ul>
 </nav>

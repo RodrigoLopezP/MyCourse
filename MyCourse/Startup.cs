@@ -32,7 +32,7 @@ namespace MyCourse
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddResponseCaching();// Sez 12 - 84 - Responde Caching
+            services.AddResponseCaching();// Sez 12 - 84 - Response Caching
             /*Sez 12 - 83 - Aggiunta Response Cache - agg. in config file impostazione per la response cache*/
             services.AddMvc(options =>{
                 var homeProfile = new CacheProfile();
@@ -45,7 +45,7 @@ namespace MyCourse
 
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
             //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
-            services.AddTransient<ICourseService, AdoNetCourseService>();
+            services.AddTransient<ICourseService, EfCoreCourseService>();
             // services.AddDbContext<MyCourseDbContext>();  //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose // sez11-lez69 RIMPIAZZATO CON addDbContextPool, per migliorare le prestazioni
             //services.AddScoped<MyCourseDbContext>();  //Metodo alternativo per indicare il servizio DbContext
             services.AddDbContextPool<MyCourseDbContext>(optionsBuilder =>

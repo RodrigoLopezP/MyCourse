@@ -10,5 +10,10 @@
     },
     "fontAwesomeAutocomplete.patterns": ["**/*.cshtml"],
     "fontAwesomeAutocomplete.triggerWord": "fa-",
-    "fontAwesomeAutocomplete.enableElevatedSortPriority": true
+    "fontAwesomeAutocomplete.enableElevatedSortPriority": true,
+    // Background color of a Font Awesome icon preview. Supports any valid CSS color.
+    "fontAwesomeAutocomplete.preview.backgroundColor": "#ffffff",
+    // Foreground color of a Font Awesome icon preview. Supports any valid CSS color.
+    "fontAwesomeAutocomplete.preview.foregroundColor": "#000000",
+    
 }

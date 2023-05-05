@@ -18,6 +18,24 @@ namespace MyCourse.Models.Services.Application
             this._courseService = courseService;
             this._memCache = memoryCache;
         }
+        public Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
+        {
+            return _memCache.GetOrCreateAsync($"BestRatingCourses", cacheX =>
+            {
+                cacheX.SetSize(1);
+                cacheX.SetAbsoluteExpiration(TimeSpan.FromSeconds(6)); //TO DO: CAMBIARE TEMPO CACHEA 60 SEC
+                return _courseService.GetBestRatingCoursesAsync();
+            });
+        }
+        public Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
+        {
+            return _memCache.GetOrCreateAsync($"MostRecentCourses", cacheBoh =>
+            {
+                cacheBoh.SetSize(1);
+                cacheBoh.SetAbsoluteExpiration(TimeSpan.FromSeconds(6)); //TO DO:  CAMBIARE TEMPO CACHEA 60 SEC
+                return _courseService.GetMostRecentCoursesAsync();
+            });
+        }
 
         /*Sez 12 - 81 Rimuovere oggetti dalla cache e limitare uso RAM
         ToDo: ricordarsi di usare memoryCache.Remove($"Course{id}" quando aggiorni il corso,
@@ -33,7 +51,7 @@ namespace MyCourse.Models.Services.Application
             });
         }
 
-        public Task<List<CourseViewModel>> GetCoursesAsync(CourseListInputModel model)
+        public Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel model)
         {
             //Metto in cache i risultati solo per le prime 5 pagine del catalogo, che reputo essere
             //le più visitate dagli utenti, e che perciò mi permettono di avere il maggior beneficio dalla cache.
@@ -55,5 +73,7 @@ namespace MyCourse.Models.Services.Application
             }
             return _courseService.GetCoursesAsync(model);
         }
+
+
     }
 }

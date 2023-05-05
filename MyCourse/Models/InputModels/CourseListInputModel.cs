@@ -18,9 +18,9 @@ namespace MyCourse.Models.InputModels
     [ModelBinder(BinderType = typeof(CourseListInputModelBinder))]
     public class CourseListInputModel
     {
-        public CourseListInputModel(string search, int page, string orderBy, bool ascending, CoursesOptions coursesOptions)
+        public CourseListInputModel(string search, int page, string orderBy, bool ascending,  int limit, CoursesOrderOptions coursesOptions)
         {
-            var orderOptions = coursesOptions.Order;
+            var orderOptions = coursesOptions;
             if (!orderOptions.Allow.Contains(orderBy))
             {
                 orderBy = orderOptions.By; //se non è arrivato dalla applicazione da dove ordinarlo, allora l'app imposta quello di default
@@ -30,8 +30,7 @@ namespace MyCourse.Models.InputModels
             this.Page = Math.Max(1, page);
             this.OrderBy = orderBy;
             this.Ascending = ascending;
-
-            Limit = coursesOptions.PerPage;
+            this.Limit=Math.Max(1,limit);
             Offset=(this.Page-1)*Limit;
         }
         public string Search { get; }

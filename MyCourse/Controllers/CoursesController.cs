@@ -20,7 +20,7 @@ namespace MyCourse.Controllers
         public async Task<IActionResult> Index(CourseListInputModel inputFromViews) //Sezione 13 - 91 - Model Binding personalizzato -  invece di passare le variabili una a una, è stata creata una classe con queste dentro, anche per aggiungere la sanitizzazione e altre utilità
         {
             ViewBag.Title = "Catalogo dei corsi";
-            List<CourseViewModel> courses = await courseService.GetCoursesAsync(inputFromViews);
+            ListViewModel<CourseViewModel> courses = await courseService.GetCoursesAsync(inputFromViews);
 
             CourseListViewModel ciao = new CourseListViewModel
             {

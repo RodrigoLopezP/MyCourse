@@ -8,7 +8,7 @@ namespace MyCourse.Models.ViewModels
 {
     public class CourseListViewModel
     {
-        public List<CourseViewModel> Courses { get; set; } // Models/ViewModels/CourseViewModel.cs
+        public ListViewModel<CourseViewModel> Courses { get; set; } // Models/ViewModels/ListViewModel.cs
         public CourseListInputModel Input { get; set; }    // Models/InputModels/CourseListInputModel.cs
     }
 }
