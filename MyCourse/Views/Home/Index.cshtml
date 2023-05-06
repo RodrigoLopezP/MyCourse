@@ -1,9 +1,14 @@
 @model HomeViewModel
 <div class="jumbotron">
     <h1 class="display-4">Benvenuto su MyCourse!</h1>
-    <p class="lead">Siamo tipo Udemy però più brutto!<br>Ti invitiamo a seguire i nostri corsi, grazie ai quali imparerai un sacco di cose! Ad esempio, lo sapevi che in termi di ibridazione Vaporeon è . . .</p>
+    <div class="row">
+        <div class="col-md-7">
+            <p class="lead d-flex align-items-center">Siamo tipo Udemy però più brutto!<br>Ti invitiamo a seguire i nostri corsi, grazie ai quali imparerai un sacco di cose! Ad esempio, lo sapevi che in termi di ibridazione Vaporeon è . . .</p>
+            
+        </div>
+    </div>
     <hr class="my-4">
-    <p><a asp-controller="Course" asp-action="Index" class="btn btn-primary"> Sfoglia il catalogo dei nostri corsi <i class="fab fa-accessible-icon"></i></a></p>
+    <p><a asp-controller="Courses" asp-action="Index" class="btn btn-primary"> Sfoglia il catalogo dei nostri corsi <i class="fab fa-accessible-icon"></i></a></p>
     <p></p>
 </div>
 <section>

@@ -45,7 +45,7 @@ namespace MyCourse
 
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
             //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
-            services.AddTransient<ICourseService, EfCoreCourseService>();
+            services.AddTransient<ICourseService, AdoNetCourseService>();
             // services.AddDbContext<MyCourseDbContext>();  //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose // sez11-lez69 RIMPIAZZATO CON addDbContextPool, per migliorare le prestazioni
             //services.AddScoped<MyCourseDbContext>();  //Metodo alternativo per indicare il servizio DbContext
             services.AddDbContextPool<MyCourseDbContext>(optionsBuilder =>

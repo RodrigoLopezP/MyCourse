@@ -57,14 +57,14 @@ namespace MyCourse.Models.Services.Application
             return courseDetail;
         }
 
-        public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel inputFromViews)
+        public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel coursesFilters)
         {
             #region IQueryable di base, per applicare i primi filtri se presenti
             IQueryable<Course> baseQuery = dbContext.Courses;
-            switch (inputFromViews.OrderBy)
+            switch (coursesFilters.OrderBy)
             {
                 case "Title":
-                    if (inputFromViews.Ascending)
+                    if (coursesFilters.Ascending)
                     {
                         baseQuery = baseQuery.OrderBy(course => course.Title);
                     }
@@ -74,7 +74,7 @@ namespace MyCourse.Models.Services.Application
                     }
                     break;
                 case "Rating":
-                    if (inputFromViews.Ascending)
+                    if (coursesFilters.Ascending)
                     {
                         baseQuery = baseQuery.OrderBy(course => course.Rating);
                     }
@@ -84,7 +84,7 @@ namespace MyCourse.Models.Services.Application
                     }
                     break;
                 case "CurrentPrice":
-                    if (inputFromViews.Ascending)
+                    if (coursesFilters.Ascending)
                     {
                         baseQuery = baseQuery.OrderBy(course => course.CurrentPrice.Amount);
                     }
@@ -94,7 +94,7 @@ namespace MyCourse.Models.Services.Application
                     }
                     break;
                 case "Id":
-                    if (inputFromViews.Ascending)
+                    if (coursesFilters.Ascending)
                     {
                         baseQuery = baseQuery.OrderBy(course => course.Id);
                     }
@@ -109,7 +109,7 @@ namespace MyCourse.Models.Services.Application
             #region IQueryable con la quale prendiamo tutti i risultati della intera tabella
             IQueryable<CourseViewModel> queryEF = baseQuery
             .AsNoTracking()//EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
-            .Where(x => x.Title.ToLower().Contains(inputFromViews.Search.ToLower()))
+            .Where(x => x.Title.ToLower().Contains(coursesFilters.Search.ToLower()))
             .Select(course => new CourseViewModel
             {
                 Id = course.Id,
@@ -124,8 +124,8 @@ namespace MyCourse.Models.Services.Application
             #endregion
             //Con ToList eseguiamo effettivamente la query sul db per ottenere il risultato
             List<CourseViewModel> courses = await queryEF
-                    .Skip(inputFromViews.Offset)
-                    .Take(inputFromViews.Limit).ToListAsync(); //Skup e TAKE li portiamo qui perche queryEF ci servirà intera sotto per il count
+                    .Skip(coursesFilters.Offset)
+                    .Take(coursesFilters.Limit).ToListAsync(); //Skup e TAKE li portiamo qui perche queryEF ci servirà intera sotto per il count
 
             int totCourses = await queryEF.CountAsync();
 

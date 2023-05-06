@@ -17,7 +17,7 @@ namespace MyCourse.Models.Services.Application
     public class AdoNetCourseService : ICourseService
     {
         private readonly IDatabaseAccessor db;
-        private readonly IOptionsMonitor<CoursesOptions> coursesOpts;
+        private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;
         /*Lez-12-72 - IOptionsMonitor<CoursesOptions> coursesOptions 
         *-Leggere la configurazione del appsetting.json in modo tipizzato */
         /*Lez-12-72 - IOptionsMonitor<CoursesOptions> coursesOptions 
@@ -26,17 +26,33 @@ namespace MyCourse.Models.Services.Application
         public AdoNetCourseService(ILogger<AdoNetCourseService> logger, IDatabaseAccessor db, IOptionsMonitor<CoursesOptions> coursesOptions)
         {
             _logger = logger;
-            this.coursesOpts = coursesOptions;
+            this._coursesOpts = coursesOptions;
             this.db = db;
         }
 
-        public Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
+        public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
         {
-            throw new NotImplementedException();
+             CourseListInputModel inputForBestRatingCourses = new CourseListInputModel(
+                search: "",
+                page: 1,
+                orderBy: "Rating",
+                ascending: false,
+                limit: _coursesOpts.CurrentValue.inHome,
+                coursesOptions: _coursesOpts.CurrentValue.Order);
+            ListViewModel<CourseViewModel> coursesList_ViewModel = await GetCoursesAsync(inputForBestRatingCourses);
+            return coursesList_ViewModel.Results;
         }
-        public Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
+        public async Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
         {
-            throw new NotImplementedException();
+             CourseListInputModel inputForMostRecentCourses = new CourseListInputModel(
+                search: "",
+                page: 1,
+                orderBy: "Id",
+                ascending: false,
+                limit: _coursesOpts.CurrentValue.inHome,
+                coursesOptions: _coursesOpts.CurrentValue.Order);
+            ListViewModel<CourseViewModel> coursesList_ViewModel = await GetCoursesAsync(inputForMostRecentCourses);
+            return coursesList_ViewModel.Results;
         }
         public async Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
@@ -72,21 +88,21 @@ namespace MyCourse.Models.Services.Application
             return courseDetailViewModel;
         }
 
-        public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel courseFilters)
+        public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel coursesFilters)
         {
-            string trueOrderBy = courseFilters.OrderBy == "CurrentPrice" ? "CurrentPrice_Amount" : courseFilters.OrderBy;
-            string direction = courseFilters.Ascending ? "ASC" : "DESC"; // se ascending è TRUE, allora diventa direction diventa ASC
+            string trueOrderBy = coursesFilters.OrderBy == "CurrentPrice" ? "CurrentPrice_Amount" : coursesFilters.OrderBy;
+            string direction = coursesFilters.Ascending ? "ASC" : "DESC"; // se ascending è TRUE, allora diventa direction diventa ASC
             
             FormattableString query = $@"
             SELECT Courses.id, Courses.Title, Courses.ImagePath, Courses.Author, Courses.Rating, Courses.FullPrice_Amount, Courses.FullPrice_Currency, Courses.CurrentPrice_Amount, Courses.CurrentPrice_Currency
             FROM Courses
             WHERE Courses.Title
-            LIKE {"%" + courseFilters.Search + "%"}
+            LIKE {"%" + coursesFilters.Search + "%"}
             ORDER BY {(Sql)trueOrderBy} {(Sql)direction}
-            LIMIT {courseFilters.Limit} OFFSET {courseFilters.Offset};
+            LIMIT {coursesFilters.Limit} OFFSET {coursesFilters.Offset};
             SELECT COUNT(*)
             FROM Courses
-            WHERE Courses.Title LIKE {"%"+courseFilters.Search+"%"}";
+            WHERE Courses.Title LIKE {"%"+coursesFilters.Search+"%"}";
             
             DataSet dataSet = await db.QueryAsync(query);
             var dataTable = dataSet.Tables[0];
