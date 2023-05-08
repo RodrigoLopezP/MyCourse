@@ -48,7 +48,9 @@ namespace MyCourse.Models.ValueTypes
         {
             return HashCode.Combine(Amount, Currency);
         }
-        
+        ///<summary>
+        ////CIAOOO
+        ///</summary>
         public override string ToString()
         {
             return $"{Currency} {Amount:#.00}";

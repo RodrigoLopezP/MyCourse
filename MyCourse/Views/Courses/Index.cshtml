@@ -17,26 +17,14 @@
 </div>
 <div class="row">
     <div class="col-md-1"></div>
-    <div class="col-md-5"><a asp-route-orderby="Title" asp-route-search="@Model.Input.Search"
-            asp-route-ascending="@(Model.Input.OrderBy== "Title" ? !Model.Input.Ascending:true)">Titolo
-            @if (Model.Input.OrderBy == "Title")
-            {
-                <i class="fas fa-caret-@(Model.Input.Ascending? "up": "down" )"></i>
-            } </a>
+    <div class="col-md-5">
+        <order-link order-by="Title" input="@Model.Input">Title</order-link>
     </div>
-    <div class=" col-md-2"><a asp-route-orderby="Rating" asp-route-search="@Model.Input.Search"
-            asp-route-ascending="@(Model.Input.OrderBy == "Rating" ? !Model.Input.Ascending : true)">Valutazione
-            @if (Model.Input.OrderBy == "Rating")
-            {
-                <i class="fas fa-caret-@(Model.Input.Ascending? "up": "down" )"></i>
-            }</a>
+    <div class=" col-md-2">
+          <order-link order-by="Rating" input="@Model.Input">Valutazione</order-link>
     </div>
-    <div class="col-md-2"><a asp-route-orderby="CurrentPrice" asp-route-search="@Model.Input.Search"
-            asp-route-ascending="@(Model.Input.OrderBy == "CurrentPrice" ? !Model.Input.Ascending : true)">Prezzo
-            @if (Model.Input.OrderBy == "CurrentPrice")
-            {
-                <i class="fas fa-caret-@(Model.Input.Ascending? "up": "down" )"></i>
-            }</a>
+    <div class="col-md-2">
+          <order-link order-by="CurrentPrice" input="@Model.Input">Prezzo</order-link>
     </div>
     <div class="col-md-2"></div>
 </div>
@@ -52,29 +40,10 @@
             <author>di @course.Author</author>
         </div>
         <div class="col-md-2 rating" title="@course.Rating">
-            @for (int i = 1; i <= 5; i++)
-            {
-                if (course.Rating >= i)
-                {
-                    <i class="fas fa-star"></i>
-                }
-                else if (course.Rating > i - 1)
-                {
-                    <i class="fas fa-star-half-alt"></i>
-                }
-                else
-                {
-                    <i class="far fa-star"></i>
-                }
-            }
+           <rating value="@course.Rating"> </rating>
         </div>
         <div class="col-md-2 price">
-            @course.FullPrice
-            @if (!course.CurrentPrice.Equals(course.FullPrice))
-            {
-                <br>
-                <s>@course.CurrentPrice</s>
-            }
+            <price full-price="@course.FullPrice" current-price="@course.CurrentPrice"></price>
         </div>
         <div class="col-md-2">
             <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Dettaglio</a>
@@ -110,7 +79,7 @@
                     asp-route-search="@Model.Input.Search"
                     asp-route-orderby="@Model.Input.OrderBy"
                     asp-route-ascending="@Model.Input.Ascending"
-                    >Page @p <span class="sr-only">(current)</span></a>
+                    > @p <span class="sr-only">(current)</span></a>
                 </li>
             }
             else

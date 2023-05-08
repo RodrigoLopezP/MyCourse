@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MyCourse.Models.Customizations.ModelBinders;
+using MyCourse.Customizations.ModelBinders;
 using MyCourse.Models.Options;
 
 namespace MyCourse.Models.InputModels
