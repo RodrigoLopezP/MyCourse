@@ -1,8 +1,8 @@
-@model CourseListViewModel
+@model IPaginationInfo
 @{
-    int totPages = (int)Math.Ceiling(Model.Courses.TotalCount / (decimal)Model.Input.Limit);
+    int totPages = (int)Math.Ceiling(Model.TotalResults/ (decimal)Model.ResultsPerPage);
     <!--ottengo quante pagine far visualizzare-->
-    int currentPage = Model.Input.Page;
+    int currentPage = Model.CurrentPage;
 }
 
 <nav aria-label="Paginazione">
@@ -23,9 +23,9 @@
             {
                 <li class="page-item active" aria-current="page">
                     <a class="page-link" asp-route-page="@p"
-                    asp-route-search="@Model.Input.Search"
-                    asp-route-orderby="@Model.Input.OrderBy"
-                    asp-route-ascending="@Model.Input.Ascending"
+                    asp-route-search="@Model.Search"
+                    asp-route-orderby="@Model.OrderBy"
+                    asp-route-ascending="@Model.Ascending"
                     > @p <span class="sr-only">(current)</span></a>
                 </li>
             }
@@ -33,9 +33,9 @@
             {
                 <li class="page-item">
                     <a class="page-link" asp-route-page="@p"
-                    asp-route-search="@Model.Input.Search"
-                    asp-route-orderby="@Model.Input.OrderBy"
-                    asp-route-ascending="@Model.Input.Ascending"
+                    asp-route-search="@Model.Search"
+                    asp-route-orderby="@Model.OrderBy"
+                    asp-route-ascending="@Model.Ascending"
                     >@p</a>
                 </li>
             }
@@ -45,9 +45,9 @@
         {
         <li class="page-item">
             <a class="page-link" asp-route-page="@(currentPage+1)"
-                    asp-route-search="@Model.Input.Search"
-                    asp-route-orderby="@Model.Input.OrderBy"
-                    asp-route-ascending="@Model.Input.Ascending">
+                    asp-route-search="@Model.Search"
+                    asp-route-orderby="@Model.OrderBy"
+                    asp-route-ascending="@Model.Ascending">
                 <i class="fas fa-arrow-right"></i>
             </a>
         </li>

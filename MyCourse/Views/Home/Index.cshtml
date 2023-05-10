@@ -18,57 +18,17 @@
     <h2>Aggiunti di recente</h2>
     @foreach (CourseViewModel course in Model.MostRecentCourses)
     {
-        <hr>
-        <div class="row course">
-            <div class="col-md-1">
-                <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
-            </div>
-            <div class="col-md-5">
-                <h2>@course.Title</h2>
-                <author>di @course.Author</author>
-            </div>
-            <div class="col-md-2 rating" title="@course.Rating">
-                <rating value="@course.Rating"> </rating>
-            </div>
-            <div class="col-md-2 price">
-                <price full-price="@course.FullPrice" current-price="@course.CurrentPrice"></price>
-            </div>
-            <div class="col-md-2">
-                <a class="btn btn-outline-primary" asp-controller="Courses" asp-action="Detail" asp-route-id="@course.Id">
-                    Dettaglio</a>
-            </div>
-        </div>
-        <hr>
+        <!--Usiamo la partial view che si trova in View Courses\_CourseLine\cshtml per evitare di scrivere lo stessi codice un triliardo di volte -->
+        <partial name="Courses/_CourseLine" model="@course"></partial>
     }
 
 </section>
-
-
 
 <section>
     <h2>Più votati</h2>
     @foreach (CourseViewModel course in Model.BestRatingCourses)
     {
-        <hr>
-        <div class="row course">
-            <div class="col-md-1">
-                <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
-            </div>
-            <div class="col-md-5">
-                <h2>@course.Title</h2>
-                <author>di @course.Author</author>
-            </div>
-            <div class="col-md-2 rating" title="@course.Rating">
-                <rating value="@course.Rating"> </rating>
-            </div>
-            <div class="col-md-2 price">
-                <price full-price="@course.FullPrice" current-price="@course.CurrentPrice"></price>
-            </div>
-            <div class="col-md-2">
-                <a class="btn btn-outline-primary" asp-controller="Courses" asp-action="Detail" asp-route-id="@course.Id">
-                    Dettaglio</a>
-            </div>
-        </div>
-        <hr>
+        <!--Usiamo la partial view che si trova in View Courses\_CourseLine\cshtml per evitare di scrivere lo stessi codice un triliardo di volte -->
+        <partial name="Courses/_CourseLine" model="@course"></partial>
     }
 </section>

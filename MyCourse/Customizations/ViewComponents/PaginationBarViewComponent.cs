@@ -9,7 +9,7 @@ namespace MyCourse.Customizations.ViewComponents
 {
     public class PaginationBarViewComponent :ViewComponent
     {
-        public IViewComponentResult Invoke(CourseListViewModel model) {
+        public IViewComponentResult Invoke(IPaginationInfo model) {
             //il num di pagina corente
             //numerdi pagine totali
             return View(model);

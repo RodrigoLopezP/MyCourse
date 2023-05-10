@@ -21,34 +21,19 @@
         <order-link order-by="Title" input="@Model.Input">Title</order-link>
     </div>
     <div class=" col-md-2">
-          <order-link order-by="Rating" input="@Model.Input">Valutazione</order-link>
+        <order-link order-by="Rating" input="@Model.Input">Valutazione</order-link>
     </div>
     <div class="col-md-2">
-          <order-link order-by="CurrentPrice" input="@Model.Input">Prezzo</order-link>
+        <order-link order-by="CurrentPrice" input="@Model.Input">Prezzo</order-link>
     </div>
     <div class="col-md-2"></div>
 </div>
 @foreach (CourseViewModel course in Model.Courses.Results)
 {
-    <hr>
-    <div class="row course">
-        <div class="col-md-1">
-            <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
-        </div>
-        <div class="col-md-5">
-            <h2>@course.Title</h2>
-            <author>di @course.Author</author>
-        </div>
-        <div class="col-md-2 rating" title="@course.Rating">
-           <rating value="@course.Rating"> </rating>
-        </div>
-        <div class="col-md-2 price">
-            <price full-price="@course.FullPrice" current-price="@course.CurrentPrice"></price>
-        </div>
-        <div class="col-md-2">
-            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Dettaglio</a>
-        </div>
-    </div>
-    <hr>
+    <!--Usiamo la partial view che si trova in View Courses\_CourseLine\cshtml per evitare di scrivere lo stessi codice un triliardo di volte -->
+    <partial name="Courses/_CourseLine" model="@course"></partial>
 }
+<!--Da qui va  al controller Customizations/ViewComponents/PaginationBarViewComponents.cs--->
+<!--Qui gli passiamo il CourseListViewModel, ma dato che nel controller c'è IPaginationInfo
+Non fa più vedere 3000 propietà ma solo quelle implementate, o qualcosa del genere--->
 <vc:pagination-bar model="@Model"></vc:pagination-bar>

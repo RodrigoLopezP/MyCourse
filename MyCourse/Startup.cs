@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MyCourse.Models.Options;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 
 namespace MyCourse
 {
@@ -41,8 +42,8 @@ namespace MyCourse
                 // homeProfile.VaryByQueryKeys = new string[]{"page"}; //sez 12 - 84 questa riga di codice è superflua perché questa viene aggiunta dal .Bind sotto, è tutto settato nella config
                 Configuration.Bind("ResponseCache:Home",homeProfile);   
                 options.CacheProfiles.Add("Home",homeProfile);
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+         
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
             //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
             services.AddTransient<ICourseService, AdoNetCourseService>();
@@ -75,7 +76,7 @@ namespace MyCourse
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime lifetime)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
         {
             if (env.IsEnvironment("Development"))
             {
@@ -93,30 +94,18 @@ namespace MyCourse
 
 
             app.UseStaticFiles();
+
+            app.UseRouting();// Sez 15 - 103 Configurato EndPoint Routing Middleware 
+
             app.UseResponseCaching();//Sez 12 - 84 - Response Caching
-            app.UseMvc(routeBuilder=>
-            {
-                // /courses/detail/5
-                routeBuilder.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
-                //I controllers devono essere per forza in una cartella chiamata CONTROLLERS
-                //controller -> indica il file dove andrà a cercare il metodo. Es. CoursesController => nel URL ci dovrà essere scritto "Courses"
+
+            // Sez 15 - 103  EndPoint Middleware in uso - aggiornamento a net core 3.0
+            app.UseEndpoints(routeBuilder=>{
+                routeBuilder.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                  //controller -> indica il file dove andrà a cercare il metodo. Es. CoursesController => nel URL ci dovrà essere scritto "Courses"
                 //action -> nome del metodo
                 //id -> il metodo deve avere un param di input = id . Altrimenti non riceverà niente, sarà null
             });
-
-            // app.UseMvcWithDefaultRoute();
-            // app.Run(async (context) =>
-            // {
-            //     if(!String.IsNullOrEmpty(context.Request.Query["nome"]))
-            //     {
-            //         string nome = context.Request.Query["nome"];
-            //         await context.Response.WriteAsync("Hola "+nome+"!" );
-            //     }
-            //     else
-            //     {
-            //         await context.Response.WriteAsync("Test ciao ciao" );
-            //     }
-            // });
         }
     }
 }
