@@ -43,10 +43,13 @@ namespace MyCourse
                 Configuration.Bind("ResponseCache:Home",homeProfile);   
                 options.CacheProfiles.Add("Home",homeProfile);
             }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-         
+            #if DEBUG //se nel file csproj  c'è scritto DEBUG nella riga riferita a questo package allora viene eseguito, altrimenti vuol dire che è in PROD quindi non serve
+             .AddRazorRuntimeCompilation()
+             #endif
+             ;
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
             //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
-            services.AddTransient<ICourseService, AdoNetCourseService>();
+            services.AddTransient<ICourseService, EfCoreCourseService>();
             // services.AddDbContext<MyCourseDbContext>();  //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose // sez11-lez69 RIMPIAZZATO CON addDbContextPool, per migliorare le prestazioni
             //services.AddScoped<MyCourseDbContext>();  //Metodo alternativo per indicare il servizio DbContext
             services.AddDbContextPool<MyCourseDbContext>(optionsBuilder =>

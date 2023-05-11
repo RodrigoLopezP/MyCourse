@@ -20,7 +20,7 @@ namespace MyCourse.Models.Services.Infrastructure
                this.logger = logger;
                this.connectionStrOpts=connectionStringsOptions;
           }
-          public async Task<DataSet> QueryAsync(FormattableString fQuery)
+          public async IAsyncEnumerable<IDataRecord> QueryAsync(FormattableString fQuery)
           {
                /*Lez 12 - sez 76 - servizio di loggingh
                *Aggiungo un log dentro questo metodo, dato che ho creato il _log di tipo ILogging nel ctor sopra
@@ -62,19 +62,10 @@ namespace MyCourse.Models.Services.Infrastructure
                          cmd.Parameters.AddRange(sqliteParameters);
                          using(var reader = await cmd.ExecuteReaderAsync())
                          {
-                              var dataSet=new DataSet();
-                              //inizio workaround
-                              dataSet.EnforceConstraints=false;
-                              //fine workaround
-
-                              do
+                              while (await reader.ReadAsync())
                               {
-                              var dataTable= new DataTable();
-                              dataSet.Tables.Add(dataTable);
-                              dataTable.Load(reader);
-                              } while (!reader.IsClosed);
-
-                              return dataSet;
+                                   yield return reader;
+                              }
                          }
                     }
                }

@@ -41,7 +41,9 @@ namespace MyCourse.Models.Services.Infrastructure
                     builder.Property(money=> money.Currency) //SU c# CURRENCY è una ENUM, sul DB questa è un campo txt
                     .HasConversion<string>()  //per convertire questa stringa dal db a una ENUM
                     .HasColumnName("CurrentPrice_Currency");
-                    builder.Property(money=> money.Amount).HasColumnName("CurrentPrice_Amount");
+                    builder.Property(money=> money.Amount)
+                    .HasConversion<float>()
+                    .HasColumnName("CurrentPrice_Amount");
                 });
 
                 //qua sotto viene usata la versione ridotta--vvvv------------------------
