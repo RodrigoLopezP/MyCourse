@@ -1,0 +1,13 @@
+@model CourseCreateInputModel
+<h1>@ViewBag.Title</h1>
+<form method="post">
+    <div class="row">
+        <div class="col-md-8">
+            
+        <input class="form-control form-control-lg" asp-for="Title" type="text" placeholder="Scrivi nome del corso qui">
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary" type="submit"><i class="far fa-plus-square"></i> Crea</button>
+        </div>
+    </div>
+</form>

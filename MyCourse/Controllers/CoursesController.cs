@@ -24,8 +24,8 @@ namespace MyCourse.Controllers
 
             CourseListViewModel ciao = new CourseListViewModel
             {
-               Courses= courses,
-               Input=inputFromViews,
+                Courses = courses,
+                Input = inputFromViews,
             };
 
             return View(ciao);
@@ -36,6 +36,14 @@ namespace MyCourse.Controllers
             CourseDetailViewModel viewModel = await courseService.GetCourseAsync(id);
             ViewBag.Title = viewModel.Title;
             return View(viewModel);
+        }
+
+        public IActionResult Create(string nomeCorso)
+        {
+            ViewBag.Title="Create";
+            CourseCreateInputModel courseCreateIM = new CourseCreateInputModel();
+            courseCreateIM.Title=nomeCorso;
+            return View();
         }
     }
 }
