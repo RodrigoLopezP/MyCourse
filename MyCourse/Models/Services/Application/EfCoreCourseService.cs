@@ -118,5 +118,17 @@ namespace MyCourse.Models.Services.Application
             ListViewModel<CourseViewModel> coursesList_ViewModel = await GetCoursesAsync(inputForBestRatingCourses);
             return coursesList_ViewModel.Results;
         }
-    }
+
+          public async Task<CourseDetailViewModel> CreateCourseAsync(CourseCreateInputModel nuovoCorso)
+          {
+            string title= nuovoCorso.Title;
+            string author="Marione Rossi";
+
+            var courseEnt = new Course(title,author);
+            dbContext.Add(courseEnt);
+            await dbContext.SaveChangesAsync();
+
+            return CourseDetailViewModel.FromEntity(courseEnt);
+          }
+     }
 }

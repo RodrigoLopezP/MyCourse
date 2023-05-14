@@ -74,6 +74,9 @@ namespace MyCourse.Models.Services.Application
             return _courseService.GetCoursesAsync(model);
         }
 
-
-    }
+          public Task<CourseDetailViewModel> CreateCourseAsync(CourseCreateInputModel nuovoCorso)
+          {
+               return _courseService.CreateCourseAsync(nuovoCorso);
+          }
+     }
 }

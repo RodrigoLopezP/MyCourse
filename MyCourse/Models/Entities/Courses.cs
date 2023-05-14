@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MyCourse.Models.Enums;
 using MyCourse.Models.ValueTypes;
 
 namespace MyCourse.Models.Entities
@@ -19,6 +20,10 @@ namespace MyCourse.Models.Entities
             Title=title;
             Author=author;
             Lessons = new HashSet<Lesson>();
+
+            FullPrice=new Money(Currency.EUR, 0);
+            CurrentPrice=new Money(Currency.EUR, 0);
+            ImagePath="/Courses/default.png";
         }
 
         public int  Id { get; private set; }
