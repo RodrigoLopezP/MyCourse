@@ -2,6 +2,11 @@
 <h1>@ViewBag.Title</h1>
 <form method="post"> <!--mettendo method post, nel controller Courses Create li diciamo che è di tipo HTTP POST-->
     <div class="row">
+        <div class="col-12">
+            <div asp-validation-summary="All"></div>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-8">
             <!---nel tag asp for viene inserito il valore nel model scritto sopra-->
             <input class="form-control form-control-lg" asp-for="Title" type="text" placeholder="Scrivi nome del corso qui">

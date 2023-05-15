@@ -41,7 +41,11 @@ namespace MyCourse.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CourseCreateInputModel nuovoCorso) //qui finisce la stessa pagina ma l'utente ha messo il nome del corso, e c'è da chiamare il servizio applicativo (ef core, ado net boh)
         {
-            ViewBag.Title="Create";
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Title = "Create";
+                return View(nuovoCorso);
+            }
             CourseDetailViewModel x = await courseService.CreateCourseAsync(nuovoCorso);
             return RedirectToAction(nameof(Index));
         }
@@ -49,8 +53,8 @@ namespace MyCourse.Controllers
         [HttpGet]
         public IActionResult Create() //mostrare form all'utente e basta
         {
-            ViewBag.Title="Create";
-            var inModel= new CourseCreateInputModel();
+            ViewBag.Title = "Create";
+            var inModel = new CourseCreateInputModel();
             return View(inModel);
         }
     }
