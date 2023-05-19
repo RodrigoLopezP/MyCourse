@@ -10,9 +10,14 @@
         <div class="col-md-8">
             <!---nel tag asp for viene inserito il valore nel model scritto sopra-->
             <input class="form-control form-control-lg" asp-for="Title" type="text" placeholder="Scrivi nome del corso qui">
+              <span asp-validation-for="Title"></span>
         </div>
         <div class="col-md-4">
             <button class="btn btn-primary" type="submit"><i class="far fa-plus-square"></i> Crea</button>
         </div>
     </div>
 </form>
+
+@section Scripts{
+    <partial name="_Validation"></partial>
+}

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using MyCourse.Models.ValueTypes;
 
-namespace MyCourse
+namespace MyCourse.Customizations.TagHelpers
 {
      public class PriceTagHelper : TagHelper
      {

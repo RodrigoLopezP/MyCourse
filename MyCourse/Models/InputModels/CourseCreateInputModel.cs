@@ -8,7 +8,7 @@ namespace MyCourse.Models.InputModels
 {
     public class CourseCreateInputModel
     {
-        [Required(ErrorMessage ="Il titolo è obbligatori"),
+        [Required(ErrorMessage ="Il titolo è obbligatorio"),
         MinLength(10, ErrorMessage ="La lunghezza minima è {1}"),
         MaxLength(100, ErrorMessage ="La lunghezza massima è di {1}"),
         RegularExpression(@"^[\w\s\.]+$", ErrorMessage="Caratteri speciali non sono ammessi")
