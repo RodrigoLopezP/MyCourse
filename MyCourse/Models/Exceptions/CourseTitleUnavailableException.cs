@@ -7,7 +7,7 @@ namespace MyCourse.Models.Exceptions
 {
     public class CourseTitleUnavailableException:Exception
     {
-        public CourseTitleUnavailableException(string title, Microsoft.Data.Sqlite.SqliteException exc) : base($"Course  name unavailable")
+        public CourseTitleUnavailableException(string title, Exception innerExc) : base($"Course name {title} unavailable, already exists", innerExc)
         {
             
         }

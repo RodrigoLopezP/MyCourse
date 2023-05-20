@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,121 +15,133 @@ using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Models.Services.Application
 {
-    public class EfCoreCourseService : ICourseService
-    {
-        private readonly ILogger<EfCoreCourseService> _logger;
-        private readonly MyCourseDbContext dbContext;
-        private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;
-        public EfCoreCourseService(MyCourseDbContext dbContext, IOptionsMonitor<CoursesOptions> coursesOptions, ILogger<EfCoreCourseService> logger)
-        {
-            this._coursesOpts = coursesOptions;
-            this.dbContext = dbContext;
-            this._logger = logger;
-        }
+     public class EfCoreCourseService : ICourseService
+     {
+          private readonly ILogger<EfCoreCourseService> _logger;
+          private readonly MyCourseDbContext dbContext;
+          private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;
+          public EfCoreCourseService(MyCourseDbContext dbContext, IOptionsMonitor<CoursesOptions> coursesOptions, ILogger<EfCoreCourseService> logger)
+          {
+               this._coursesOpts = coursesOptions;
+               this.dbContext = dbContext;
+               this._logger = logger;
+          }
 
-        public async Task<CourseDetailViewModel> GetCourseAsync(int id)
-        {
-            IQueryable<CourseDetailViewModel> queryLinq = dbContext.Courses
-            .Where(course => course.Id == id)
-            .AsNoTracking()                                         //EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
-            .Select(course => CourseDetailViewModel.FromEntity(course)); //qui non server ASYNC perché interagiamo effettivamente con il db con .SINGLEASYNC()
+          public async Task<CourseDetailViewModel> GetCourseAsync(int id)
+          {
+               IQueryable<CourseDetailViewModel> queryLinq = dbContext.Courses
+               .Where(course => course.Id == id)
+               .AsNoTracking()                                         //EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
+               .Select(course => CourseDetailViewModel.FromEntity(course)); //qui non server ASYNC perché interagiamo effettivamente con il db con .SINGLEASYNC()
 
-            CourseDetailViewModel dettaglioCorso = await queryLinq.SingleAsync();
-            // restituisce 1 elem, se ci sono 0 o più di uno = ECCEZIONE
-            //.firstAsync();// restituisce primo elem, se ci sono più di uno OK, raccatta comunque il primo
-            //.singleODefaultAsync(); //Come singleAsync, ma se è VUOTO va bene, dà NULL
-            //.FirstOrDefaultAxync() // se è 1 solo ok, se è vuoto ok, se è più di 1 raccatta il primo. E' IL PIU' TOLLERANTE
+               CourseDetailViewModel dettaglioCorso = await queryLinq.SingleAsync();
+               // restituisce 1 elem, se ci sono 0 o più di uno = ECCEZIONE
+               //.firstAsync();// restituisce primo elem, se ci sono più di uno OK, raccatta comunque il primo
+               //.singleODefaultAsync(); //Come singleAsync, ma se è VUOTO va bene, dà NULL
+               //.FirstOrDefaultAxync() // se è 1 solo ok, se è vuoto ok, se è più di 1 raccatta il primo. E' IL PIU' TOLLERANTE
 
-            if (dettaglioCorso== null)
-            {
-                _logger.LogWarning("Course {id} not found", id);
-                throw new CourseNotFoundException(id);
-            }
-            return dettaglioCorso;
-        }
+               if (dettaglioCorso == null)
+               {
+                    _logger.LogWarning("Course {id} not found", id);
+                    throw new CourseNotFoundException(id);
+               }
+               return dettaglioCorso;
+          }
 
-        public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel coursesFilters)
-        {
-            #region IQueryable di base, per applicare i primi filtri se presenti
-            IQueryable<Course> baseQuery = dbContext.Courses;
-            //Grazie a C# 8.0, viene usata questa switch expression che sostuituisce il switch case che c'era prima ed era brutto 
-            baseQuery = (coursesFilters.OrderBy, coursesFilters.Ascending) switch
-            {
-                ("Title", true) => baseQuery.OrderBy(x => x.Title),
-                ("Title", false) => baseQuery.OrderByDescending(x => x.Title),
+          public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel coursesFilters)
+          {
+               #region IQueryable di base, per applicare i primi filtri se presenti
+               IQueryable<Course> baseQuery = dbContext.Courses;
+               //Grazie a C# 8.0, viene usata questa switch expression che sostuituisce il switch case che c'era prima ed era brutto 
+               baseQuery = (coursesFilters.OrderBy, coursesFilters.Ascending) switch
+               {
+                    ("Title", true) => baseQuery.OrderBy(x => x.Title),
+                    ("Title", false) => baseQuery.OrderByDescending(x => x.Title),
 
-                ("Rating", true) => baseQuery.OrderBy(x => x.Rating),
-                ("Rating", false) => baseQuery.OrderByDescending(x => x.Rating),
+                    ("Rating", true) => baseQuery.OrderBy(x => x.Rating),
+                    ("Rating", false) => baseQuery.OrderByDescending(x => x.Rating),
 
-                ("CurrentPrice", true) => baseQuery.OrderBy(x => x.CurrentPrice.Amount),
-                ("CurrentPrice", false) => baseQuery.OrderByDescending(x => x.CurrentPrice.Amount),
+                    ("CurrentPrice", true) => baseQuery.OrderBy(x => x.CurrentPrice.Amount),
+                    ("CurrentPrice", false) => baseQuery.OrderByDescending(x => x.CurrentPrice.Amount),
 
-                ("Id", true) => baseQuery.OrderBy(x => x.Id),
-                ("Id", false) => baseQuery.OrderByDescending(x => x.Id),
+                    ("Id", true) => baseQuery.OrderBy(x => x.Id),
+                    ("Id", false) => baseQuery.OrderByDescending(x => x.Id),
 
-                _ => baseQuery,
-            };
-            #endregion
+                    _ => baseQuery,
+               };
+               #endregion
 
-            #region IQueryable con la quale prendiamo tutti i risultati della intera tabella
-            IQueryable<Course> queryEF = baseQuery
-            .AsNoTracking()//EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
-            .Where(x => x.Title.ToLower().Contains(coursesFilters.Search.ToLower()));
+               #region IQueryable con la quale prendiamo tutti i risultati della intera tabella
+               IQueryable<Course> queryEF = baseQuery
+               .AsNoTracking()//EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
+               .Where(x => x.Title.ToLower().Contains(coursesFilters.Search.ToLower()));
 
-            #endregion
-            //Con ToList eseguiamo effettivamente la query sul db per ottenere il risultato
-            List<CourseViewModel> courses = await queryEF
-                    .Skip(coursesFilters.Offset)
-                    .Take(coursesFilters.Limit)
-                                        .Select(course => CourseViewModel.FromEntity(course))
-                                        .ToListAsync(); //Skup e TAKE li portiamo qui perche queryEF ci servirà intera sotto per il count
+               #endregion
+               //Con ToList eseguiamo effettivamente la query sul db per ottenere il risultato
+               List<CourseViewModel> courses = await queryEF
+                       .Skip(coursesFilters.Offset)
+                       .Take(coursesFilters.Limit)
+                                           .Select(course => CourseViewModel.FromEntity(course))
+                                           .ToListAsync(); //Skup e TAKE li portiamo qui perche queryEF ci servirà intera sotto per il count
 
-            int totCourses = await queryEF.CountAsync();
+               int totCourses = await queryEF.CountAsync();
 
-            ListViewModel<CourseViewModel> result = new ListViewModel<CourseViewModel>
-            {
-                Results = courses,
-                TotalCount = totCourses
-            };
+               ListViewModel<CourseViewModel> result = new ListViewModel<CourseViewModel>
+               {
+                    Results = courses,
+                    TotalCount = totCourses
+               };
 
-            return result;
-        }
+               return result;
+          }
 
-        public async Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
-        {
-            CourseListInputModel inputForMostRecentCourses = new CourseListInputModel(
-                search: "",
-                page: 1,
-                orderBy: "Id",
-                ascending: false,
-                limit: _coursesOpts.CurrentValue.inHome,
-                coursesOptions: _coursesOpts.CurrentValue.Order);
-            ListViewModel<CourseViewModel> coursesList_ViewModel = await GetCoursesAsync(inputForMostRecentCourses);
-            return coursesList_ViewModel.Results;
-        }
-        public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
-        {
-            CourseListInputModel inputForBestRatingCourses = new CourseListInputModel(
-                search: "",
-                page: 1,
-                orderBy: "Rating",
-                ascending: false,
-                limit: _coursesOpts.CurrentValue.inHome,
-                coursesOptions: _coursesOpts.CurrentValue.Order);
-            ListViewModel<CourseViewModel> coursesList_ViewModel = await GetCoursesAsync(inputForBestRatingCourses);
-            return coursesList_ViewModel.Results;
-        }
+          public async Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
+          {
+               CourseListInputModel inputForMostRecentCourses = new CourseListInputModel(
+                   search: "",
+                   page: 1,
+                   orderBy: "Id",
+                   ascending: false,
+                   limit: _coursesOpts.CurrentValue.inHome,
+                   coursesOptions: _coursesOpts.CurrentValue.Order);
+               ListViewModel<CourseViewModel> coursesList_ViewModel = await GetCoursesAsync(inputForMostRecentCourses);
+               return coursesList_ViewModel.Results;
+          }
+          public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
+          {
+               CourseListInputModel inputForBestRatingCourses = new CourseListInputModel(
+                   search: "",
+                   page: 1,
+                   orderBy: "Rating",
+                   ascending: false,
+                   limit: _coursesOpts.CurrentValue.inHome,
+                   coursesOptions: _coursesOpts.CurrentValue.Order);
+               ListViewModel<CourseViewModel> coursesList_ViewModel = await GetCoursesAsync(inputForBestRatingCourses);
+               return coursesList_ViewModel.Results;
+          }
 
           public async Task<CourseDetailViewModel> CreateCourseAsync(CourseCreateInputModel nuovoCorso)
           {
-            string title= nuovoCorso.Title;
-            string author="Marione Rossi";
+               string title = nuovoCorso.Title;
+               string author = "Marione Rossi";
+               var courseEnt = new Course(title, author);
+               dbContext.Add(courseEnt);
+               try
+               {
+                    await dbContext.SaveChangesAsync();
+               }
+               catch (DbUpdateException exc) when ((exc.InnerException as SqliteException)?.SqliteErrorCode == 19)
+               {
+                    throw new CourseTitleUnavailableException(title, exc);
+               }
+               return CourseDetailViewModel.FromEntity(courseEnt);
+          }
 
-            var courseEnt = new Course(title,author);
-            dbContext.Add(courseEnt);
-            await dbContext.SaveChangesAsync();
-
-            return CourseDetailViewModel.FromEntity(courseEnt);
+          public async Task<bool> IsTitleAvailableAsync(string title)
+          {
+            //await dbContext.Courses.AnyAsync(course => course.Title == title);
+            bool titleExists = await dbContext.Courses.AnyAsync(course => EF.Functions.Like(course.Title, title));
+            return !titleExists;
           }
      }
 }

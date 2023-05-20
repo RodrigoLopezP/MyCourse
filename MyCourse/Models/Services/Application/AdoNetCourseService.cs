@@ -126,8 +126,16 @@ namespace MyCourse.Models.Services.Application
                }
                catch (SqliteException exc) when (exc.SqliteErrorCode == 19)
                {
+                    //errore 19 è quando aviene una exception per una UNIQUE, in questo caso quella del title
                     throw new CourseTitleUnavailableException(title, exc);
                }
+          }
+
+          public async Task<bool> IsTitleAvailableAsync(string title)
+          {
+               DataSet result = await db.QueryAsync($"SELECT COUNT(*) FROM Courses WHERE Title LIKE {title}");
+               bool titleAvailable=Convert.ToInt32(result.Tables[0].Rows[0][0])==0; //se ci sono 0 risultati allora true
+               return titleAvailable;
           }
      }
 }
