@@ -139,9 +139,49 @@ namespace MyCourse.Models.Services.Application
 
           public async Task<bool> IsTitleAvailableAsync(string title)
           {
-            //await dbContext.Courses.AnyAsync(course => course.Title == title);
-            bool titleExists = await dbContext.Courses.AnyAsync(course => EF.Functions.Like(course.Title, title));
-            return !titleExists;
+               //await dbContext.Courses.AnyAsync(course => course.Title == title);
+               bool titleExists = await dbContext.Courses.AnyAsync(course => EF.Functions.Like(course.Title, title));
+               return !titleExists;
+          }
+
+          public async Task<CourseEditInputModel> GetCourseForEditingAsync(int id)
+          {
+               IQueryable<CourseEditInputModel> queryLinq = dbContext.Courses
+                    .Where(course => course.Id == id)
+                    .AsNoTracking()                                         //EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
+                    .Select(course => CourseEditInputModel.FromEntity(course));
+               //alla fine SELECT il corso con i valori che ci interessano,
+               //quindi usiamo la func FromEntity che abbiamo creato,
+               //altrimenti viene un codice troppo complicato da vedere
+
+               CourseEditInputModel dettaglioCorso = await queryLinq.SingleAsync();
+               // restituisce 1 elem, se ci sono 0 o più di uno = ECCEZIONE
+               if (dettaglioCorso == null)
+               {
+                    _logger.LogWarning("Course {id} not found", id);
+                    throw new CourseNotFoundException(id);
+               }
+               return dettaglioCorso;
+          }
+
+          public async Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel)
+          {
+               Course course = await dbContext.Courses.FindAsync(inputModel.Id);
+               try
+               {
+                    course.ChangeTitle(inputModel.Title);
+                    course.ChangeDescription(inputModel.Description);
+                    course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
+                    course.ChangeEmail(inputModel.Email);
+
+                    await dbContext.SaveChangesAsync();
+
+               }
+               catch (DbUpdateException exc) when ((exc.InnerException as SqliteException)?.SqliteErrorCode == 19)
+               {
+                    throw new CourseTitleUnavailableException(inputModel.Title, exc);
+               }
+               return CourseDetailViewModel.FromEntity(course);
           }
      }
 }

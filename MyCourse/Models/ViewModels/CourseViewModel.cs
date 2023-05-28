@@ -20,7 +20,7 @@ namespace MyCourse.Models.ViewModels
         public Money FullPrice { get; set; }
         public Money CurrentPrice { get; set; }
 
-        public static CourseViewModel FromDataRecord(IDataRecord dataRecord)
+        public static CourseViewModel FromDataRecord(IDataRecord dataRecord) 
         {
             var courseViewModel = new CourseViewModel
             {

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
@@ -16,6 +15,8 @@ using MyCourse.Models.Options;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using MyCourse.Models.Enums;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace MyCourse
 {
@@ -51,7 +52,7 @@ namespace MyCourse
           #endif
              ;
 
-            Enum tipoServizioDB = Persistence.EfCore;
+            Enum tipoServizioDB = Persistence.Adonet;
             switch (tipoServizioDB)
             {
                 case Persistence.Adonet:
@@ -109,11 +110,16 @@ namespace MyCourse
                 app.UseExceptionHandler("/Error");
             }
 
-
             app.UseStaticFiles();
 
+            //nei brower nella parte EDIT non si vedevano i prezzui perchè uscivano yipi 17,99 e il browser li vuole con il punto
+            //settando invariant cuture per def dovrebbe uscire il punto come output e il problem è risdolto
+            CultureInfo appCulture= CultureInfo.InvariantCulture;
+            app.UseRequestLocalization(new RequestLocalizationOptions{
+                DefaultRequestCulture=new RequestCulture(appCulture),
+                SupportedCultures=new[]{appCulture}
+            });
             app.UseRouting();// Sez 15 - 103 Configurato EndPoint Routing Middleware 
-
             app.UseResponseCaching();//Sez 12 - 84 - Response Caching
 
             // Sez 15 - 103  EndPoint Middleware in uso - aggiornamento a net core 3.0

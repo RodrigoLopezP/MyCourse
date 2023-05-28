@@ -47,7 +47,7 @@ namespace MyCourse.Controllers
                     try
                     {
                          CourseDetailViewModel x = await courseService.CreateCourseAsync(nuovoCorso);
-                         return RedirectToAction(nameof(Index)); //creato il nuovo corso, ti fa tornare alla lista di corsi (per ora)
+                         return RedirectToAction(nameof(Edit)); //creato il nuovo corso, ti fa tornare alla lista di corsi (per ora)
                     }
                     catch (CourseTitleUnavailableException)
                     {
@@ -59,7 +59,7 @@ namespace MyCourse.Controllers
                return View(nuovoCorso);
           }
 
-          [HttpGet]
+          [HttpGet]//opzione di default
           public IActionResult Create() //mostrare form all'utente e basta
           {
                ViewBag.Title = "Create";
@@ -67,9 +67,45 @@ namespace MyCourse.Controllers
                return View(inModel);
           }
 
-          public async Task <IActionResult> IsTitleAvailable(string title) { 
-            bool result= await courseService.IsTitleAvailableAsync(title);
-            return Json(result);
-           }
+          //E' un controllo che viene usato durante il ModelBinding di un ogg CourseCreateInputModel
+          public async Task<IActionResult> IsTitleAvailable(string title)
+          {
+               bool result = await courseService.IsTitleAvailableAsync(title);
+               return Json(result);
+          }
+
+          /* Prima va in Edit http get perché gli passiamo un id, lui ci risputa il inputModel perché noi possimoa
+          modificarlo.
+          Salvando i dati da modifiche, si finisce nel HttpPost 
+          */
+          [HttpGet]
+          public async Task<IActionResult> Edit(int id)
+          {
+               ViewBag.Title = "Edit";
+               var inputModel = await courseService.GetCourseForEditingAsync(id);
+               return View(inputModel);
+          }
+          [HttpPost]
+          public async Task<IActionResult> Edit(CourseEditInputModel inputModel)
+          {
+               if (ModelState.IsValid)
+               {
+                    try
+                    {
+                         CourseDetailViewModel course= await courseService.EditCourseAsync(inputModel);
+                         return RedirectToAction(nameof(Index));//Torna alla lista dei corsi
+                    }
+                    catch (CourseTitleUnavailableException)
+                    {
+                         ModelState.AddModelError(nameof(CourseDetailViewModel.Title), "Questo titolo già esiste"); //nel primo parametro basta scrivere "Title", ma penso che così sia più bellino, cioè, più preciso
+                    }
+               }
+               ViewBag.Title = "Edit";
+               return View(inputModel);
+          }
+
+
+
+
      }
 }
