@@ -21,8 +21,8 @@ namespace MyCourse.Models.Entities
                Author = author;
                Lessons = new HashSet<Lesson>();
 
-               FullPrice = new Money(Currency.EUR, 0);
-               CurrentPrice = new Money(Currency.EUR, 0);
+               FullPrice = new Money(Currency.EUR, 0.00m);
+               CurrentPrice = new Money(Currency.EUR, 0.00m);
                ImagePath = "/Courses/default.png";
           }
 

@@ -79,9 +79,9 @@ namespace MyCourse.Models.Services.Application
                return _courseService.CreateCourseAsync(nuovoCorso);
           }
 
-          public Task<bool> IsTitleAvailableAsync(string title)
+          public Task<bool> IsTitleAvailableAsync(string title, int id)
           {
-                return _courseService.IsTitleAvailableAsync(title);
+                return _courseService.IsTitleAvailableAsync(title, id);
           }
 
           public Task<CourseEditInputModel> GetCourseForEditingAsync(int id)
