@@ -112,8 +112,8 @@ namespace MyCourse
 
             app.UseStaticFiles();
 
-            //nei brower nella parte EDIT non si vedevano i prezzui perchè uscivano yipi 17,99 e il browser li vuole con il punto
-            //settando invariant cuture per def dovrebbe uscire il punto come output e il problem è risdolto
+            //121 - nei browser nella parte EDIT non si vedevano i prezzui perchè uscivano yipi 17,99 e il browser li vuole con il punto
+            //settando invariant culture per def dovrebbe uscire il punto come output e il problem è risdolto
             CultureInfo appCulture= CultureInfo.InvariantCulture;
             app.UseRequestLocalization(new RequestLocalizationOptions{
                 DefaultRequestCulture=new RequestCulture(appCulture),

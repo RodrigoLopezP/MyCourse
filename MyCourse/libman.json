@@ -17,6 +17,10 @@
       "files": [
         "dist/jquery.validate.unobtrusive.min.js"
       ]
+    },
+    {
+      "library": "summernote@0.8.15",
+      "destination": "wwwroot/lib/summernote"
     }
   ]
 }

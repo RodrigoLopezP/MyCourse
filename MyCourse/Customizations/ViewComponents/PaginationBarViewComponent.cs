@@ -13,6 +13,8 @@ namespace MyCourse.Customizations.ViewComponents
             //il num di pagina corente
             //numerdi pagine totali
             return View(model);
+            //la view si trova in
+            //\Views\Shared\Components\PaginationBar\Default.cshtml
         }
     }
 }

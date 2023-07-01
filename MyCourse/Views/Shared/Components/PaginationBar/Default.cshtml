@@ -11,7 +11,10 @@
         @if (Math.Max(currentPage, 1) > 1)
         {
             <li class="page-item">
-                <a class="page-link" asp-route-page="@(currentPage-1)">
+                <a class="page-link" asp-route-page="@(currentPage-1)"
+                asp-route-search="@Model.Search"
+                    asp-route-orderby="@Model.OrderBy"
+                    asp-route-ascending="@Model.Ascending">
                     <i class="fas fa-arrow-left"></i>
                 </a>
             </li>

@@ -89,9 +89,12 @@ namespace MyCourse.Models.Services.Application
                return _courseService.GetCourseForEditingAsync(id);
           }
 
-          public Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel)
+          public async Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel)
           {
-               return _courseService.EditCourseAsync(inputModel);
+               CourseDetailViewModel result = await _courseService.EditCourseAsync(inputModel);
+               //120 - Invalidare cache della pagina del dettaglio corso
+               _memCache.Remove($"Course{inputModel.Id}");
+               return result;
           }
      }
 }

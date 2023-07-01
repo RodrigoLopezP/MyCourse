@@ -24,7 +24,7 @@
 
                     <div class="form-group">
                          <label asp-for="Description"></label>
-                         <textarea asp-for="Description" class="form-control" data-summernote rows="18"></textarea>
+                         <textarea data-summernote asp-for="Description" class="form-control" data-summernote rows="18"></textarea>
                          <span asp-validation-for="Description"></span>
                     </div>
                </div>
@@ -77,8 +77,8 @@
 @section Scripts
      {
      <partial name="_Validation"></partial>  @*validazione lato client con jquery vadilation e blablabla*@
-     @* <partial name="_Summernote"></partial>
-
+     <partial name="_Summernote"></partial>
+@*
 <script>
 function updatePreview(inputFile) {
 var reader = new FileReader();
