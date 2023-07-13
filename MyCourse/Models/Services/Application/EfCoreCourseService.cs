@@ -18,13 +18,17 @@ namespace MyCourse.Models.Services.Application
      public class EfCoreCourseService : ICourseService
      {
           private readonly ILogger<EfCoreCourseService> _logger;
+          private readonly IImagePersister imagePersister;
           private readonly MyCourseDbContext dbContext;
           private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;
-          public EfCoreCourseService(MyCourseDbContext dbContext, IOptionsMonitor<CoursesOptions> coursesOptions, ILogger<EfCoreCourseService> logger)
+          public EfCoreCourseService(MyCourseDbContext dbContext, IOptionsMonitor<CoursesOptions> coursesOptions, ILogger<EfCoreCourseService> logger, IImagePersister imagePersister)
           {
                this._coursesOpts = coursesOptions;
                this.dbContext = dbContext;
                this._logger = logger;
+
+               this.imagePersister= imagePersister;
+
           }
 
           public async Task<CourseDetailViewModel> GetCourseAsync(int id)
@@ -140,7 +144,7 @@ namespace MyCourse.Models.Services.Application
           public async Task<bool> IsTitleAvailableAsync(string title, int id)
           {
                //await dbContext.Courses.AnyAsync(course => course.Title == title);
-               bool titleExists = await dbContext.Courses.Where(x=>x.Id!=id).AnyAsync(course =>
+               bool titleExists = await dbContext.Courses.Where(x => x.Id != id).AnyAsync(course =>
                EF.Functions.Like(course.Title, title));
                return !titleExists;
           }
@@ -168,20 +172,23 @@ namespace MyCourse.Models.Services.Application
           public async Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel)
           {
                Course course = await dbContext.Courses.FindAsync(inputModel.Id);
+
+               course.ChangeTitle(inputModel.Title);
+               course.ChangeDescription(inputModel.Description);
+               course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
+               course.ChangeEmail(inputModel.Email);
+               //cambia img del corso
+               string imagePath= await imagePersister.SaveCourseImageAsync(inputModel.Id,inputModel.Image);
+               course.ChangeImagePath(imagePath);
                try
                {
-                    course.ChangeTitle(inputModel.Title);
-                    course.ChangeDescription(inputModel.Description);
-                    course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
-                    course.ChangeEmail(inputModel.Email);
-
                     await dbContext.SaveChangesAsync();
-
                }
                catch (DbUpdateException exc) when ((exc.InnerException as SqliteException)?.SqliteErrorCode == 19)
                {
                     throw new CourseTitleUnavailableException(inputModel.Title, exc);
                }
+
                return CourseDetailViewModel.FromEntity(course);
           }
      }

@@ -52,7 +52,7 @@ namespace MyCourse
           #endif
              ;
 
-            Enum tipoServizioDB = Persistence.Adonet;
+            Enum tipoServizioDB = Persistence.EfCore;
             switch (tipoServizioDB)
             {
                 case Persistence.Adonet:
@@ -90,6 +90,8 @@ namespace MyCourse
             /*Sez12 - lez79 caching
             Aggiunto servizio caching attraverso dependency injection*/
             services.AddTransient<ICachedCourseService, MemoryCacheCourseService>();
+
+            services.AddSingleton<IImagePersister, InsecureImagePersister>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

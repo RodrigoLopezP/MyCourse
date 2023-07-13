@@ -24,7 +24,8 @@
 
                     <div class="form-group">
                          <label asp-for="Description"></label>
-                         <textarea data-summernote asp-for="Description" class="form-control" data-summernote rows="18"></textarea>
+                         <textarea data-summernote asp-for="Description" class="form-control" data-summernote
+                              rows="18"></textarea>
                          <span asp-validation-for="Description"></span>
                     </div>
                </div>
@@ -41,7 +42,7 @@
                                    <select asp-items="@Html.GetEnumSelectList<Currency>()" asp-for="FullPrice.Currency"
                                         class="form-control"></select>
                                    <input type="number" step="any" asp-for="FullPrice.Amount"
-                                        class="form-control form-control-block" >
+                                        class="form-control form-control-block">
                                    <span asp-validation-for="FullPrice"></span>
                               </div>
                          </div>
@@ -51,23 +52,23 @@
                                    <select asp-items="@Html.GetEnumSelectList<Currency>()"
                                         asp-for="CurrentPrice.Currency" class="form-control"></select>
                                    <input type="number" step="any" asp-for="CurrentPrice.Amount"
-                                        class="form-control form-control-block" >
+                                        class="form-control form-control-block">
                                    <span asp-validation-for="CurrentPrice"></span>
                               </div>
                          </div>
                          <div class="form-group">
                               <label asp-for="ImagePath"></label>
-                              @* <div class="preview-container">
-                                   <input type="hidden" asp-for="ImagePath"> *@
-                                   <img id="preview" src="@Model.ImagePath" asp-append-version="true">
-                              @* </div> *@
-                              @* <div class="custom-file mt-3">
+                              <div class="preview-container">
+                                   <input type="hidden" asp-for="ImagePath">
+                                   <img id="preview" src="@Model.ImagePath" class="img-fluid" asp-append-version="true">
+                              </div>
+                              <div class="custom-file mt-3">
                                    <input type="file" class="custom-file-input" asp-for="Image"
                                         onchange="updatePreview(this)">
                                    <label class="custom-file-label" asp-for="Image"></label>
-                                   <span asp-validation-for="Image"></span>
-                                   <p><small>L'immagine verrà ritagliata quadrata.</small></p>
-                              </div> *@
+                                   @*<span asp-validation-for="Image"></span>
+                                   <p><small>L'immagine verrà ritagliata quadrata.</small></p>*@
+                              </div>
                          </div>
                     </aside>
                </div>
@@ -76,16 +77,16 @@
 </section>
 @section Scripts
      {
-     <partial name="_Validation"></partial>  @*validazione lato client con jquery vadilation e blablabla*@
+     <partial name="_Validation"></partial> @*validazione lato client con jquery vadilation e blablabla*@
      <partial name="_Summernote"></partial>
-@*
-<script>
-function updatePreview(inputFile) {
-var reader = new FileReader();
-reader.onload = function (e) {
-$('#preview').attr('src', e.target.result);
-};
-reader.readAsDataURL(inputFile.files[0]);
-}
-</script> *@
+
+     <script>
+          function updatePreview(inputFile) {
+               var reader = new FileReader();
+               reader.onload = function (e) {
+                    $('#preview').attr('src', e.target.result);
+               };
+               reader.readAsDataURL(inputFile.files[0]);
+          }
+     </script>
 }
