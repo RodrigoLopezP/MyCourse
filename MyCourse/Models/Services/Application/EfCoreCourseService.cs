@@ -27,7 +27,7 @@ namespace MyCourse.Models.Services.Application
                this.dbContext = dbContext;
                this._logger = logger;
 
-               this.imagePersister= imagePersister;
+               this.imagePersister = imagePersister;
 
           }
 
@@ -177,9 +177,12 @@ namespace MyCourse.Models.Services.Application
                course.ChangeDescription(inputModel.Description);
                course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
                course.ChangeEmail(inputModel.Email);
-               //cambia img del corso
-               string imagePath= await imagePersister.SaveCourseImageAsync(inputModel.Id,inputModel.Image);
-               course.ChangeImagePath(imagePath);
+               //cambia img del corso se è presente una nuova
+               if (inputModel.Image != null)
+               {
+                    string imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image);
+                    course.ChangeImagePath(imagePath);
+               }
                try
                {
                     await dbContext.SaveChangesAsync();

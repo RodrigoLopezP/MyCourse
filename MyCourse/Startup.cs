@@ -91,7 +91,7 @@ namespace MyCourse
             Aggiunto servizio caching attraverso dependency injection*/
             services.AddTransient<ICachedCourseService, MemoryCacheCourseService>();
 
-            services.AddSingleton<IImagePersister, InsecureImagePersister>();
+            services.AddSingleton<IImagePersister, MagickNetImagePersister>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
