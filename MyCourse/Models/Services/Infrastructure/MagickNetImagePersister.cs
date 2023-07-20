@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
 using Microsoft.Extensions.Options;
+using MyCourse.Models.Exceptions;
 using MyCourse.Models.Options;
 
 namespace MyCourse.Models.Services.Infrastructure
@@ -64,6 +65,9 @@ namespace MyCourse.Models.Services.Infrastructure
                     image.Write(physicalPath, MagickFormat.Jpg);
                     return path;
 
+               }
+               catch(Exception exc){
+                    throw new ImagePersistenceException(exc);
                }
                finally
                {

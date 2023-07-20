@@ -118,10 +118,8 @@ namespace MyCourse.Models.Services.Application
                string defImgPath = "/Courses/default.png";
                try
                {
-                    DataSet dataSet = await db.QueryAsync($@"INSERT INTO Courses (Title, Author, ImagePath, CurrentPrice_Currency, CurrentPrice_Amount, FullPrice_Currency, FullPrice_Amount) VALUES ({title}, {author}, {defImgPath}, 'EUR', 0, 'EUR', 0);
+                    int courseId = await db.QueryScalarAsync<int>($@"INSERT INTO Courses (Title, Author, ImagePath, CurrentPrice_Currency, CurrentPrice_Amount, FullPrice_Currency, FullPrice_Amount) VALUES ({title}, {author}, {defImgPath}, 'EUR', 0, 'EUR', 0);
                                                  SELECT last_insert_rowid();");
-
-                    int courseId = Convert.ToInt32(dataSet.Tables[0].Rows[0][0]);
                     CourseDetailViewModel course = await GetCourseAsync(courseId);
                     return course;
                }
@@ -133,9 +131,9 @@ namespace MyCourse.Models.Services.Application
           }
           public async Task<bool> IsTitleAvailableAsync(string title, int id)
           {
-               DataSet result = await db.QueryAsync($"SELECT COUNT(*) FROM Courses WHERE Title LIKE {title} AND Id<>{id}");
-               bool titleAvailable = Convert.ToInt32(result.Tables[0].Rows[0][0]) == 0; //se ci sono 0 risultati allora true
-               return titleAvailable;
+               //tanto questo risultato viene sempre o 0 o 1, quindi possiamo convertirlo in bool direttamente
+               bool titleExists = await db.QueryScalarAsync<bool>($"SELECT COUNT(*) FROM Courses WHERE Title LIKE {title} AND Id<>{id}");
+               return !titleExists;
           }
           public async Task<CourseEditInputModel> GetCourseForEditingAsync(int id)
           {
@@ -157,16 +155,13 @@ namespace MyCourse.Models.Services.Application
           }
           public async Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel)
           {
-                //verifca se id del corso che è arrivato questo metodo esiste
-               DataSet dataSet = await db.QueryAsync($"SELECT COUNT(*) FROM Courses Where Id={inputModel.Id}");
-               if (Convert.ToInt32(dataSet.Tables[0].Rows[0][0])==0)
-               {
-                throw new CourseNotFoundException(inputModel.Id);
-               }
-
-               inputModel.ImagePath = "/Courses/default.png";
                try
                {
+                    string imagePath = null;
+                    if (inputModel.Image != null)
+                    {
+                         imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image); //salva su disco
+                    }
                     FormattableString queryUpdate = $@"
                     UPDATE Courses
                     SET
@@ -177,33 +172,26 @@ namespace MyCourse.Models.Services.Application
                     FullPrice_Amount={inputModel.FullPrice.Amount},
                     FullPrice_Currency={inputModel.FullPrice.Currency},
                     CurrentPrice_Amount={inputModel.CurrentPrice.Amount},
-                    CurrentPrice_Currency={inputModel.CurrentPrice.Currency}
+                    CurrentPrice_Currency={inputModel.CurrentPrice.Currency},
+                    ImagePath=COALESCE({imagePath},ImagePath)
                     WHERE
-                    Id ={inputModel.Id}";
-                    DataSet datasetResult = await db.QueryAsync(queryUpdate);
+                    Id ={inputModel.Id}"; //COALESCE: se il primo valore è null, allora sceglie il secondo
+
+                    int affectedRows = await db.CommandAsync(queryUpdate);
+
+                    if (affectedRows == 0)
+                    {
+                         throw new CourseNotFoundException(inputModel.Id);
+                    }
                }
                catch (SqliteException excep) when (excep.SqliteErrorCode == 19)
                {
-
                     throw new CourseTitleUnavailableException("Titolo non disponibile", excep);
                }
-
-               //se inputModel.Image è null, vuol dire che non è stata aggiornata l img del corso, quindi non è necessario fare l update
-               if (inputModel.Image != null)
+               catch (ImagePersistenceException exc)//meglio non usare la magickExpcetion direttamente, dato che il serv appl deve essere debolmente accoppiato a questo servz infrastrtutturale
                {
-                   try
-                   {
-                     string imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image); //salva su disco
-                    dataSet = await db.QueryAsync($@"UPDATE Courses
-                                                            SET ImagePath={imagePath}
-                                                            WHERE Id={inputModel.Id}");//salva nuovo percorso nella colonna tabella db
-                   }
-                   catch (Exception exc)
-                   {
                     throw new CourseImageInvalidException(inputModel.Id, exc);
-                   }
                }
-
                CourseDetailViewModel result = await GetCourseAsync(inputModel.Id);
                return result;
           }
