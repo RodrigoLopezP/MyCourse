@@ -8,8 +8,9 @@ namespace MyCourse.Models.Options
     public class CoursesOptions
     {
         public int PerPage { get; set; }
-        public CoursesOrderOptions Order { get; set; }
         public int inHome { get; set; }
+        public CoursesOrderOptions Order { get; set; }
+        public CoursesImageOptions Image { get; set; }
     }
 
     public class CoursesOrderOptions
@@ -18,4 +19,9 @@ namespace MyCourse.Models.Options
         public bool Ascending { get; set; }
         public string[] Allow { get; set; }
     }
+    public class CoursesImageOptions { 
+        public int Width { get; set; } 
+        public int Height { get; set; } 
+        public int Quality { get; set; }
+     }   
 }

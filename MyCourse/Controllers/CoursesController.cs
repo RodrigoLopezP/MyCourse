@@ -99,7 +99,10 @@ namespace MyCourse.Controllers
                 }
                 catch (CourseTitleUnavailableException)
                 {
-                    ModelState.AddModelError(nameof(CourseDetailViewModel.Title), "Questo titolo già esiste"); //nel primo parametro basta scrivere "Title", ma penso che così sia più bellino, cioè, più preciso
+                    ModelState.AddModelError(nameof(CourseEditInputModel.Title), "Questo titolo già esiste"); //nel primo parametro basta scrivere "Title", ma penso che così sia più bellino, cioè, più preciso
+                }
+                catch(CourseImageInvalidException){
+                    ModelState.AddModelError(nameof(CourseEditInputModel.Image),"L'immagine selezionata non è valida, usare un'altra");
                 }
             }
             ViewBag.Title = "Edit";

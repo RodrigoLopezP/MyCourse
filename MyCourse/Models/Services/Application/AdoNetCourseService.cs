@@ -87,7 +87,6 @@ namespace MyCourse.Models.Services.Application
                }
                return courseDetailViewModel;
           }
-
           public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel coursesFilters)
           {
                string orderby = coursesFilters.OrderBy == "CurrentPrice" ? "CurrentPrice_Amount" : coursesFilters.OrderBy;
@@ -112,7 +111,6 @@ namespace MyCourse.Models.Services.Application
 
                return result;
           }
-
           public async Task<CourseDetailViewModel> CreateCourseAsync(CourseCreateInputModel nuovoCorso)
           {
                string title = nuovoCorso.Title;
@@ -133,14 +131,12 @@ namespace MyCourse.Models.Services.Application
                     throw new CourseTitleUnavailableException(title, exc);
                }
           }
-
           public async Task<bool> IsTitleAvailableAsync(string title, int id)
           {
                DataSet result = await db.QueryAsync($"SELECT COUNT(*) FROM Courses WHERE Title LIKE {title} AND Id<>{id}");
                bool titleAvailable = Convert.ToInt32(result.Tables[0].Rows[0][0]) == 0; //se ci sono 0 risultati allora true
                return titleAvailable;
           }
-
           public async Task<CourseEditInputModel> GetCourseForEditingAsync(int id)
           {
                FormattableString query = $@"
@@ -159,7 +155,6 @@ namespace MyCourse.Models.Services.Application
                CourseEditInputModel courseToEdit = CourseEditInputModel.FromDataRecord(rowCourseToEdit);
                return courseToEdit;
           }
-
           public async Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel)
           {
                 //verifca se id del corso che è arrivato questo metodo esiste
@@ -196,10 +191,17 @@ namespace MyCourse.Models.Services.Application
                //se inputModel.Image è null, vuol dire che non è stata aggiornata l img del corso, quindi non è necessario fare l update
                if (inputModel.Image != null)
                {
-                    string imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image); //salva su disco
+                   try
+                   {
+                     string imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image); //salva su disco
                     dataSet = await db.QueryAsync($@"UPDATE Courses
                                                             SET ImagePath={imagePath}
                                                             WHERE Id={inputModel.Id}");//salva nuovo percorso nella colonna tabella db
+                   }
+                   catch (Exception exc)
+                   {
+                    throw new CourseImageInvalidException(inputModel.Id, exc);
+                   }
                }
 
                CourseDetailViewModel result = await GetCourseAsync(inputModel.Id);

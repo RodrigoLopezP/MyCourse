@@ -17,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using MyCourse.Models.Enums;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace MyCourse
 {
@@ -77,12 +78,16 @@ namespace MyCourse
             // services.AddDbContext<MyCourseDbContext>();    //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose // sez11-lez69 RIMPIAZZATO CON addDbContextPool, per migliorare le prestazioni
             //services.AddScoped<MyCourseDbContext>();        //Metodo alternativo per indicare il servizio DbContext
 
-            //Options
+            //OPTIONS----------------------------------------
             /*Sez-12-72 - In questo modo passiamo la configurazione ottenuta da appsetting.json
             *a una classe di tipo "ConnectionStringsOptions", che abbiamo creato nella cartella Models
             *in questo modo prende le variabili dal file di config è tipizzato*/
+
             services.Configure<ConnectionStringsOptions>(Configuration.GetSection("ConnectionStrings"));
             services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
+            services.Configure<KestrelServerOptions>(Configuration.GetSection("Kestrel")); 
+            //limitiamo la robbba direttamente dal kestrel, tipo la grandezza max di richiesta
+            //https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.server.kestrel.core.kestrelserverlimits?view=aspnetcore-3.1
 
             /*Sez 12 - 81 Rimuovere oggetti dalla cache e limitare uso RAM*/
             services.Configure<MemoryCacheOptions>(Configuration.GetSection("MemoryCache"));

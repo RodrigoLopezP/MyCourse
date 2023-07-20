@@ -180,9 +180,18 @@ namespace MyCourse.Models.Services.Application
                //cambia img del corso se è presente una nuova
                if (inputModel.Image != null)
                {
+                    try
+                    {
                     string imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image);
                     course.ChangeImagePath(imagePath);
+                    }
+                    catch (Exception exc)
+                    {
+                         throw new CourseImageInvalidException(course.Id, exc);
+                    }
                }
+
+               //Salvataggio modifiche in DB
                try
                {
                     await dbContext.SaveChangesAsync();
