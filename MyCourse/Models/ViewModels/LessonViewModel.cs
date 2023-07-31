@@ -43,7 +43,7 @@ namespace MyCourse.Models.ViewModels
                 Id = lesson.Id,
                 Title = lesson.Title,
                 Duration = lesson.Duration,
-                Description = lesson.Description
+                Description= lesson.Description
             };
         }
     }

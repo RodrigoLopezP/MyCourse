@@ -34,6 +34,7 @@ namespace MyCourse.Models.Services.Application
           public async Task<CourseDetailViewModel> GetCourseAsync(int id)
           {
                IQueryable<CourseDetailViewModel> queryLinq = dbContext.Courses
+               .Include(course=> course.Lessons) //vengono aggiunti anche le lezioni di ogni corso
                .Where(course => course.Id == id)
                .AsNoTracking()                                         //EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
                .Select(course => CourseDetailViewModel.FromEntity(course)); //qui non server ASYNC perché interagiamo effettivamente con il db con .SINGLEASYNC()
@@ -49,6 +50,8 @@ namespace MyCourse.Models.Services.Application
                     _logger.LogWarning("Course {id} not found", id);
                     throw new CourseNotFoundException(id);
                }
+
+               
                return dettaglioCorso;
           }
 
@@ -177,6 +180,9 @@ namespace MyCourse.Models.Services.Application
                course.ChangeDescription(inputModel.Description);
                course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
                course.ChangeEmail(inputModel.Email);
+
+               dbContext.Entry(course).Property(course=> course.RowVersion).OriginalValue= inputModel.RowVersion;
+
                //cambia img del corso se è presente una nuova
                if (inputModel.Image != null)
                {
@@ -199,6 +205,10 @@ namespace MyCourse.Models.Services.Application
                catch (DbUpdateException exc) when ((exc.InnerException as SqliteException)?.SqliteErrorCode == 19)
                {
                     throw new CourseTitleUnavailableException(inputModel.Title, exc);
+               }
+               catch (DbUpdateConcurrencyException)
+               {
+                    throw new OptimisticConcurrencyException();
                }
 
                return CourseDetailViewModel.FromEntity(course);

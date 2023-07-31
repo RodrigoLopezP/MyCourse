@@ -13,6 +13,7 @@ namespace MyCourse.Models.ViewModels
     {
         public string Description { get; set; }
         public List<LessonViewModel> Lessons { get; set; }
+        public string RowVersion { get; set; }
 
         public TimeSpan TotalCourseDuration
         {
@@ -44,7 +45,8 @@ namespace MyCourse.Models.ViewModels
                 non in questa funzione
                 */
                 Description = Convert.ToString(courseRow["Description"]),
-                Lessons = new List<LessonViewModel>()
+                Lessons = new List<LessonViewModel>(),
+                RowVersion= Convert.ToString(courseRow["RowVersion"])
             };
             return courseDetailViewModel;
         }

@@ -40,7 +40,8 @@ namespace MyCourse.Models.InputModels
           public Money CurrentPrice { get; set; }
           [Display(Name = "Nuova immagine...")]
           public IFormFile Image { get; set; }
-          public static CourseEditInputModel FromDataRecord(DataRow courseRow)
+          public string RowVersion { get; set; }
+          public static CourseEditInputModel FromDataRow(DataRow courseRow)
           {
                var courseEditInputModel = new CourseEditInputModel
                {
@@ -57,6 +58,7 @@ namespace MyCourse.Models.InputModels
                         Enum.Parse<Currency>(Convert.ToString(courseRow["CurrentPrice_Currency"])),
                         Convert.ToDecimal(courseRow["CurrentPrice_Amount"])
                     ),
+                    RowVersion=Convert.ToString(courseRow["RowVersion"])
                };
                return courseEditInputModel;
           }
@@ -70,7 +72,8 @@ namespace MyCourse.Models.InputModels
                     Email = course.Email,
                     CurrentPrice = course.CurrentPrice,
                     FullPrice = course.FullPrice,
-                    Description = course.Description
+                    Description = course.Description,
+                    RowVersion=course.RowVersion
                };
           }
           /*

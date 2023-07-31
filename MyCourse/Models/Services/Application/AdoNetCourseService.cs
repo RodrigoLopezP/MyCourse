@@ -33,7 +33,6 @@ namespace MyCourse.Models.Services.Application
 
                this.imagePersister = imagePersister;// usiamo questo oggetto per usarlo nella metodo EditCourseAsync
           }
-
           public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
           {
                CourseListInputModel inputForBestRatingCourses = new CourseListInputModel(
@@ -62,7 +61,7 @@ namespace MyCourse.Models.Services.Application
           {
                _logger.LogInformation("Course {id} requested", id);
 
-               FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency FROM Courses WHERE Id={id}
+               FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion FROM Courses WHERE Id={id}
             ; SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id}";
 
                DataSet dataSet = await db.QueryAsync(query);
@@ -138,7 +137,7 @@ namespace MyCourse.Models.Services.Application
           public async Task<CourseEditInputModel> GetCourseForEditingAsync(int id)
           {
                FormattableString query = $@"
-               SELECT Id, Title, Description, ImagePath,Email , FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency
+               SELECT Id, Title, Description, ImagePath,Email , FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion
                FROM Courses
                WHERE Id LIKE {id}";
                DataSet dataSet = await db.QueryAsync(query);
@@ -150,7 +149,7 @@ namespace MyCourse.Models.Services.Application
                     throw new CourseNotFoundException(id);
                }
                DataRow rowCourseToEdit = dataTable.Rows[0];
-               CourseEditInputModel courseToEdit = CourseEditInputModel.FromDataRecord(rowCourseToEdit);
+               CourseEditInputModel courseToEdit = CourseEditInputModel.FromDataRow(rowCourseToEdit);
                return courseToEdit;
           }
           public async Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel)
@@ -167,7 +166,6 @@ namespace MyCourse.Models.Services.Application
                     SET
                     Title={inputModel.Title},
                     Description={inputModel.Description},
-                    ImagePath={inputModel.ImagePath},
                     Email={inputModel.Email},
                     FullPrice_Amount={inputModel.FullPrice.Amount},
                     FullPrice_Currency={inputModel.FullPrice.Currency},
@@ -175,13 +173,22 @@ namespace MyCourse.Models.Services.Application
                     CurrentPrice_Currency={inputModel.CurrentPrice.Currency},
                     ImagePath=COALESCE({imagePath},ImagePath)
                     WHERE
-                    Id ={inputModel.Id}"; //COALESCE: se il primo valore è null, allora sceglie il secondo
+                    Id ={inputModel.Id}
+                    AND
+                    RowVersion={inputModel.RowVersion}"; //COALESCE: se il primo valore è null, allora sceglie il secondo
 
                     int affectedRows = await db.CommandAsync(queryUpdate);
-
                     if (affectedRows == 0)
                     {
-                         throw new CourseNotFoundException(inputModel.Id);
+                         bool courseExists = await db.QueryScalarAsync<bool>($@"SELECT COUNT (*) FROM Courses WHERE Id={inputModel.Id};");
+                         if (courseExists)
+                         {
+                              throw new OptimisticConcurrencyException();
+                         }
+                         else
+                         {
+                              throw new CourseNotFoundException(inputModel.Id);
+                         }
                     }
                }
                catch (SqliteException excep) when (excep.SqliteErrorCode == 19)

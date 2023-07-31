@@ -88,7 +88,10 @@ namespace MyCourse.Models.Services.Infrastructure
                     {
                          continue;
                     }
-                    var parameter = new SqliteParameter(name: i.ToString(), value: queryArguments[i] ?? DBNull.Value); //value, se è null allora usa DB NULL VALUE
+                    if(Convert.ToString(queryArguments[i])=="(null)"){
+                         queryArguments[i]=DBNull.Value;
+                    }
+                    var parameter = new SqliteParameter(name: i.ToString(), value: queryArguments[i]); //value, se è null allora usa DB NULL VALUE
                     sqliteParameters.Add(parameter);
                     queryArguments[i] = "@" + i;
                }
