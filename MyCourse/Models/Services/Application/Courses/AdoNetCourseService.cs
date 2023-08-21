@@ -13,7 +13,7 @@ using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ValueObjects;
 using MyCourse.Models.ViewModels;
 
-namespace MyCourse.Models.Services.Application
+namespace MyCourse.Models.Services.Application.Courses
 {
      public class AdoNetCourseService : ICourseService
      {
@@ -28,7 +28,7 @@ namespace MyCourse.Models.Services.Application
           public AdoNetCourseService(ILogger<AdoNetCourseService> logger, IDatabaseAccessor db, IImagePersister imagePersister, IOptionsMonitor<CoursesOptions> coursesOptions)
           {
                _logger = logger;
-               this._coursesOpts = coursesOptions;
+               _coursesOpts = coursesOptions;
                this.db = db;
 
                this.imagePersister = imagePersister;// usiamo questo oggetto per usarlo nella metodo EditCourseAsync

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using MyCourse.Models.InputModels;
 using MyCourse.Models.ViewModels;
 
-namespace MyCourse.Models.Services.Application
+namespace MyCourse.Models.Services.Application.Courses
 {
      public interface ICourseService
      {

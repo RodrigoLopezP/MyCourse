@@ -9,14 +9,8 @@ namespace MyCourse.Models.Entities
      {
           public Course(string title, string author)
           {
-               if (string.IsNullOrWhiteSpace(title))
-               {
-                    throw new ArgumentException("The course must have a title");
-               }
-               if (string.IsNullOrWhiteSpace(author))
-               {
-                    throw new ArgumentException("The course must have an author");
-               }
+               ChangeTitle(title);
+               ChangeAuthor(author);
                Title = title;
                Author = author;
                Lessons = new HashSet<Lesson>();
@@ -37,6 +31,14 @@ namespace MyCourse.Models.Entities
           public Money CurrentPrice { get; private set; }
           public string RowVersion { get; set; }
 
+          public void ChangeAuthor(string newAuthor)
+          {
+               if (string.IsNullOrWhiteSpace(newAuthor))
+               {
+                    throw new ArgumentException("The author must have a name");
+               }
+               this.Author = newAuthor;
+          }
           public void ChangeTitle(string newTitle)
           {
                if (string.IsNullOrEmpty(this.Title))
@@ -45,7 +47,6 @@ namespace MyCourse.Models.Entities
                }
                this.Title = newTitle;
           }
-
           public void ChangePrice(Money newFullPrice, Money NewDiscountPrice)
           {
                if (newFullPrice == null || NewDiscountPrice == null)
@@ -63,7 +64,6 @@ namespace MyCourse.Models.Entities
                FullPrice = newFullPrice;
                CurrentPrice = NewDiscountPrice;
           }
-
           public void ChangeDescription(string newDescription)
           {
                if (String.IsNullOrEmpty(newDescription))
@@ -72,8 +72,6 @@ namespace MyCourse.Models.Entities
                }
                Description = newDescription;
           }
-
-
           public void ChangeImagePath(string newImagePath)
           {
                if (String.IsNullOrEmpty(newImagePath))
@@ -82,7 +80,6 @@ namespace MyCourse.Models.Entities
                }
                ImagePath = newImagePath;
           }
-
           public void ChangeEmail(string newEmail)
           {
                if (String.IsNullOrEmpty(newEmail))

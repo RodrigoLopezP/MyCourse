@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
-using MyCourse.Models.Services.Application;
 using MyCourse.Models.Services.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +17,8 @@ using MyCourse.Models.Enums;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using MyCourse.Models.Services.Application.Courses;
+using MyCourse.Models.Services.Application.Lessons;
 
 namespace MyCourse
 {
@@ -53,15 +54,17 @@ namespace MyCourse
 #endif
                 ;
 
-               Enum tipoServizioDB = Persistence.EfCore;
+               Enum tipoServizioDB = Persistence.Adonet;
                switch (tipoServizioDB)
                {
                     case Persistence.Adonet:
                          services.AddTransient<ICourseService, AdoNetCourseService>();
+                         services.AddTransient<ILessonService,AdoNetLessonService>();
                          services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
                          break;
                     case Persistence.EfCore:
                          services.AddTransient<ICourseService, EfCoreCourseService>();
+                         services.AddTransient<ILessonService, EfCoreLessonService>();
                          services.AddDbContextPool<MyCourseDbContext>(optionsBuilder =>
                                      {
                                           //Sez-12-72-Configurazione tipizzata
@@ -95,6 +98,7 @@ namespace MyCourse
                /*Sez12 - lez79 caching
                Aggiunto servizio caching attraverso dependency injection*/
                services.AddTransient<ICachedCourseService, MemoryCacheCourseService>();
+               services.AddTransient<ICachedLessonService,MemoryCacheLessonService>();
 
                services.AddSingleton<IImagePersister, MagickNetImagePersister>();
           }

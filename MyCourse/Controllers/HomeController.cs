@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MyCourse.Models.Services.Application;
+using MyCourse.Models.Services.Application.Courses;
+using MyCourse.Models.Services.Application.Lessons;
 using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Controllers
 {
-    public class HomeController : Controller
+     public class HomeController : Controller
     {
         public async Task<IActionResult> Index([FromServices] ICachedCourseService courseService)
         {

@@ -24,57 +24,71 @@ namespace MyCourse.Models.Services.Infrastructure
 
           public async Task<int> CommandAsync(FormattableString formattableCommand)
           {
-            try
-            {
-               logger.LogInformation(formattableCommand.Format, formattableCommand.GetArguments());
+               try
+               {
+                    logger.LogInformation(formattableCommand.Format, formattableCommand.GetArguments());
 
-               //Colleghiamoci al database Sqlite, inviamo la query e leggiamo i risultati
-               using SqliteConnection conn = await GetOpenedConnection();
-               using SqliteCommand cmd = GetCommand(formattableCommand, conn);
-          
-               int affectedRows= await cmd.ExecuteNonQueryAsync();
-               return affectedRows;
-            }
-            catch(SqliteException exc) when (exc.SqliteErrorCode==19){
-                throw new ConstraintViolationException(exc);
-            }  
+                    //Colleghiamoci al database Sqlite, inviamo la query e leggiamo i risultati
+                    using SqliteConnection conn = await GetOpenedConnection();
+                    using SqliteCommand cmd = GetCommand(formattableCommand, conn);
+
+                    int affectedRows = await cmd.ExecuteNonQueryAsync();
+                    return affectedRows;
+               }
+               catch (SqliteException exc) when (exc.SqliteErrorCode == 19)
+               {
+                    throw new ConstraintViolationException(exc);
+               }
           }
 
           public async Task<DataSet> QueryAsync(FormattableString formattableQuery)
           {
-               logger.LogInformation(formattableQuery.Format, formattableQuery.GetArguments());
-               //Colleghiamoci al database Sqlite, inviamo la query e leggiamo i risultati
-               using SqliteConnection conn = await GetOpenedConnection();
-               using SqliteCommand cmd = GetCommand(formattableQuery, conn);
-               //Inviamo la query al database e otteniamo un SqliteDataReader
-               //per leggere i risultati
-               using var reader = await cmd.ExecuteReaderAsync();
-               var dataSet = new DataSet();
-
-               dataSet.EnforceConstraints = false;
-               //Creiamo tanti DataTable per quante sono le tabelle
-               //di risultati trovate dal SqliteDataReader
-               do
+               try
                {
-                    var dataTable = new DataTable();
-                    dataSet.Tables.Add(dataTable);
-                    dataTable.Load(reader);
-               } while (!reader.IsClosed);
+                    logger.LogInformation(formattableQuery.Format, formattableQuery.GetArguments());
+                    //Colleghiamoci al database Sqlite, inviamo la query e leggiamo i risultati
+                    using SqliteConnection conn = await GetOpenedConnection();
+                    using SqliteCommand cmd = GetCommand(formattableQuery, conn);
+                    //Inviamo la query al database e otteniamo un SqliteDataReader
+                    //per leggere i risultati
+                    using var reader = await cmd.ExecuteReaderAsync();
+                    var dataSet = new DataSet();
 
-               return dataSet;
+                    dataSet.EnforceConstraints = false;
+                    //Creiamo tanti DataTable per quante sono le tabelle
+                    //di risultati trovate dal SqliteDataReader
+                    do
+                    {
+                         var dataTable = new DataTable();
+                         dataSet.Tables.Add(dataTable);
+                         dataTable.Load(reader);
+                    } while (!reader.IsClosed);
+
+                    return dataSet;
+               }
+               catch (SqliteException exc) when (exc.SqliteErrorCode == 19)
+               {
+                    throw new ConstraintViolationException(exc);
+               }
           }
           public async Task<T> QueryScalarAsync<T>(FormattableString formattableQuery)
           {
-               logger.LogInformation(formattableQuery.Format, formattableQuery.GetArguments());
+               try
+               {
+                    logger.LogInformation(formattableQuery.Format, formattableQuery.GetArguments());
+                    //Colleghiamoci al database Sqlite, inviamo la query e leggiamo i risultati
+                    using SqliteConnection conn = await GetOpenedConnection();
+                    using SqliteCommand cmd = GetCommand(formattableQuery, conn);
 
-               //Colleghiamoci al database Sqlite, inviamo la query e leggiamo i risultati
-               using SqliteConnection conn = await GetOpenedConnection();
-               using SqliteCommand cmd = GetCommand(formattableQuery, conn);
-
-               object result= await cmd.ExecuteScalarAsync();
-               //object - il tipo alla base di tutti gli altri tipi
-               //poi dobbiamo essere noi a fare il casting necessario agli altri tipi, il metodo ExecuteScalarAsync restituisce quello
-               return (T)Convert.ChangeType(result, typeof(T));
+                    object result = await cmd.ExecuteScalarAsync();
+                    //object - il tipo alla base di tutti gli altri tipi
+                    //poi dobbiamo essere noi a fare il casting necessario agli altri tipi, il metodo ExecuteScalarAsync restituisce quello
+                    return (T)Convert.ChangeType(result, typeof(T));
+               }
+               catch (SqliteException exc) when (exc.SqliteErrorCode == 19)
+               {
+                    throw new ConstraintViolationException(exc);
+               }
           }
 
           private static SqliteCommand GetCommand(FormattableString formattableQuery, SqliteConnection conn)
@@ -88,8 +102,9 @@ namespace MyCourse.Models.Services.Infrastructure
                     {
                          continue;
                     }
-                    if(Convert.ToString(queryArguments[i])=="(null)"){
-                         queryArguments[i]=DBNull.Value;
+                    if (Convert.ToString(queryArguments[i]) == "(null)")
+                    {
+                         queryArguments[i] = DBNull.Value;
                     }
                     var parameter = new SqliteParameter(name: i.ToString(), value: queryArguments[i]); //value, se è null allora usa DB NULL VALUE
                     sqliteParameters.Add(parameter);

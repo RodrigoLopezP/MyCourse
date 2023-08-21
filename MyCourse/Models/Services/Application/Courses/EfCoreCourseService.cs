@@ -6,14 +6,15 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MyCourse.Models.Entities;
 using MyCourse.Models.Exceptions;
 using MyCourse.Models.InputModels;
 using MyCourse.Models.Options;
 using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ViewModels;
+using MyCourse.Models.Entities;
+using MyCourse.Models.Services.Application.Courses;
 
-namespace MyCourse.Models.Services.Application
+namespace MyCourse.Models.Services.Application.Courses
 {
      public class EfCoreCourseService : ICourseService
      {
@@ -23,9 +24,9 @@ namespace MyCourse.Models.Services.Application
           private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;
           public EfCoreCourseService(MyCourseDbContext dbContext, IOptionsMonitor<CoursesOptions> coursesOptions, ILogger<EfCoreCourseService> logger, IImagePersister imagePersister)
           {
-               this._coursesOpts = coursesOptions;
+               _coursesOpts = coursesOptions;
                this.dbContext = dbContext;
-               this._logger = logger;
+               _logger = logger;
 
                this.imagePersister = imagePersister;
 
@@ -34,7 +35,7 @@ namespace MyCourse.Models.Services.Application
           public async Task<CourseDetailViewModel> GetCourseAsync(int id)
           {
                IQueryable<CourseDetailViewModel> queryLinq = dbContext.Courses
-               .Include(course=> course.Lessons) //vengono aggiunti anche le lezioni di ogni corso
+               .Include(course => course.Lessons) //vengono aggiunti anche le lezioni di ogni corso
                .Where(course => course.Id == id)
                .AsNoTracking()                                         //EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
                .Select(course => CourseDetailViewModel.FromEntity(course)); //qui non server ASYNC perché interagiamo effettivamente con il db con .SINGLEASYNC()
@@ -51,7 +52,7 @@ namespace MyCourse.Models.Services.Application
                     throw new CourseNotFoundException(id);
                }
 
-               
+
                return dettaglioCorso;
           }
 
@@ -181,15 +182,15 @@ namespace MyCourse.Models.Services.Application
                course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
                course.ChangeEmail(inputModel.Email);
 
-               dbContext.Entry(course).Property(course=> course.RowVersion).OriginalValue= inputModel.RowVersion;
+               dbContext.Entry(course).Property(course => course.RowVersion).OriginalValue = inputModel.RowVersion;
 
                //cambia img del corso se è presente una nuova
                if (inputModel.Image != null)
                {
                     try
                     {
-                    string imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image);
-                    course.ChangeImagePath(imagePath);
+                         string imagePath = await imagePersister.SaveCourseImageAsync(inputModel.Id, inputModel.Image);
+                         course.ChangeImagePath(imagePath);
                     }
                     catch (Exception exc)
                     {
