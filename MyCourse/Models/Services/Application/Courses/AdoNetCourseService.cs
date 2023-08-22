@@ -62,7 +62,7 @@ namespace MyCourse.Models.Services.Application.Courses
                _logger.LogInformation("Course {id} requested", id);
 
                FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion FROM Courses WHERE Id={id}
-            ; SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id}";
+            ; SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id} ORDER BY [Order], {id}";
 
                DataSet dataSet = await db.QueryAsync(query);
 
@@ -91,7 +91,8 @@ namespace MyCourse.Models.Services.Application.Courses
                string orderby = coursesFilters.OrderBy == "CurrentPrice" ? "CurrentPrice_Amount" : coursesFilters.OrderBy;
                string direction = coursesFilters.Ascending ? "ASC" : "DESC";
 
-               FormattableString query = $@"SELECT Id, Title, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency FROM Courses WHERE Title LIKE {"%" + coursesFilters.Search + "%"} ORDER BY {(Sql)orderby} {(Sql)direction} LIMIT {coursesFilters.Limit} OFFSET {coursesFilters.Offset}; 
+               FormattableString query = $@"SELECT Id, Title, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency FROM Courses 
+               WHERE Title LIKE {"%" + coursesFilters.Search + "%"} ORDER BY {(Sql)orderby} {(Sql)direction} LIMIT {coursesFilters.Limit} OFFSET {coursesFilters.Offset}; 
             SELECT COUNT(*) FROM Courses WHERE Title LIKE {"%" + coursesFilters.Search + "%"}";
                DataSet dataSet = await db.QueryAsync(query);
                var dataTable = dataSet.Tables[0];

@@ -11,10 +11,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
 </environment>
 
-<!---
+<!--- IN ALTO
 Un volta che invii la richiesta, quesi cosi si ricordano la logica di validazione che hai fatto
 quindi sei sbagli a scrivere, poi mentre digiti ti si aggiorna il  messaggino di errore
 
 funziona solo con il asp-validation-for
 non funziona con il asp-validation-summary
 --->
+
+<script>
+    //Evita un'incompatibilità di jQuery Validation con l'attributo step dei campi input type="time"
+    //Se non ci fosse questa riga, in console apparirebbe l'errore "Step attribute on input type time is not supported."
+    $(function() {
+        $("[step]").rules('add', {step: false});
+    });
+</script>

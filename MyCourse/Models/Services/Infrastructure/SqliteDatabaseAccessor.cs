@@ -26,7 +26,7 @@ namespace MyCourse.Models.Services.Infrastructure
           {
                try
                {
-                    logger.LogInformation(formattableCommand.Format, formattableCommand.GetArguments());
+                    //logger.LogInformation(formattableCommand.Format, formattableCommand.GetArguments());
 
                     //Colleghiamoci al database Sqlite, inviamo la query e leggiamo i risultati
                     using SqliteConnection conn = await GetOpenedConnection();

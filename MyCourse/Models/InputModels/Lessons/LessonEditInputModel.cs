@@ -27,11 +27,13 @@ namespace MyCourse.Models.InputModels.Lessons
         public string Description { get; set; }
 
         [Display(Name = "Durata stimata"),
-        Required(ErrorMessage = "La durata è richiesta")]
+        Required(ErrorMessage = "La durata è richiesta"),
+        DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = @"{0:hh\:mm\:ss}")]
         public TimeSpan Duration { get; set; }
 
         [Display(Name = "Ordine"),
-        Required(ErrorMessage = "L'ordine è richiesto")]
+        Required(ErrorMessage = "L'ordine è richiesto")
+        ]
         public int Order { get; set; }
         public string RowVersion { get; set; }
 
