@@ -62,7 +62,8 @@ namespace MyCourse.Models.InputModels.Lessons
                 Description = lesson.Description,
                 Duration = lesson.Duration,
                 Order = lesson.Order,
-                RowVersion = lesson.RowVersion
+                RowVersion = lesson.RowVersion,
+                CourseId=lesson.CourseId
             };
         }
     }

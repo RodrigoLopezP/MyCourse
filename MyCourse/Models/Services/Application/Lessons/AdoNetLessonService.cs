@@ -84,5 +84,14 @@ namespace MyCourse.Models.Services.Application.Lessons
             var lessonEditInputModel = LessonEditInputModel.FromDataRow(lessonRow);
             return lessonEditInputModel;
         }
+
+        public async Task DeleteLessonAsync(LessonDeleteInputModel inputModel)
+        {
+            int affectedRows = await db.CommandAsync($"DELETE FROM Lessons WHERE Id={inputModel.Id}");
+            if (affectedRows == 0)
+            {
+                throw new LessonNotFoundException(inputModel.Id);
+            }
+        }
     }
 }
