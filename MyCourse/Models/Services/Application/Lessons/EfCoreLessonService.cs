@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MyCourse.Models.Entities;
 using MyCourse.Models.Exceptions;
 using MyCourse.Models.InputModels.Lessons;
 using MyCourse.Models.Services.Infrastructure;
@@ -21,14 +22,40 @@ namespace MyCourse.Models.Services.Application.Lessons
             this.logger = logger;
             this.dbContext = dbContext;
         }
-        public Task<LessonDetailViewModel> CreateLessonAsync(LessonCreateInputModel inputModel)
+        public async Task<LessonDetailViewModel> CreateLessonAsync(LessonCreateInputModel inputModel)
         {
-            throw new NotImplementedException();
+            var lesson = new Lesson(inputModel.Title, inputModel.CourseId);
+            dbContext.Add(lesson);
+            await dbContext.SaveChangesAsync();
+
+            return LessonDetailViewModel.FromEntity(lesson);
         }
 
-        public Task<LessonDetailViewModel> EditLessonAsync(LessonEditInputModel inputModel)
+        public async Task<LessonDetailViewModel> EditLessonAsync(LessonEditInputModel inputModel)
         {
-            throw new NotImplementedException();
+            Lesson lesson = await dbContext.Lessons.FindAsync(inputModel.Id);
+
+            if (lesson == null)
+            {
+                throw new LessonNotFoundException(inputModel.Id);
+            }
+
+            lesson.ChangeTitle(inputModel.Title);
+            lesson.ChangeDescription(inputModel.Description);
+            lesson.ChangeDuration(inputModel.Duration);
+            lesson.ChangeOrder(inputModel.Order);
+            dbContext.Entry(lesson).Property(lesson => lesson.RowVersion).OriginalValue = inputModel.RowVersion;
+
+            try
+            {
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new OptimisticConcurrencyException();
+            }
+
+            return LessonDetailViewModel.FromEntity(lesson);
         }
 
         public async Task<LessonDetailViewModel> GetLessonAsync(int id)

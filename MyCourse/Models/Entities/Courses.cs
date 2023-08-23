@@ -41,7 +41,7 @@ namespace MyCourse.Models.Entities
           }
           public void ChangeTitle(string newTitle)
           {
-               if (string.IsNullOrEmpty(this.Title))
+               if (string.IsNullOrEmpty(newTitle))
                {
                     throw new ArgumentException("The course must have a title");
                }

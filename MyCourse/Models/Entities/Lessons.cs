@@ -21,7 +21,7 @@ namespace MyCourse.Models.Entities
           public string RowVersion { get; private set; }
           public virtual Course Course { get; set; }
 
-          private void ChangeTitle(string title)
+          public void ChangeTitle(string title)
           {
                Title = title;
           }

@@ -102,7 +102,7 @@ namespace MyCourse.Models.Services.Infrastructure
                     {
                          continue;
                     }
-                    if (Convert.ToString(queryArguments[i]) == "(null)")
+                    if (Convert.ToString(queryArguments[i]) == "(null)" || queryArguments[i]==null)
                     {
                          queryArguments[i] = DBNull.Value;
                     }

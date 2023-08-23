@@ -54,7 +54,7 @@ namespace MyCourse
 #endif
                 ;
 
-               Enum tipoServizioDB = Persistence.Adonet;
+               Enum tipoServizioDB = Persistence.EfCore;
                switch (tipoServizioDB)
                {
                     case Persistence.Adonet:
