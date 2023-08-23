@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MyCourse.Models.Exceptions;
 using MyCourse.Models.InputModels;
+using MyCourse.Models.InputModels.Courses;
 using MyCourse.Models.Services.Application.Courses;
 using MyCourse.Models.Services.Application.Lessons;
 using MyCourse.Models.ViewModels;
@@ -108,12 +109,21 @@ namespace MyCourse.Controllers
                     }
                     catch (OptimisticConcurrencyException)
                     {
-                         ModelState.AddModelError("","Corso modificato di recente, ricaricare la pagina per effettutare le modifiche");
+                         ModelState.AddModelError("", "Corso modificato di recente, ricaricare la pagina per effettutare le modifiche");
                     }
                }
-               
+
                ViewBag.Title = "Edit";
                return View(inputModel);
           }
+
+          [HttpPost]
+          public async Task<IActionResult> Delete(CourseDeleteInputModel inputModel)
+          {
+               await courseService.DeleteCourseAsync(inputModel);
+               TempData["ConfirmationMessage"] = "Il corso è stato eliminato ma potrebbe continuare a comparire negli elenchi per un breve periodo, finché la cache non viene aggiornata.";
+               return RedirectToAction(nameof(Index));
+          }
+
      }
 }

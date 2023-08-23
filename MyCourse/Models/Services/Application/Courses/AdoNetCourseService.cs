@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MyCourse.Models.Enums;
 using MyCourse.Models.Exceptions;
 using MyCourse.Models.InputModels;
+using MyCourse.Models.InputModels.Courses;
 using MyCourse.Models.Options;
 using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ValueObjects;
@@ -61,7 +63,7 @@ namespace MyCourse.Models.Services.Application.Courses
           {
                _logger.LogInformation("Course {id} requested", id);
 
-               FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion FROM Courses WHERE Id={id}
+               FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion FROM Courses WHERE Id={id} AND Status<>{nameof(CourseStatus.Deleted)}
             ; SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id} ORDER BY [Order], {id}";
 
                DataSet dataSet = await db.QueryAsync(query);
@@ -92,8 +94,8 @@ namespace MyCourse.Models.Services.Application.Courses
                string direction = coursesFilters.Ascending ? "ASC" : "DESC";
 
                FormattableString query = $@"SELECT Id, Title, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency FROM Courses 
-               WHERE Title LIKE {"%" + coursesFilters.Search + "%"} ORDER BY {(Sql)orderby} {(Sql)direction} LIMIT {coursesFilters.Limit} OFFSET {coursesFilters.Offset}; 
-            SELECT COUNT(*) FROM Courses WHERE Title LIKE {"%" + coursesFilters.Search + "%"}";
+               WHERE Title LIKE {"%" + coursesFilters.Search + "%"} AND Status<>{nameof(CourseStatus.Deleted)} ORDER BY {(Sql)orderby} {(Sql)direction} LIMIT {coursesFilters.Limit} OFFSET {coursesFilters.Offset}; 
+            SELECT COUNT(*) FROM Courses WHERE Title LIKE {"%" + coursesFilters.Search + "%"} AND Status<>{nameof(CourseStatus.Deleted)}";
                DataSet dataSet = await db.QueryAsync(query);
                var dataTable = dataSet.Tables[0];
                var courseList = new List<CourseViewModel>();
@@ -132,7 +134,7 @@ namespace MyCourse.Models.Services.Application.Courses
           public async Task<bool> IsTitleAvailableAsync(string title, int id)
           {
                //tanto questo risultato viene sempre o 0 o 1, quindi possiamo convertirlo in bool direttamente
-               bool titleExists = await db.QueryScalarAsync<bool>($"SELECT COUNT(*) FROM Courses WHERE Title LIKE {title} AND Id<>{id}");
+               bool titleExists = await db.QueryScalarAsync<bool>($@"SELECT COUNT(*) FROM Courses WHERE Title LIKE {title} AND Id<>{id} AND Status<>{nameof(CourseStatus.Deleted)}");
                return !titleExists;
           }
           public async Task<CourseEditInputModel> GetCourseForEditingAsync(int id)
@@ -140,7 +142,8 @@ namespace MyCourse.Models.Services.Application.Courses
                FormattableString query = $@"
                SELECT Id, Title, Description, ImagePath,Email , FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion
                FROM Courses
-               WHERE Id LIKE {id}";
+               WHERE Id LIKE {id}
+               AND Status<>{nameof(CourseStatus.Deleted)}";
                DataSet dataSet = await db.QueryAsync(query);
                var dataTable = dataSet.Tables[0];
 
@@ -176,12 +179,13 @@ namespace MyCourse.Models.Services.Application.Courses
                     WHERE
                     Id ={inputModel.Id}
                     AND
-                    RowVersion={inputModel.RowVersion}"; //COALESCE: se il primo valore è null, allora sceglie il secondo
+                    RowVersion={inputModel.RowVersion}
+                    AND Status<>{nameof(CourseStatus.Deleted)}"; //COALESCE: se il primo valore è null, allora sceglie il secondo
 
                     int affectedRows = await db.CommandAsync(queryUpdate);
                     if (affectedRows == 0)
                     {
-                         bool courseExists = await db.QueryScalarAsync<bool>($@"SELECT COUNT (*) FROM Courses WHERE Id={inputModel.Id};");
+                         bool courseExists = await db.QueryScalarAsync<bool>($@"SELECT COUNT (*) FROM Courses WHERE Id={inputModel.Id} AND Status<>{nameof(CourseStatus.Deleted)};");
                          if (courseExists)
                          {
                               throw new OptimisticConcurrencyException();
@@ -203,5 +207,14 @@ namespace MyCourse.Models.Services.Application.Courses
                CourseDetailViewModel result = await GetCourseAsync(inputModel.Id);
                return result;
           }
-     }
+
+        public async Task DeleteCourseAsync(CourseDeleteInputModel inputModel)
+        {
+            int affectedRows = await this.db.CommandAsync($"UPDATE Courses SET Status={nameof(CourseStatus.Deleted)} WHERE Id={inputModel.Id} AND Status<>{nameof(CourseStatus.Deleted)}");
+            if (affectedRows == 0)
+            {
+                throw new CourseNotFoundException(inputModel.Id);
+            }
+        }
+    }
 }

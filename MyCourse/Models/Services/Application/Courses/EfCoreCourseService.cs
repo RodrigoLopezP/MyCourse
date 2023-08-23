@@ -13,6 +13,8 @@ using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ViewModels;
 using MyCourse.Models.Entities;
 using MyCourse.Models.Services.Application.Courses;
+using MyCourse.Models.InputModels.Courses;
+using MyCourse.Models.Enums;
 
 namespace MyCourse.Models.Services.Application.Courses
 {
@@ -213,6 +215,19 @@ namespace MyCourse.Models.Services.Application.Courses
                }
 
                return CourseDetailViewModel.FromEntity(course);
+          }
+
+          public async Task DeleteCourseAsync(CourseDeleteInputModel inputModel)
+          {
+               Course course = await dbContext.Courses.FindAsync(inputModel.Id);
+
+               if (course == null)
+               {
+                    throw new CourseNotFoundException(inputModel.Id);
+               }
+
+               course.ChangeStatus(CourseStatus.Deleted);
+               await dbContext.SaveChangesAsync();
           }
      }
 }

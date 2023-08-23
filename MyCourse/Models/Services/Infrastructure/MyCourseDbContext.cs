@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using MyCourse.Migrations;
 using MyCourse.Models.Entities;
-using MyCourse.Models.ValueTypes;
+using MyCourse.Models.Enums;
 
 namespace MyCourse.Models.Services.Infrastructure
 {
@@ -52,8 +53,7 @@ namespace MyCourse.Models.Services.Infrastructure
                 //qua sotto viene usata la versione ridotta--vvvv------------------------
                 entity.OwnsOne(course => course.FullPrice, builder =>
                    {
-                       builder.Property(money => money.Currency)
-                          .HasConversion<string>();
+                       builder.Property(money => money.Currency).HasConversion<string>();//per convertire questa stringa dal db a una ENUM
                         builder.Property(money=> money.Amount)
                             .HasConversion<float>();//Questo indica al meccanismo delle migration che la colonna della tabella dovrà essere creata di tipo numerico
                    });
@@ -70,10 +70,13 @@ namespace MyCourse.Models.Services.Infrastructure
 
                 //indichiamo a EF che la colonna rowversion del db è quella che usiamo
                 //que viene usate nel metodo EditCourseAsync  in EFCoreCourseService per fare l'update con  concorrenza ottimistica 
-                entity.Property(course => course.RowVersion).IsRowVersion();
-
                 //La colonna title è univoca
                 entity.HasIndex(course => course.Title).IsUnique();
+                entity.Property(course => course.RowVersion).IsRowVersion();
+                entity.Property(nutella=> nutella.Status).HasConversion<string>();//per farsi che nel DB venga scritto proprio DRAFT DELETED ecc ecc, come stringa
+
+                //global query filter
+                    entity.HasQueryFilter(course=> course.Status!= Enums.CourseStatus.Deleted);
                 #region Mapping generato automaticamente dal tool di reverse engineering
                 /*
                 entity.Property(e => e.Id).ValueGeneratedNever();

@@ -14,7 +14,7 @@ namespace MyCourse.Models.Entities
                Title = title;
                Author = author;
                Lessons = new HashSet<Lesson>();
-
+               ChangeStatus(CourseStatus.Draft);
                FullPrice = new Money(Currency.EUR, 0.00m);
                CurrentPrice = new Money(Currency.EUR, 0.00m);
                ImagePath = "/Courses/default.png";
@@ -30,6 +30,12 @@ namespace MyCourse.Models.Entities
           public Money FullPrice { get; private set; }
           public Money CurrentPrice { get; private set; }
           public string RowVersion { get; set; }
+          public CourseStatus Status { get; set; }
+
+          public void ChangeStatus(CourseStatus newStatus){ 
+               //LOGICA DI VALIDAZIONE
+               Status=newStatus;
+          }
 
           public void ChangeAuthor(string newAuthor)
           {

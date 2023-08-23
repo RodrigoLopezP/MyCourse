@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using MyCourse.Models.InputModels;
+using MyCourse.Models.InputModels.Courses;
 using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Models.Services.Application.Courses
@@ -95,6 +96,12 @@ namespace MyCourse.Models.Services.Application.Courses
                //120 - Invalidare cache della pagina del dettaglio corso
                _memCache.Remove($"Course{inputModel.Id}");
                return result;
+          }
+
+          public async Task DeleteCourseAsync(CourseDeleteInputModel inputModel)
+          {
+               await _courseService.DeleteCourseAsync(inputModel);
+               _memCache.Remove($"Course{inputModel.Id}");
           }
      }
 }
