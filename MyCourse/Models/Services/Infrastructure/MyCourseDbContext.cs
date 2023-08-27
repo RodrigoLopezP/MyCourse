@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -8,7 +9,7 @@ using MyCourse.Models.Enums;
 
 namespace MyCourse.Models.Services.Infrastructure
 {
-    public partial class MyCourseDbContext : DbContext
+    public partial class MyCourseDbContext : IdentityDbContext<ApplicationUser> // senza il <> in modo implicito usa il predefinito IdentityUser, che non ha la prop FullName che abbiam creato in Entities/ApplicationUser, che usiamo ad esempio in Identity/Account/Register.cshtml.cs
     {
         public MyCourseDbContext(DbContextOptions<MyCourseDbContext> options)
             : base(options)
@@ -25,6 +26,9 @@ namespace MyCourse.Models.Services.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Ereditiamo il mapping del identityDbContext
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
             modelBuilder.Entity<Course>(entity =>
@@ -54,8 +58,8 @@ namespace MyCourse.Models.Services.Infrastructure
                 entity.OwnsOne(course => course.FullPrice, builder =>
                    {
                        builder.Property(money => money.Currency).HasConversion<string>();//per convertire questa stringa dal db a una ENUM
-                        builder.Property(money=> money.Amount)
-                            .HasConversion<float>();//Questo indica al meccanismo delle migration che la colonna della tabella dovrà essere creata di tipo numerico
+                       builder.Property(money => money.Amount)
+                           .HasConversion<float>();//Questo indica al meccanismo delle migration che la colonna della tabella dovrà essere creata di tipo numerico
                    });
                 //-fine versione ridotta--------------------------------------------------------------------
 
@@ -73,10 +77,10 @@ namespace MyCourse.Models.Services.Infrastructure
                 //La colonna title è univoca
                 entity.HasIndex(course => course.Title).IsUnique();
                 entity.Property(course => course.RowVersion).IsRowVersion();
-                entity.Property(nutella=> nutella.Status).HasConversion<string>();//per farsi che nel DB venga scritto proprio DRAFT DELETED ecc ecc, come stringa
+                entity.Property(nutella => nutella.Status).HasConversion<string>();//per farsi che nel DB venga scritto proprio DRAFT DELETED ecc ecc, come stringa
 
                 //global query filter
-                    entity.HasQueryFilter(course=> course.Status!= Enums.CourseStatus.Deleted);
+                entity.HasQueryFilter(course => course.Status != Enums.CourseStatus.Deleted);
                 #region Mapping generato automaticamente dal tool di reverse engineering
                 /*
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -131,7 +135,7 @@ namespace MyCourse.Models.Services.Infrastructure
                 */
 
                 entity.Property(lesson => lesson.RowVersion).IsRowVersion();
-                entity.Property(lesson=> lesson.Order).HasDefaultValue(1000).ValueGeneratedNever();
+                entity.Property(lesson => lesson.Order).HasDefaultValue(1000).ValueGeneratedNever();
 
                 #region Mapping generato automaticamente dal tool di reverse engineering
                 /*

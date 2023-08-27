@@ -19,6 +19,10 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using MyCourse.Models.Services.Application.Courses;
 using MyCourse.Models.Services.Application.Lessons;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using MyCourse.Customizations.Identity;
+using MyCourse.Models.Entities;
 
 namespace MyCourse
 {
@@ -59,10 +63,21 @@ namespace MyCourse
                {
                     case Persistence.Adonet:
                          services.AddTransient<ICourseService, AdoNetCourseService>();
-                         services.AddTransient<ILessonService,AdoNetLessonService>();
+                         services.AddTransient<ILessonService, AdoNetLessonService>();
                          services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
                          break;
                     case Persistence.EfCore:
+                         services.AddDefaultIdentity<ApplicationUser>(opts =>{
+                              opts.Password.RequireDigit = true;
+                              opts.Password.RequiredLength = 8;
+                              opts.Password.RequireUppercase = true;
+                              opts.Password.RequireLowercase = true;
+                              opts.Password.RequireNonAlphanumeric = true;
+                              opts.Password.RequiredUniqueChars = 4;
+                         })
+                         .AddPasswordValidator<CommonPasswordValidator<ApplicationUser>>()//quando si andrà nella pagina di registrazione (usando IDENTITY), quando si invia la pwd verrà afatto un controllo in questa classe
+                         .AddEntityFrameworkStores<MyCourseDbContext>();
+
                          services.AddTransient<ICourseService, EfCoreCourseService>();
                          services.AddTransient<ILessonService, EfCoreLessonService>();
                          services.AddDbContextPool<MyCourseDbContext>(optionsBuilder =>
@@ -98,7 +113,7 @@ namespace MyCourse
                /*Sez12 - lez79 caching
                Aggiunto servizio caching attraverso dependency injection*/
                services.AddTransient<ICachedCourseService, MemoryCacheCourseService>();
-               services.AddTransient<ICachedLessonService,MemoryCacheLessonService>();
+               services.AddTransient<ICachedLessonService, MemoryCacheLessonService>();
 
                services.AddSingleton<IImagePersister, MagickNetImagePersister>();
           }
@@ -131,7 +146,12 @@ namespace MyCourse
                     DefaultRequestCulture = new RequestCulture(appCulture),
                     SupportedCultures = new[] { appCulture }
                });
+
                app.UseRouting();// Sez 15 - 103 Configurato EndPoint Routing Middleware 
+
+               app.UseAuthentication();
+               app.UseAuthorization();
+
                app.UseResponseCaching();//Sez 12 - 84 - Response Caching
 
                // Sez 15 - 103  EndPoint Middleware in uso - aggiornamento a net core 3.0
@@ -141,7 +161,10 @@ namespace MyCourse
                     //controller -> indica il file dove andrà a cercare il metodo. Es. CoursesController => nel URL ci dovrà essere scritto "Courses"
                     //action -> nome del metodo
                     //id -> il metodo deve avere un param di input = id . Altrimenti non riceverà niente, sarà null
+
+                    routeBuilder.MapRazorPages();
                });
+
           }
      }
 }
