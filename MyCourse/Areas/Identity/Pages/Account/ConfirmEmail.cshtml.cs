@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using MyCourse.Models.Entities;
 
-
 namespace MyCourse.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]

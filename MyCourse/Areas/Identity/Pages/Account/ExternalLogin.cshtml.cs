@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using MyCourse.Models.Entities;
 
-
 namespace MyCourse.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]

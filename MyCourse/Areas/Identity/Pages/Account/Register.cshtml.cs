@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using MyCourse.Models.Entities;
 
-
 namespace MyCourse.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
@@ -47,8 +46,8 @@ namespace MyCourse.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required(ErrorMessage = "Il nome completo è obbligatoria")]
-            [StringLength(100, MinimumLength =3, ErrorMessage ="Il nome completo deve avere almeno {2} caratteri e massimo {1}")]
+            [Required(ErrorMessage = "Il nome completo è obbligatorio")]
+            [StringLength(100, MinimumLength = 3, ErrorMessage = "Il nome completo deve essere di almeno {2} e di al massimo {1} caratteri.")]
             [Display(Name = "Nome completo")]
             public string FullName { get; set; }
 
@@ -82,7 +81,7 @@ namespace MyCourse.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 //var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email , FullName=Input.FullName };
+                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email, FullName = Input.FullName };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
