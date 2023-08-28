@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using MyCourse.Models.Entities;
+using Microsoft.Extensions.Hosting;
 
 namespace MyCourse.Areas.Identity.Pages.Account
 {
@@ -15,9 +16,11 @@ namespace MyCourse.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _sender;
+        private readonly IHostEnvironment _env;
 
-        public RegisterConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender sender)
+        public RegisterConfirmationModel(UserManager<ApplicationUser> userManager, IEmailSender sender, IHostEnvironment env)
         {
+            _env = env;
             _userManager = userManager;
             _sender = sender;
         }
@@ -43,7 +46,7 @@ namespace MyCourse.Areas.Identity.Pages.Account
 
             Email = email;
             // Once you add a real email sender, you should remove this code that lets you confirm the account
-            DisplayConfirmAccountLink = true;
+            DisplayConfirmAccountLink = _env.IsDevelopment();
             if (DisplayConfirmAccountLink)
             {
                 var userId = await _userManager.GetUserIdAsync(user);

@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyCourse.Customizations.Identity;
 using MyCourse.Models.Entities;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace MyCourse
 {
@@ -75,6 +76,7 @@ namespace MyCourse
                               opts.Password.RequireLowercase = true;
                               opts.Password.RequireNonAlphanumeric = true;
                               opts.Password.RequiredUniqueChars = 4;
+                              opts.SignIn.RequireConfirmedAccount=true;
                          })
                          .AddClaimsPrincipalFactory<CustomClaimsPrincipalFactory>()
                          .AddPasswordValidator<CommonPasswordValidator<ApplicationUser>>()//quando si andrà nella pagina di registrazione (usando IDENTITY), quando si invia la pwd verrà afatto un controllo in questa classe
@@ -106,6 +108,7 @@ namespace MyCourse
                services.Configure<ConnectionStringsOptions>(Configuration.GetSection("ConnectionStrings"));
                services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
                services.Configure<KestrelServerOptions>(Configuration.GetSection("Kestrel"));
+               services.Configure<SmtpOptions>(Configuration.GetSection("Smtp"));
                //limitiamo la robbba direttamente dal kestrel, tipo la grandezza max di richiesta
                //https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.server.kestrel.core.kestrelserverlimits?view=aspnetcore-3.1
 
@@ -118,6 +121,7 @@ namespace MyCourse
                services.AddTransient<ICachedLessonService, MemoryCacheLessonService>();
 
                services.AddSingleton<IImagePersister, MagickNetImagePersister>();
+               services.AddSingleton<IEmailSender, MailKitEmailSender>();
           }
 
           // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
