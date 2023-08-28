@@ -1,8 +1,10 @@
 ﻿using System;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MyCourse.Migrations;
 using MyCourse.Models.Entities;
 using MyCourse.Models.Enums;
@@ -65,13 +67,15 @@ namespace MyCourse.Models.Services.Infrastructure
 
 
                 //-Inizio Mapping per le relazioni-vvvv----------------------
+                        entity.HasOne(course => course.AuthorUser)
+                  .WithMany(user => user.AuthoredCourses)
+                  .HasForeignKey(course => course.AuthorId);
                 entity
                     .HasMany(course => course.Lessons)
                     .WithOne(lesson => lesson.Course)
                     .HasForeignKey(lesson => lesson.CourseId); // QUESTA riga è superflua SE ha il sufisso "id": Es. "CourseId"
                                                                //---Fine mapping per le relazioni
                                                                //Questa operazione si poteva fare ANCHE nel modelbuilder di "LESSONS", com'è comentato qua sotto
-
                 //indichiamo a EF che la colonna rowversion del db è quella che usiamo
                 //que viene usate nel metodo EditCourseAsync  in EFCoreCourseService per fare l'update con  concorrenza ottimistica 
                 //La colonna title è univoca

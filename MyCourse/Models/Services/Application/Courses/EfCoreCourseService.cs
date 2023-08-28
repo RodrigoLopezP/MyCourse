@@ -15,6 +15,9 @@ using MyCourse.Models.Entities;
 using MyCourse.Models.Services.Application.Courses;
 using MyCourse.Models.InputModels.Courses;
 using MyCourse.Models.Enums;
+using Microsoft.AspNetCore.Http;
+using MyCourse.Models.Exceptions.Application;
+using System.Security.Claims;
 
 namespace MyCourse.Models.Services.Application.Courses
 {
@@ -24,8 +27,10 @@ namespace MyCourse.Models.Services.Application.Courses
           private readonly IImagePersister imagePersister;
           private readonly MyCourseDbContext dbContext;
           private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;
-          public EfCoreCourseService(MyCourseDbContext dbContext, IOptionsMonitor<CoursesOptions> coursesOptions, ILogger<EfCoreCourseService> logger, IImagePersister imagePersister)
+          private readonly IHttpContextAccessor _httpContextAccessor;
+          public EfCoreCourseService(IHttpContextAccessor httpContextAccessor, MyCourseDbContext dbContext, IOptionsMonitor<CoursesOptions> coursesOptions, ILogger<EfCoreCourseService> logger, IImagePersister imagePersister)
           {
+               _httpContextAccessor = httpContextAccessor;
                _coursesOpts = coursesOptions;
                this.dbContext = dbContext;
                _logger = logger;
@@ -41,7 +46,7 @@ namespace MyCourse.Models.Services.Application.Courses
                .Where(course => course.Id == id)
                .AsNoTracking()                                         //EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
                .Select(course => CourseDetailViewModel.FromEntity(course)); //qui non server ASYNC perché interagiamo effettivamente con il db con .SINGLEASYNC()
-
+               { }
                CourseDetailViewModel dettaglioCorso = await queryLinq.SingleAsync();
                // restituisce 1 elem, se ci sono 0 o più di uno = ECCEZIONE
                //.firstAsync();// restituisce primo elem, se ci sono più di uno OK, raccatta comunque il primo
@@ -133,8 +138,19 @@ namespace MyCourse.Models.Services.Application.Courses
           public async Task<CourseDetailViewModel> CreateCourseAsync(CourseCreateInputModel nuovoCorso)
           {
                string title = nuovoCorso.Title;
-               string author = "Marione Rossi";
-               var courseEnt = new Course(title, author);
+               string author;
+               string authorId;
+               try
+               {
+                    author = _httpContextAccessor.HttpContext.User.FindFirst("FullName").Value;
+                    authorId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+               }
+               catch (NullReferenceException)
+               {
+                    throw new UserUnknownException();
+               }
+               var courseEnt = new Course(title, author,authorId);
                dbContext.Add(courseEnt);
                try
                {

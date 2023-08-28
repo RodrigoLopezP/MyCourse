@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Microsoft.EntityFrameworkCore.Migrations;
 using MyCourse.Models.Enums;
 using MyCourse.Models.ValueTypes;
 
@@ -7,10 +9,10 @@ namespace MyCourse.Models.Entities
 {
      public partial class Course
      {
-          public Course(string title, string author)
+          public Course(string title, string author, string authorId)
           {
                ChangeTitle(title);
-               ChangeAuthor(author);
+               ChangeAuthor(author, authorId);
                Title = title;
                Author = author;
                Lessons = new HashSet<Lesson>();
@@ -31,19 +33,27 @@ namespace MyCourse.Models.Entities
           public Money CurrentPrice { get; private set; }
           public string RowVersion { get; set; }
           public CourseStatus Status { get; set; }
+          public string AuthorId { get; set; }
+          public virtual ApplicationUser AuthorUser { get; set; }
 
-          public void ChangeStatus(CourseStatus newStatus){ 
+          public void ChangeStatus(CourseStatus newStatus)
+          {
                //LOGICA DI VALIDAZIONE
-               Status=newStatus;
+               Status = newStatus;
           }
 
-          public void ChangeAuthor(string newAuthor)
+          public void ChangeAuthor(string newAuthor, string newAuthorId)
           {
                if (string.IsNullOrWhiteSpace(newAuthor))
                {
                     throw new ArgumentException("The author must have a name");
                }
+               if (string.IsNullOrWhiteSpace(newAuthorId))
+               {
+                    throw new ArgumentException("The author must have a id");
+               }
                this.Author = newAuthor;
+               this.AuthorId = newAuthorId;
           }
           public void ChangeTitle(string newTitle)
           {
