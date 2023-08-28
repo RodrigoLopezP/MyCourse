@@ -76,6 +76,7 @@ namespace MyCourse
                               opts.Password.RequireNonAlphanumeric = true;
                               opts.Password.RequiredUniqueChars = 4;
                          })
+                         .AddClaimsPrincipalFactory<CustomClaimsPrincipalFactory>()
                          .AddPasswordValidator<CommonPasswordValidator<ApplicationUser>>()//quando si andrà nella pagina di registrazione (usando IDENTITY), quando si invia la pwd verrà afatto un controllo in questa classe
                          .AddEntityFrameworkStores<MyCourseDbContext>();
 
