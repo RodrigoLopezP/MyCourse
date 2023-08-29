@@ -21,6 +21,13 @@
     {
       "library": "summernote@0.8.15",
       "destination": "wwwroot/lib/summernote"
+    },
+    {
+      "library": "qrcodejs@1.0.0",
+      "destination": "wwwroot\\lib\\qrcodejs",
+      "files": [
+        "qrcode.min.js"
+      ]
     }
   ]
 }
