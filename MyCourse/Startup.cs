@@ -70,13 +70,21 @@ namespace MyCourse
                          break;
                     case Persistence.EfCore:
                          services.AddDefaultIdentity<ApplicationUser>(opts =>{
+                              // Criteri di validazione della password
                               opts.Password.RequireDigit = true;
                               opts.Password.RequiredLength = 8;
                               opts.Password.RequireUppercase = true;
                               opts.Password.RequireLowercase = true;
                               opts.Password.RequireNonAlphanumeric = true;
                               opts.Password.RequiredUniqueChars = 4;
+
+                              //Conferma dell'account
                               opts.SignIn.RequireConfirmedAccount=true;
+                              
+                              //blocco account se troppi tentativi falliti;
+                              opts.Lockout.AllowedForNewUsers=true;
+                              opts.Lockout.MaxFailedAccessAttempts=2;
+                              opts.Lockout.DefaultLockoutTimeSpan=TimeSpan.FromMinutes(2);
                          })
                          .AddClaimsPrincipalFactory<CustomClaimsPrincipalFactory>()
                          .AddPasswordValidator<CommonPasswordValidator<ApplicationUser>>()//quando si andrà nella pagina di registrazione (usando IDENTITY), quando si invia la pwd verrà afatto un controllo in questa classe
