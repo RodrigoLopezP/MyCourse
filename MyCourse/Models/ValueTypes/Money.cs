@@ -6,7 +6,7 @@ using MyCourse.Models.Enums;
 
 namespace MyCourse.Models.ValueTypes
 {
-    public class Money
+    public record Money
     {
         public Money() : this(Currency.EUR, 0.00m)
         {
@@ -33,21 +33,9 @@ namespace MyCourse.Models.ValueTypes
         }
         public Currency Currency
         {
-            get; set;
+            get; init;
         }
 
-        public override bool Equals(object obj)
-        {
-            var money = obj as Money;
-            return money != null &&
-                   Amount == money.Amount &&
-                   Currency == money.Currency;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Amount, Currency);
-        }
         ///<summary>
         ////CIAOOO
         ///</summary>

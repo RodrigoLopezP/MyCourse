@@ -37,7 +37,7 @@ namespace MyCourse.Models.Services.Application.Courses
           }
           public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
           {
-               CourseListInputModel inputForBestRatingCourses = new CourseListInputModel(
+               CourseListInputModel inputForBestRatingCourses = new(
                   search: "",
                   page: 1,
                   orderBy: "Rating",
@@ -49,7 +49,7 @@ namespace MyCourse.Models.Services.Application.Courses
           }
           public async Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
           {
-               CourseListInputModel inputForMostRecentCourses = new CourseListInputModel(
+               CourseListInputModel inputForMostRecentCourses = new(
                   search: "",
                   page: 1,
                   orderBy: "Id",
@@ -105,7 +105,7 @@ namespace MyCourse.Models.Services.Application.Courses
                     courseList.Add(courseViewModel);
                }
 
-               ListViewModel<CourseViewModel> result = new ListViewModel<CourseViewModel>
+               ListViewModel<CourseViewModel> result = new()
                {
                     Results = courseList,
                     TotalCount = Convert.ToInt32(dataSet.Tables[1].Rows[0][0])

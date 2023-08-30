@@ -54,11 +54,7 @@ namespace MyCourse
                 // homeProfile.VaryByQueryKeys = new string[]{"page"}; //sez 12 - 84 questa riga di codice è superflua perché questa viene aggiunta dal .Bind sotto, è tutto settato nella config
                 Configuration.Bind("ResponseCache:Home", homeProfile);
                 options.CacheProfiles.Add("Home", homeProfile);
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-#if DEBUG //se nel file csproj  c'è scritto DEBUG nella riga riferita a questo package allora viene eseguito, altrimenti vuol dire che è in PROD quindi non serve
-             .AddRazorRuntimeCompilation()
-#endif
-             ;
+            });
 
             var identityBuilder = services.AddDefaultIdentity<ApplicationUser>(opts =>
             {
