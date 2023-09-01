@@ -27,6 +27,7 @@ using MyCourse.Models.Entities;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using AspNetCore.ReCaptcha;
 
 namespace MyCourse
 {
@@ -46,6 +47,7 @@ namespace MyCourse
           // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
           public void ConfigureServices(IServiceCollection services)
           {
+               services.AddReCaptcha(Configuration.GetSection("Recaptcha")); // per avere i captcha nel nostro sito
                services.AddResponseCaching();// Sez 12 - 84 - Response Caching
                /*Sez 12 - 83 - Aggiunta Response Cache - agg. in config file impostazione per la response cache*/
                services.AddMvc(options =>

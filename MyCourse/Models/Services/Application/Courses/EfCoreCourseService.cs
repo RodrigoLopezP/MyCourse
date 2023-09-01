@@ -101,7 +101,7 @@ namespace MyCourse.Models.Services.Application.Courses
 
                int totCourses = await queryEF.CountAsync();
 
-               ListViewModel<CourseViewModel> result = new ListViewModel<CourseViewModel>
+               ListViewModel<CourseViewModel> result = new()
                {
                     Results = courses,
                     TotalCount = totCourses
@@ -112,7 +112,7 @@ namespace MyCourse.Models.Services.Application.Courses
 
           public async Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
           {
-               CourseListInputModel inputForMostRecentCourses = new CourseListInputModel(
+               CourseListInputModel inputForMostRecentCourses = new(
                    search: "",
                    page: 1,
                    orderBy: "Id",
@@ -124,7 +124,7 @@ namespace MyCourse.Models.Services.Application.Courses
           }
           public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
           {
-               CourseListInputModel inputForBestRatingCourses = new CourseListInputModel(
+               CourseListInputModel inputForBestRatingCourses = new(
                    search: "",
                    page: 1,
                    orderBy: "Rating",
@@ -156,7 +156,7 @@ namespace MyCourse.Models.Services.Application.Courses
                {
                     await dbContext.SaveChangesAsync();
                }
-               catch (DbUpdateException exc) when ((exc.InnerException as SqliteException)?.SqliteErrorCode == 19)
+               catch (DbUpdateException exc) when (exc.InnerException is SqliteException { SqliteErrorCode: 19 })
                {
                     throw new CourseTitleUnavailableException(title, exc);
                }
@@ -221,7 +221,7 @@ namespace MyCourse.Models.Services.Application.Courses
                {
                     await dbContext.SaveChangesAsync();
                }
-               catch (DbUpdateException exc) when ((exc.InnerException as SqliteException)?.SqliteErrorCode == 19)
+               catch (DbUpdateException exc) when (exc.InnerException is SqliteException { SqliteErrorCode: 19 })
                {
                     throw new CourseTitleUnavailableException(inputModel.Title, exc);
                }

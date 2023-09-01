@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCore.ReCaptcha;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MyCourse.Models.Services.Application.Courses;
 using MyCourse.Models.ViewModels;
 
+
 namespace MyCourse.Pages
 {
+     [ValidateReCaptcha(ErrorMessage="Hai sbagliato il recaptcha, sicuro di non essere un bot? Riprova")]
      public class ContactModel : PageModel
      {
           public CourseDetailViewModel Course { get; private set; }
@@ -32,12 +35,12 @@ namespace MyCourse.Pages
                     return RedirectToAction("Index", "Courses");
                }
           }
-
+          //[ValidateReCaptcha] // Non si può essere usato nel page handler, in MVC va bene metterlo sull'ACTION
           public async Task<IActionResult> OnPostAsync(int id, [FromServices] ICourseService courseService)
           {
                if (ModelState.IsValid)
                {
-                     //invio messaggino al docente
+                    //invio messaggino al docente
                     await courseService.SendQuestionToCourseAuthorAsync(id, Question);
                     TempData["ConfirmationMessage"] = "La tua domanda è stata inviata";
                     return RedirectToAction("Detail", "Courses", new { id = id });
