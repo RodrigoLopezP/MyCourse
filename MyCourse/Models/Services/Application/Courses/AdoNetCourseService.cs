@@ -2,12 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Ganss.XSS;
+using MailKit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyCourse.Models.Enums;
 using MyCourse.Models.Exceptions;
+using MyCourse.Models.Exceptions.Application;
 using MyCourse.Models.InputModels;
 using MyCourse.Models.InputModels.Courses;
 using MyCourse.Models.Options;
@@ -27,12 +32,17 @@ namespace MyCourse.Models.Services.Application.Courses
           /*Lez-12-72 - IOptionsMonitor<CoursesOptions> coursesOptions 
           *-Leggere la configurazione del appsetting.json in modo tipizzato */
           private readonly ILogger<AdoNetCourseService> _logger;
-          public AdoNetCourseService(ILogger<AdoNetCourseService> logger, IDatabaseAccessor db, IImagePersister imagePersister, IOptionsMonitor<CoursesOptions> coursesOptions)
+          private readonly IEmailClient _emailClient;
+          private readonly IHttpContextAccessor _httpContextAccessor;
+          public AdoNetCourseService(ILogger<AdoNetCourseService> logger, IDatabaseAccessor db, IImagePersister imagePersister,
+                                    IOptionsMonitor<CoursesOptions> coursesOptions, IHttpContextAccessor httpContextAccessor,
+                                    IEmailClient emailClient)
           {
+               _emailClient = emailClient;
+               _httpContextAccessor = httpContextAccessor;
                _logger = logger;
                _coursesOpts = coursesOptions;
                this.db = db;
-
                this.imagePersister = imagePersister;// usiamo questo oggetto per usarlo nella metodo EditCourseAsync
           }
           public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
@@ -208,13 +218,59 @@ namespace MyCourse.Models.Services.Application.Courses
                return result;
           }
 
-        public async Task DeleteCourseAsync(CourseDeleteInputModel inputModel)
-        {
-            int affectedRows = await this.db.CommandAsync($"UPDATE Courses SET Status={nameof(CourseStatus.Deleted)} WHERE Id={inputModel.Id} AND Status<>{nameof(CourseStatus.Deleted)}");
-            if (affectedRows == 0)
-            {
-                throw new CourseNotFoundException(inputModel.Id);
-            }
-        }
-    }
+          public async Task DeleteCourseAsync(CourseDeleteInputModel inputModel)
+          {
+               int affectedRows = await this.db.CommandAsync($"UPDATE Courses SET Status={nameof(CourseStatus.Deleted)} WHERE Id={inputModel.Id} AND Status<>{nameof(CourseStatus.Deleted)}");
+               if (affectedRows == 0)
+               {
+                    throw new CourseNotFoundException(inputModel.Id);
+               }
+          }
+
+          public async Task SendQuestionToCourseAuthorAsync(int id, string question)
+          {
+               //Recupero info del corso
+               FormattableString query = $@"Select Title, Email FROM Courses WHERE Courses.Id={id}";
+               DataSet dataset = await db.QueryAsync(query);
+
+               if (dataset.Tables[0].Rows.Count == 0)
+               {
+                    throw new CourseNotFoundException(id);
+               }
+
+               string courseTitle = Convert.ToString(dataset.Tables[0].Rows[0]["Title"]);
+               string courseEmail = Convert.ToString(dataset.Tables[0].Rows[0]["Email"]);
+
+               //Recupero le informazioni dell'utente che vuole inviare la domanda
+               string userFullName;
+               string userEmail;
+
+               try
+               {
+                    userFullName =_httpContextAccessor.HttpContext.User.FindFirst("FullName").Value;
+                    userEmail=_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+               }
+               catch (NullReferenceException)
+               {
+                    throw new UserUnknownException();
+               }
+               //Sanitizzazione domanda utente
+               question=new HtmlSanitizer(allowedTags: new string[0]).Sanitize(question);
+               //Compongo el testo della domanda
+               string subject =$@"Domanda per il tuo corso ""{courseTitle}""";
+               string message = $@"<p>L'utente {userFullName} (<a href=""{userEmail}"">{userEmail}</a>)
+                                ti ha inviato la seguente domanda:</p>
+                                <p>{question}</p>";
+               
+               try
+               {
+                    await _emailClient.SendEmailAsync(courseEmail, userEmail, subject, message);
+               }
+               catch (System.Exception)
+               {
+                    
+                    throw new SendException();
+               }
+          }
+     }
 }

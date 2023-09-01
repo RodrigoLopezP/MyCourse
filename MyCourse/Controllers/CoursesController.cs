@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyCourse.Models.Exceptions;
 using MyCourse.Models.InputModels;
@@ -12,6 +13,7 @@ using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Controllers
 {
+     [Authorize]
      public class CoursesController : Controller
      {
           private readonly ICourseService courseService;
@@ -20,12 +22,13 @@ namespace MyCourse.Controllers
           {
                this.courseService = courseService;
           }
+          [AllowAnonymous]
           public async Task<IActionResult> Index(CourseListInputModel inputFromViews) //Sezione 13 - 91 - Model Binding personalizzato -  invece di passare le variabili una a una, è stata creata una classe con queste dentro, anche per aggiungere la sanitizzazione e altre utilità
           {
                ViewBag.Title = "Catalogo dei corsi";
                ListViewModel<CourseViewModel> courses = await courseService.GetCoursesAsync(inputFromViews);
 
-               CourseListViewModel ciao = new CourseListViewModel
+               CourseListViewModel ciao = new()
                {
                     Courses = courses,
                     Input = inputFromViews,
@@ -33,14 +36,13 @@ namespace MyCourse.Controllers
 
                return View(ciao);
           }
-
+          [AllowAnonymous]
           public async Task<IActionResult> Detail(int id)
           {
                CourseDetailViewModel viewModel = await courseService.GetCourseAsync(id);
                ViewBag.Title = viewModel.Title;
                return View(viewModel);
           }
-
           [HttpPost]
           public async Task<IActionResult> Create(CourseCreateInputModel nuovoCorso) //qui finisce la stessa pagina ma l'utente ha messo il nome del corso, e c'è da chiamare il servizio applicativo (ef core, ado net boh)
           {
@@ -61,7 +63,6 @@ namespace MyCourse.Controllers
 
                return View(nuovoCorso);
           }
-
           [HttpGet]//opzione di default
           public IActionResult Create() //mostrare form all'utente e basta
           {
@@ -116,7 +117,6 @@ namespace MyCourse.Controllers
                ViewBag.Title = "Edit";
                return View(inputModel);
           }
-
           [HttpPost]
           public async Task<IActionResult> Delete(CourseDeleteInputModel inputModel)
           {

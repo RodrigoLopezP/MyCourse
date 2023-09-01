@@ -245,5 +245,10 @@ namespace MyCourse.Models.Services.Application.Courses
                course.ChangeStatus(CourseStatus.Deleted);
                await dbContext.SaveChangesAsync();
           }
+
+          public Task SendQuestionToCourseAuthorAsync(int id, string question)
+          {
+               throw new NotImplementedException();
+          }
      }
 }

@@ -6,10 +6,11 @@ using MailKit.Net.Smtp;
 using MimeKit;
 using System;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 
 namespace MyCourse.Models.Services.Infrastructure
 {
-    public class MailKitEmailSender : IEmailSender
+    public class MailKitEmailSender : IEmailClient
     {
         private readonly IOptionsMonitor<SmtpOptions> smtpOptionsMonitor;
         private readonly ILogger<MailKitEmailSender> logger;
@@ -19,7 +20,7 @@ namespace MyCourse.Models.Services.Infrastructure
             this.logger = logger;
             this.smtpOptionsMonitor = smtpOptionsMonitor;
         }
-        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string recipientEmail, string subject, string htmlMessage, string replyToEmail)
         {
             try
             {
@@ -32,7 +33,11 @@ namespace MyCourse.Models.Services.Infrastructure
                 }
                 var message = new MimeMessage();
                 message.From.Add(MailboxAddress.Parse(options.Sender));
-                message.To.Add(MailboxAddress.Parse(email));
+                message.To.Add(MailboxAddress.Parse(recipientEmail));
+                if (replyToEmail is not(null or ""))
+                {
+                    message.ReplyTo.Add(MailboxAddress.Parse(replyToEmail));
+                }
                 message.Subject = subject;
                 message.Body = new TextPart("html")
                 {
@@ -43,8 +48,13 @@ namespace MyCourse.Models.Services.Infrastructure
             }
             catch (Exception exc)
             {
-                logger.LogError(exc, "Couldn't send email to {email} with message {message}", email, htmlMessage);
+                logger.LogError(exc, "Couldn't send email to {email} with message {message}", recipientEmail, htmlMessage);
             }
         }
-    }
+
+          public Task SendEmailAsync(string email, string subject, string htmlMessage)
+          {
+               return SendEmailAsync(email, string.Empty, subject, htmlMessage);
+          }
+     }
 }

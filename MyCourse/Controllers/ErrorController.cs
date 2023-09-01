@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.Logging;
 using MyCourse.Models.Exceptions;
+using MyCourse.Models.Exceptions.Application;
 
 namespace MyCourse.Controllers
 {
@@ -26,8 +28,12 @@ namespace MyCourse.Controllers
             {
                     case CourseNotFoundException exc:
                         ViewBag.Title="Corso non trovato";
+                        Response.StatusCode=404;
                         return View("CourseNotFound");
-
+                    case UserUnknownException exc:
+                        ViewBag.Title="Utente sconosciuto";
+                        Response.StatusCode=400;
+                        return View();
                     default:
                         ViewBag.Title="Error";
                         return View();
