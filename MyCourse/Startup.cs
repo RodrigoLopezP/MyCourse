@@ -130,6 +130,9 @@ namespace MyCourse
                services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
                services.Configure<KestrelServerOptions>(Configuration.GetSection("Kestrel"));
                services.Configure<SmtpOptions>(Configuration.GetSection("Smtp"));
+
+               services.Configure<UsersOptions>(Configuration.GetSection("Users"));
+
                //limitiamo la robbba direttamente dal kestrel, tipo la grandezza max di richiesta
                //https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.server.kestrel.core.kestrelserverlimits?view=aspnetcore-3.1
 
