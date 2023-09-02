@@ -88,7 +88,7 @@ namespace MyCourse
                          .AddClaimsPrincipalFactory<CustomClaimsPrincipalFactory>()
                          .AddPasswordValidator<CommonPasswordValidator<ApplicationUser>>();//quando si andrà nella pagina di registrazione (usando IDENTITY), quando si invia la pwd verrà afatto un controllo in questa classe
 
-               Enum tipoServizioDB = Persistence.Adonet;
+               Enum tipoServizioDB = Persistence.EfCore;
                switch (tipoServizioDB)
                {
                     case Persistence.Adonet:
