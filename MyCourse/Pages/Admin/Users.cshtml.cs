@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,6 +14,7 @@ using MyCourse.Models.InputModels.Users;
 
 namespace MyCourse.Pages.Admin
 {
+     [Authorize(Roles =nameof(Role.Administrator))]
      public class UsersModel : PageModel
      {
           private readonly UserManager<ApplicationUser> _userManager;
