@@ -1,20 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.Options;
 using MyCourse.Models.Enums;
 using MyCourse.Models.Exceptions;
 using MyCourse.Models.InputModels;
 using MyCourse.Models.InputModels.Courses;
+using MyCourse.Models.Options;
 using MyCourse.Models.Services.Application.Courses;
 using MyCourse.Models.Services.Application.Lessons;
+using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ViewModels;
 
 namespace MyCourse.Controllers
 {
-     [Authorize(Roles =nameof(Role.Teacher))]
+     [Authorize(Roles = nameof(Role.Teacher))]
      public class CoursesController : Controller
      {
           private readonly ICourseService courseService;
@@ -45,13 +46,23 @@ namespace MyCourse.Controllers
                return View(viewModel);
           }
           [HttpPost]
-          public async Task<IActionResult> Create(CourseCreateInputModel nuovoCorso) //qui finisce la stessa pagina ma l'utente ha messo il nome del corso, e c'è da chiamare il servizio applicativo (ef core, ado net boh)
+          public async Task<IActionResult> Create(CourseCreateInputModel nuovoCorso,
+                                                  [FromServices] IAuthorizationService authorizationService,
+                                                  [FromServices] IEmailClient emailClient,
+                                                  [FromServices] IOptionsMonitor<UsersOptions> usersOptions) //qui finisce la stessa pagina ma l'utente ha messo il nome del corso, e c'è da chiamare il servizio applicativo (ef core, ado net boh)
           {
                if (ModelState.IsValid)
                {
                     try
                     {
                          CourseDetailViewModel x = await courseService.CreateCourseAsync(nuovoCorso);
+
+                         AuthorizationResult result = await authorizationService.AuthorizeAsync(User, nameof(Policy.CourseLimit));
+                         if (!result.Succeeded)
+                         {
+                              await emailClient.SendEmailAsync(usersOptions.CurrentValue.NotificationEmailRecipient, "Avviso superamento soglia", $"Il docente {User.Identity.Name} ha creato molti corsi: verifica che riesca a gestirli tutti.");
+                         }
+
                          TempData["ConfirmationMessage"] = "Corso creato! Vuoi aggiungere qualche dato in più? Ma sì, dai";
                          return RedirectToAction(nameof(Edit), new { id = x.Id }); //creato il nuovo corso, ti fa andare alla finestra di edit
                     }
@@ -84,7 +95,7 @@ namespace MyCourse.Controllers
           Salvando i dati da modifiche, si finisce nel HttpPost 
           */
           [HttpGet]
-          [Authorize(Policy =nameof(Policy.CourseAuthor))]//Controllare in Model/Authorization/...Handler
+          [Authorize(Policy = nameof(Policy.CourseAuthor))]//Controllare in Model/Authorization/...Handler
           public async Task<IActionResult> Edit(int id)
           {
                ViewBag.Title = "Edit";
@@ -92,7 +103,7 @@ namespace MyCourse.Controllers
                return View(inputModel);
           }
           [HttpPost]
-          [Authorize(Policy =nameof(Policy.CourseAuthor))]
+          [Authorize(Policy = nameof(Policy.CourseAuthor))]
           public async Task<IActionResult> Edit(CourseEditInputModel inputModel)
           {
                if (ModelState.IsValid)
@@ -121,7 +132,7 @@ namespace MyCourse.Controllers
                return View(inputModel);
           }
           [HttpPost]
-          [Authorize(Policy =nameof(Policy.CourseAuthor))]
+          [Authorize(Policy = nameof(Policy.CourseAuthor))]
           public async Task<IActionResult> Delete(CourseDeleteInputModel inputModel)
           {
                await courseService.DeleteCourseAsync(inputModel);

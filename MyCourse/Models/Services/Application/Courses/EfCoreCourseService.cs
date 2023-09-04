@@ -257,5 +257,11 @@ namespace MyCourse.Models.Services.Application.Courses
                                .Select(course => course.AuthorId)
                                .FirstOrDefaultAsync();
           }
+          public Task<int> GetCourseCountByAuthorIdAsync(string authorId)
+          {
+               return dbContext.Courses
+                               .Where(course => course.AuthorId == authorId)
+                               .CountAsync();
+          }
      }
 }

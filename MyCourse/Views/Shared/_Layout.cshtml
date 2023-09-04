@@ -1,3 +1,12 @@
+@inject IAuthorizationService authService
+@{
+    /*Qua è stata creata una policy, dando i permessi solo a coloro che sono admin
+    E' possibile fare anche la stessa cosa nello startup, questo è un metodo da usare se devi farlo "AL VOLO"
+    */
+    AuthorizationPolicy policy = new AuthorizationPolicyBuilder().RequireRole(nameof(Role.Administrator)).Build();
+    AuthorizationResult authorizationResult = await authService.AuthorizeAsync(User, policy);
+    bool isAdmin = authorizationResult.Succeeded;
+}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,6 +44,12 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-action="Index" asp-controller="Courses">Catalogo Corsi</a>
                     </li>
+                    @if (isAdmin)
+                    {
+                        <li class="nav-item active">
+                            <a class="nav-link" asp-page="/Admin/Users">Gestione utenti</a>
+                        </li>
+                    }
                 </ul>
                 <partial name="_LoginPartial"></partial>
             </div>

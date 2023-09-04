@@ -154,10 +154,13 @@ namespace MyCourse
                //Policies
                services.AddAuthorization(options =>
                {
-                    options.AddPolicy("CourseAuthor", builder =>
+                    options.AddPolicy(nameof(Policy.CourseAuthor), builder =>
                     {
                          builder.Requirements.Add(new CourseAuthorRequirement());
                     });
+                    options.AddPolicy(nameof(Policy.CourseLimit), builder=>{
+                         builder.Requirements.Add(new CourseLimitRequirement(limit:5));//policy di controllo: il docente ha creato più di un tot di corsi
+                    } );
                });
           }
 
