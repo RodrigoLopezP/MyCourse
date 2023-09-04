@@ -108,5 +108,10 @@ namespace MyCourse.Models.Services.Application.Courses
           {
                return _courseService.SendQuestionToCourseAuthorAsync(id, question);
           }
+
+          public Task<string> GetCourseAuthorIdAsync(int courseId)
+          {
+               return _courseService.GetCourseAuthorIdAsync(courseId);
+          }
      }
 }

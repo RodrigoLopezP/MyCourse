@@ -84,6 +84,7 @@ namespace MyCourse.Controllers
           Salvando i dati da modifiche, si finisce nel HttpPost 
           */
           [HttpGet]
+          [Authorize(Policy =nameof(Policy.CourseAuthor))]//Controllare in Model/Authorization/...Handler
           public async Task<IActionResult> Edit(int id)
           {
                ViewBag.Title = "Edit";
@@ -91,6 +92,7 @@ namespace MyCourse.Controllers
                return View(inputModel);
           }
           [HttpPost]
+          [Authorize(Policy =nameof(Policy.CourseAuthor))]
           public async Task<IActionResult> Edit(CourseEditInputModel inputModel)
           {
                if (ModelState.IsValid)
@@ -119,6 +121,7 @@ namespace MyCourse.Controllers
                return View(inputModel);
           }
           [HttpPost]
+          [Authorize(Policy =nameof(Policy.CourseAuthor))]
           public async Task<IActionResult> Delete(CourseDeleteInputModel inputModel)
           {
                await courseService.DeleteCourseAsync(inputModel);

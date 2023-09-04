@@ -20,5 +20,6 @@ namespace MyCourse.Models.Services.Application.Courses
           Task<CourseDetailViewModel> EditCourseAsync(CourseEditInputModel inputModel);
           Task DeleteCourseAsync(CourseDeleteInputModel inputModel);
           Task SendQuestionToCourseAuthorAsync(int id, string question);
+        Task<string> GetCourseAuthorIdAsync(int courseId);
      }
 }

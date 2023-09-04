@@ -150,7 +150,7 @@ namespace MyCourse.Models.Services.Application.Courses
                {
                     throw new UserUnknownException();
                }
-               var courseEnt = new Course(title, author,authorId);
+               var courseEnt = new Course(title, author, authorId);
                dbContext.Add(courseEnt);
                try
                {
@@ -199,7 +199,7 @@ namespace MyCourse.Models.Services.Application.Courses
                course.ChangeDescription(inputModel.Description);
                course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
                course.ChangeEmail(inputModel.Email);
-
+               course.ChangeStatus(CourseStatus.Published);
                dbContext.Entry(course).Property(course => course.RowVersion).OriginalValue = inputModel.RowVersion;
 
                //cambia img del corso se è presente una nuova
@@ -249,6 +249,13 @@ namespace MyCourse.Models.Services.Application.Courses
           public Task SendQuestionToCourseAuthorAsync(int id, string question)
           {
                throw new NotImplementedException();
+          }
+          public Task<string> GetCourseAuthorIdAsync(int courseId)
+          {
+               return dbContext.Courses
+                               .Where(course => course.Id == courseId)
+                               .Select(course => course.AuthorId)
+                               .FirstOrDefaultAsync();
           }
      }
 }

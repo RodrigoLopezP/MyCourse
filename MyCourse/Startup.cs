@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using AspNetCore.ReCaptcha;
+using MyCourse.Models.Authorization;
 
 namespace MyCourse
 {
@@ -58,13 +59,10 @@ namespace MyCourse
                     // homeProfile.VaryByQueryKeys = new string[]{"page"}; //sez 12 - 84 questa riga di codice è superflua perché questa viene aggiunta dal .Bind sotto, è tutto settato nella config
                     Configuration.Bind("ResponseCache:Home", homeProfile);
                     options.CacheProfiles.Add("Home", homeProfile);
-                    AuthorizationPolicyBuilder policyBuilder=new();
-                    AuthorizationPolicy policy= policyBuilder.RequireAuthenticatedUser().Build();
-                    AuthorizeFilter filter = new(policy);
-                    options.Filters.Add(filter);
                });
 
-               services.AddRazorPages(options=>{
+               services.AddRazorPages(options =>
+               {
                     options.Conventions.AllowAnonymousToPage("/Privacy");
                });
                var identityBuilder = services.AddDefaultIdentity<ApplicationUser>(opts =>
@@ -147,6 +145,20 @@ namespace MyCourse
                services.AddSingleton<IImagePersister, MagickNetImagePersister>();
                services.AddSingleton<IEmailSender, MailKitEmailSender>();
                services.AddSingleton<IEmailClient, MailKitEmailSender>();
+
+
+               // Uso il ciclo di vita Scoped per registrare questi AuthorizationHandler perché
+               // sfruttano un servizio (il DbContext) registrato con il ciclo di vita Scoped
+               services.AddScoped<IAuthorizationHandler, CourseAuthorRequirementHandler>();
+
+               //Policies
+               services.AddAuthorization(options =>
+               {
+                    options.AddPolicy("CourseAuthor", builder =>
+                    {
+                         builder.Requirements.Add(new CourseAuthorRequirement());
+                    });
+               });
           }
 
           // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -193,7 +205,8 @@ namespace MyCourse
                     //action -> nome del metodo
                     //id -> il metodo deve avere un param di input = id . Altrimenti non riceverà niente, sarà null
 
-                    routeBuilder.MapRazorPages();// Attiva configurazione RazorPages
+                    routeBuilder.MapRazorPages().RequireAuthorization();// Attiva configurazione RazorPages
+                    //RequireAuthorization: usando AuthorizFilter(default) invece di questo, l'auth viene fatto 2 volte, il ché potrebbe causare problemi di prestazioni in caso di numerose richieste
                });
 
           }

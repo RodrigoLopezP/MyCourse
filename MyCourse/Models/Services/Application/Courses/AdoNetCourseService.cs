@@ -247,30 +247,35 @@ namespace MyCourse.Models.Services.Application.Courses
 
                try
                {
-                    userFullName =_httpContextAccessor.HttpContext.User.FindFirst("FullName").Value;
-                    userEmail=_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
+                    userFullName = _httpContextAccessor.HttpContext.User.FindFirst("FullName").Value;
+                    userEmail = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
                }
                catch (NullReferenceException)
                {
                     throw new UserUnknownException();
                }
                //Sanitizzazione domanda utente
-               question=new HtmlSanitizer(allowedTags: new string[0]).Sanitize(question);
+               question = new HtmlSanitizer(allowedTags: new string[0]).Sanitize(question);
                //Compongo el testo della domanda
-               string subject =$@"Domanda per il tuo corso ""{courseTitle}""";
+               string subject = $@"Domanda per il tuo corso ""{courseTitle}""";
                string message = $@"<p>L'utente {userFullName} (<a href=""{userEmail}"">{userEmail}</a>)
                                 ti ha inviato la seguente domanda:</p>
                                 <p>{question}</p>";
-               
+
                try
                {
                     await _emailClient.SendEmailAsync(courseEmail, userEmail, subject, message);
                }
                catch (System.Exception)
                {
-                    
+
                     throw new SendException();
                }
+          }
+
+          public Task<string> GetCourseAuthorIdAsync(int courseId)
+          {
+               return db.QueryScalarAsync<string>($"SELECT AuthorId FROM Courses WHERE Id={courseId}");
           }
      }
 }
