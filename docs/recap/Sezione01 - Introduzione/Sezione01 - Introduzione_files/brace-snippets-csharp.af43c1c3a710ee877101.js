@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["brace-snippets-csharp"],{"./node_modules/brace/snippets/csharp.js":function(e,s){ace.define("ace/snippets/csharp",["require","exports","module"],(function(e,s,p){"use strict";s.snippetText=undefined,s.scope="csharp"}))}}]);
+//# sourceMappingURL=brace-snippets-csharp.af43c1c3a710ee877101.js.map
