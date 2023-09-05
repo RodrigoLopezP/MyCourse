@@ -21,7 +21,7 @@ namespace MyCourse.Models.Services.Infrastructure
 
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<Lesson> Lessons { get; set; }
-
+        public virtual DbSet<Subscription> Subscriptions { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //il codice .UseSqlite è stato spostato in Startup.cs
@@ -68,34 +68,35 @@ namespace MyCourse.Models.Services.Infrastructure
 
 
                 //-Inizio Mapping per le relazioni-vvvv----------------------
-                        entity.HasOne(course => course.AuthorUser)
-                  .WithMany(user => user.AuthoredCourses)
-                  .HasForeignKey(course => course.AuthorId);
+                entity.HasOne(course => course.AuthorUser)
+          .WithMany(user => user.AuthoredCourses)
+          .HasForeignKey(course => course.AuthorId);
                 entity
                     .HasMany(course => course.Lessons)
                     .WithOne(lesson => lesson.Course)
                     .HasForeignKey(lesson => lesson.CourseId); // QUESTA riga è superflua SE ha il sufisso "id": Es. "CourseId"
                                                                //---Fine mapping per le relazioni
                                                                //Questa operazione si poteva fare ANCHE nel modelbuilder di "LESSONS", com'è comentato qua sotto
-                //indichiamo a EF che la colonna rowversion del db è quella che usiamo
-                //que viene usate nel metodo EditCourseAsync  in EFCoreCourseService per fare l'update con  concorrenza ottimistica 
-                //La colonna title è univoca
+                                                               //indichiamo a EF che la colonna rowversion del db è quella che usiamo
+                                                               //que viene usate nel metodo EditCourseAsync  in EFCoreCourseService per fare l'update con  concorrenza ottimistica 
+                                                               //La colonna title è univoca
                 entity.HasIndex(course => course.Title).IsUnique();
                 entity.Property(course => course.RowVersion).IsRowVersion();
                 entity.Property(nutella => nutella.Status).HasConversion<string>();//per farsi che nel DB venga scritto proprio DRAFT DELETED ecc ecc, come stringa
 
                 entity.HasMany(course => course.SubscribedUsers)
-                .WithMany(user=> user.SubscribedCourses)
+                .WithMany(user => user.SubscribedCourses)
                 .UsingEntity<Subscription>(
-                    entity=> entity.HasOne(subscription=> subscription.User).WithMany().HasForeignKey(courseStud=> courseStud.UserId),
-                    entity=>entity.HasOne(subscription=> subscription.Course).WithMany().HasForeignKey(courseStudent=> courseStudent.CourseId),
-                    entity=>
+                    entity => entity.HasOne(subscription => subscription.User).WithMany().HasForeignKey(courseStud => courseStud.UserId),
+                    entity => entity.HasOne(subscription => subscription.Course).WithMany().HasForeignKey(courseStudent => courseStudent.CourseId),
+                    entity =>
                     {
                         entity.ToTable("Subscriptions");
-                        entity.OwnsOne(subscription => subscription.Paid, builder=> {
-                            builder.Property(money=> money.Currency)
+                        entity.OwnsOne(subscription => subscription.Paid, builder =>
+                        {
+                            builder.Property(money => money.Currency)
                             .HasConversion<string>();
-                            builder.Property(money=>money.Amount)
+                            builder.Property(money => money.Amount)
                             .HasConversion<float>();
                         });
                     }

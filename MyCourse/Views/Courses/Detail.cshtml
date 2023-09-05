@@ -18,7 +18,7 @@
             </h1>
         </div>
         <div class="col-md-3 d-flex align-items-end">
-            <a href="#" class="btn btn-warning btn-lg btn-block subscribe-course">Iscriviti</a>
+            <a asp-action="Subscribe" class="btn btn-warning btn-lg btn-block subscribe-course" asp-route-id="@Model.Id">Iscriviti</a>
         </div>
     </div>
     <div class="row">
@@ -26,7 +26,7 @@
             <p html-sanitize>@Model.Description</p>
         </div>
         <div class="col-md-3">
-            <aside>
+        <aside>
                 <author>di @Model.Author</author>
                 <div class="rating" title="@Model.Rating">
                     <rating value="@Model.Rating"> </rating>

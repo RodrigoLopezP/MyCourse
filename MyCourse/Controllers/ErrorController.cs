@@ -24,21 +24,25 @@ namespace MyCourse.Controllers
         public IActionResult Index()
         {
             var feature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            switch(feature.Error)
+            switch (feature.Error)
             {
-                    case CourseNotFoundException exc:
-                        ViewBag.Title="Corso non trovato";
-                        Response.StatusCode=404;
-                        return View("CourseNotFound");
-                    case UserUnknownException exc:
-                        ViewBag.Title="Utente sconosciuto";
-                        Response.StatusCode=400;
-                        return View();
-                    default:
-                        ViewBag.Title="Error";
-                        return View();
+                case CourseNotFoundException exc:
+                    ViewBag.Title = "Corso non trovato";
+                    Response.StatusCode = 404;
+                    return View("CourseNotFound");
+                case UserUnknownException exc:
+                    ViewBag.Title = "Utente sconosciuto";
+                    Response.StatusCode = 400;
+                    return View();
+                case CourseSubscriptionException exc:
+                    ViewData["Title"] = "Non è stato possibile iscriverti al corso";
+                    Response.StatusCode = 400;
+                    return View();
+                default:
+                    ViewBag.Title = "Error";
+                    return View();
             }
-            
+
         }
     }
 }
