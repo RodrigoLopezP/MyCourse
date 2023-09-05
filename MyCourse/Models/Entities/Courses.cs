@@ -35,6 +35,8 @@ namespace MyCourse.Models.Entities
           public CourseStatus Status { get; set; }
           public string AuthorId { get; set; }
           public virtual ApplicationUser AuthorUser { get; set; }
+          public virtual ICollection<ApplicationUser> SubscribedUsers { get; private set; }
+          public virtual ICollection<Lesson> Lessons { get; private set; }
 
           public void ChangeStatus(CourseStatus newStatus)
           {
@@ -104,6 +106,5 @@ namespace MyCourse.Models.Entities
                }
                Email = newEmail;
           }
-          public virtual ICollection<Lesson> Lessons { get; private set; }
      }
 }

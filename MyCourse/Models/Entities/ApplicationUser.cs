@@ -11,6 +11,7 @@ namespace MyCourse.Models.Entities
     {
         public string FullName { get; set; }        
         public virtual ICollection<Course> AuthoredCourses { get; set; }
+        public virtual ICollection<Course> SubscribedCourses { get; set; }
 
         //questa metodo si usa nel caso volessimo usare UI Identity e Adonet
          public static ApplicationUser FromDataRow(DataRow courseRow)

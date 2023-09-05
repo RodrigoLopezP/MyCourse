@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.Extensions.Localization;
 using MyCourse.Migrations;
 using MyCourse.Models.Entities;
 using MyCourse.Models.Enums;
@@ -83,7 +84,24 @@ namespace MyCourse.Models.Services.Infrastructure
                 entity.Property(course => course.RowVersion).IsRowVersion();
                 entity.Property(nutella => nutella.Status).HasConversion<string>();//per farsi che nel DB venga scritto proprio DRAFT DELETED ecc ecc, come stringa
 
-                //global query filter
+                entity.HasMany(course => course.SubscribedUsers)
+                .WithMany(user=> user.SubscribedCourses)
+                .UsingEntity<Subscription>(
+                    entity=> entity.HasOne(subscription=> subscription.User).WithMany().HasForeignKey(courseStud=> courseStud.UserId),
+                    entity=>entity.HasOne(subscription=> subscription.Course).WithMany().HasForeignKey(courseStudent=> courseStudent.CourseId),
+                    entity=>
+                    {
+                        entity.ToTable("Subscriptions");
+                        entity.OwnsOne(subscription => subscription.Paid, builder=> {
+                            builder.Property(money=> money.Currency)
+                            .HasConversion<string>();
+                            builder.Property(money=>money.Amount)
+                            .HasConversion<float>();
+                        });
+                    }
+                );
+
+                //global query filter - I corsi con la colonna IsDeleted 
                 entity.HasQueryFilter(course => course.Status != Enums.CourseStatus.Deleted);
                 #region Mapping generato automaticamente dal tool di reverse engineering
                 /*
