@@ -147,24 +147,24 @@ namespace MyCourse.Controllers
             return RedirectToAction(nameof(Index));
         }
         [Authorize(Roles = nameof(Role.Teacher))]
-        public async Task<IActionResult> Subscribe(int id)
+        public async Task<IActionResult> Subscribe(int id, string token)
         {
             if (!ModelState.IsValid)
             {
                 return View();
             }
-            CourseSubscribeInputModel inputModel = new()
-            {
-                CourseId = id,
-                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                TransactionId = string.Empty,
-                PaymentType = string.Empty,
-                Paid = new Money(Currency.EUR, 0m),
-                PaymentDate = DateTime.UtcNow
-            };
+            CourseSubscribeInputModel inputModel= await courseService.CapturePaymentAsync(id,token);
             await courseService.SubscribeCourseAsync(inputModel);
+            
             TempData["ConfirmationMessage"] ="Grazie per esserti iscritto, guarda subito la prima lezione!";
             return RedirectToAction(nameof(Detail), new { id = id });
         }
+
+        public async Task<IActionResult> Pay(int id)
+          {
+               string paymentUrl=await courseService.GetPaymentUrlAsync(id);
+               return Redirect(paymentUrl);
+          }
+		  
     }
 }

@@ -128,6 +128,7 @@ namespace MyCourse
                services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
                services.Configure<KestrelServerOptions>(Configuration.GetSection("Kestrel"));
                services.Configure<SmtpOptions>(Configuration.GetSection("Smtp"));
+               services.Configure<PaypalOptions>(Configuration.GetSection("Paypal"));
 
                services.Configure<UsersOptions>(Configuration.GetSection("Users"));
 
