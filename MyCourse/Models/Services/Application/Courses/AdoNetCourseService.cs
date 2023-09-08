@@ -295,5 +295,10 @@ namespace MyCourse.Models.Services.Application.Courses
                 throw new CourseSubscriptionException(inputModel.CourseId);
             }
         }
+
+        public Task<bool> IsCourseSubscribedAsync(int courseId, string userId)
+        {
+            return db.QueryScalarAsync<bool>($"SELECT COUNT(*) FROM Subscriptions WHERE CourseId={courseId} AND UserId={userId}");
+        }
     }
 }

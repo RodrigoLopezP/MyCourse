@@ -9,7 +9,6 @@ using MyCourse.Models.ViewModels.Lessons;
 
 namespace MyCourse.Controllers
 {
-     [Authorize(Roles =nameof(Role.Teacher))]
     public class LessonsController : Controller
     {
         private readonly ICachedLessonService lessonService;
@@ -18,7 +17,12 @@ namespace MyCourse.Controllers
         {
             this.lessonService = lessonService;
         }
-
+        
+        // Attenzione: indicare due o più nomi di policy separandoli con la virgola non è
+        // supportato da ASP.NET Core. C'è stato bisogno di realizzare un policy provider personalizzato
+        // che puoi vedere nel file Models/Authorization/MultiAuthorizationPolicyProvider.cs
+        // e che poi è stato registrato nel metodo RegisterServices della classe Startup
+        [Authorize(Policy = nameof(Policy.CourseAuthor) + "," + nameof(Policy.CourseSubscriber))]
         public async Task<IActionResult> Detail(int id)
         {
             LessonDetailViewModel viewModel = await lessonService.GetLessonAsync(id);
@@ -26,6 +30,8 @@ namespace MyCourse.Controllers
             return View(viewModel);
         }
 
+        [Authorize(Roles = nameof(Role.Teacher))]
+        [Authorize(Policy = nameof(Policy.CourseAuthor))]
         public IActionResult Create(int id)
         {
             ViewData["Title"] = "Nuova lezione";
@@ -37,6 +43,8 @@ namespace MyCourse.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = nameof(Role.Teacher))]
+        [Authorize(Policy = nameof(Policy.CourseAuthor))]
         public async Task<IActionResult> Create(LessonCreateInputModel inputModel)
         {
             if (ModelState.IsValid)
@@ -50,7 +58,9 @@ namespace MyCourse.Controllers
             return View(inputModel);
 
         }
-
+        
+        [Authorize(Roles = nameof(Role.Teacher))]
+        [Authorize(Policy = nameof(Policy.CourseAuthor))]
         public async Task<IActionResult> Edit(int id)
         {
             ViewData["Title"] = "Modifica lezione";
@@ -59,6 +69,8 @@ namespace MyCourse.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = nameof(Role.Teacher))]
+        [Authorize(Policy = nameof(Policy.CourseAuthor))]        
         public async Task<IActionResult> Edit(LessonEditInputModel inputModel)
         {
             if (ModelState.IsValid)
@@ -79,8 +91,9 @@ namespace MyCourse.Controllers
             return View(inputModel);
         }
 
-
         [HttpPost]
+        [Authorize(Roles = nameof(Role.Teacher))]
+        [Authorize(Policy = nameof(Policy.CourseAuthor))]
         public async Task<IActionResult> Delete(LessonDeleteInputModel inputModel)
         {
             await lessonService.DeleteLessonAsync(inputModel);

@@ -147,9 +147,12 @@ namespace MyCourse
                services.AddSingleton<IEmailClient, MailKitEmailSender>();
 
 
+               services.AddSingleton<IAuthorizationPolicyProvider, MultiAuthorizationPolicyProvider>();
                // Uso il ciclo di vita Scoped per registrare questi AuthorizationHandler perché
                // sfruttano un servizio (il DbContext) registrato con il ciclo di vita Scoped
                services.AddScoped<IAuthorizationHandler, CourseAuthorRequirementHandler>();
+               services.AddScoped<IAuthorizationHandler, CourseSubscriberRequirementHandler>();
+               services.AddScoped<IAuthorizationHandler, CourseLimitRequirementHandler>();
 
                //Policies
                services.AddAuthorization(options =>
@@ -160,6 +163,9 @@ namespace MyCourse
                     });
                     options.AddPolicy(nameof(Policy.CourseLimit), builder=>{
                          builder.Requirements.Add(new CourseLimitRequirement(limit:5));//policy di controllo: il docente ha creato più di un tot di corsi
+                    } );
+                    options.AddPolicy(nameof(Policy.CourseSubscriber), builder=>{
+                         builder.Requirements.Add(new CourseSubscriberRequirement());
                     } );
                });
           }

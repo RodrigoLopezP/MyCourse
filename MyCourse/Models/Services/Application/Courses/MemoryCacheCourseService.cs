@@ -123,5 +123,10 @@ namespace MyCourse.Models.Services.Application.Courses
         {
             return _courseService.SubscribeCourseAsync(inputModel);
         }
+
+        public Task<bool> IsCourseSubscribedAsync(int courseId, string userId)
+        {
+               return _courseService.IsCourseSubscribedAsync(courseId, userId);
+        }
     }
 }
