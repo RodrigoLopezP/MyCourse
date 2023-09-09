@@ -85,8 +85,9 @@ namespace MyCourse
                })
                          .AddClaimsPrincipalFactory<CustomClaimsPrincipalFactory>()
                          .AddPasswordValidator<CommonPasswordValidator<ApplicationUser>>();//quando si andrà nella pagina di registrazione (usando IDENTITY), quando si invia la pwd verrà afatto un controllo in questa classe
-
-               services.AddTransient<IPaymentGateway, PaypalPaymentGateway>();
+               //Metodi di pagamento
+               // services.AddTransient<IPaymentGateway, PaypalPaymentGateway>();
+               services.AddTransient<IPaymentGateway, StripePaymentGateway>();
 
                Enum tipoServizioDB = Persistence.EfCore;
                switch (tipoServizioDB)
@@ -131,6 +132,7 @@ namespace MyCourse
                services.Configure<KestrelServerOptions>(Configuration.GetSection("Kestrel"));
                services.Configure<SmtpOptions>(Configuration.GetSection("Smtp"));
                services.Configure<PaypalOptions>(Configuration.GetSection("Paypal"));
+               services.Configure<StripeOptions>(Configuration.GetSection("Stripe"));
 
                services.Configure<UsersOptions>(Configuration.GetSection("Users"));
 

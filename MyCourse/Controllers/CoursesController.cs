@@ -146,7 +146,7 @@ namespace MyCourse.Controllers
             TempData["ConfirmationMessage"] = "Il corso è stato eliminato ma potrebbe continuare a comparire negli elenchi per un breve periodo, finché la cache non viene aggiornata.";
             return RedirectToAction(nameof(Index));
         }
-        //il TOKEN viene restituito dalla pagina di pagamento
+        //il TOKEN viene restituito dalla pagina di pagamento. Paypal lo fa in automatico, a Stripe bisogna chiederlo esplicitamente
         public async Task<IActionResult> Subscribe(int id, string token)
         {
             if (!ModelState.IsValid)
