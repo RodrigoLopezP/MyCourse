@@ -119,14 +119,24 @@ namespace MyCourse.Models.Services.Application.Courses
                return _courseService.GetCourseCountByAuthorIdAsync(authorId);
           }
 
-        public Task SubscribeCourseAsync(CourseSubscribeInputModel inputModel)
-        {
-            return _courseService.SubscribeCourseAsync(inputModel);
-        }
+          public Task SubscribeCourseAsync(CourseSubscribeInputModel inputModel)
+          {
+               return _courseService.SubscribeCourseAsync(inputModel);
+          }
 
-        public Task<bool> IsCourseSubscribedAsync(int courseId, string userId)
-        {
+          public Task<bool> IsCourseSubscribedAsync(int courseId, string userId)
+          {
                return _courseService.IsCourseSubscribedAsync(courseId, userId);
-        }
-    }
+          }
+
+          public Task<string> GetPaymentUrlAsync(int courseId)
+          {
+               return _courseService.GetPaymentUrlAsync(courseId);
+          }
+
+          public Task<CourseSubscribeInputModel> CapturePaymentAsync(int id, string token)
+          {
+               return _courseService.CapturePaymentAsync(id,token);
+          }
+     }
 }

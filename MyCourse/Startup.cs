@@ -86,6 +86,8 @@ namespace MyCourse
                          .AddClaimsPrincipalFactory<CustomClaimsPrincipalFactory>()
                          .AddPasswordValidator<CommonPasswordValidator<ApplicationUser>>();//quando si andrà nella pagina di registrazione (usando IDENTITY), quando si invia la pwd verrà afatto un controllo in questa classe
 
+               services.AddTransient<IPaymentGateway, PaypalPaymentGateway>();
+
                Enum tipoServizioDB = Persistence.EfCore;
                switch (tipoServizioDB)
                {
@@ -162,12 +164,14 @@ namespace MyCourse
                     {
                          builder.Requirements.Add(new CourseAuthorRequirement());
                     });
-                    options.AddPolicy(nameof(Policy.CourseLimit), builder=>{
-                         builder.Requirements.Add(new CourseLimitRequirement(limit:5));//policy di controllo: il docente ha creato più di un tot di corsi
-                    } );
-                    options.AddPolicy(nameof(Policy.CourseSubscriber), builder=>{
+                    options.AddPolicy(nameof(Policy.CourseLimit), builder =>
+                    {
+                         builder.Requirements.Add(new CourseLimitRequirement(limit: 5));//policy di controllo: il docente ha creato più di un tot di corsi
+                    });
+                    options.AddPolicy(nameof(Policy.CourseSubscriber), builder =>
+                    {
                          builder.Requirements.Add(new CourseSubscriberRequirement());
-                    } );
+                    });
                });
           }
 

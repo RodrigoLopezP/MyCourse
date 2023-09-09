@@ -146,7 +146,7 @@ namespace MyCourse.Controllers
             TempData["ConfirmationMessage"] = "Il corso è stato eliminato ma potrebbe continuare a comparire negli elenchi per un breve periodo, finché la cache non viene aggiornata.";
             return RedirectToAction(nameof(Index));
         }
-        [Authorize(Roles = nameof(Role.Teacher))]
+        //il TOKEN viene restituito dalla pagina di pagamento
         public async Task<IActionResult> Subscribe(int id, string token)
         {
             if (!ModelState.IsValid)
