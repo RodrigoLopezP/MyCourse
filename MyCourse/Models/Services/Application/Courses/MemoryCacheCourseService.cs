@@ -136,7 +136,17 @@ namespace MyCourse.Models.Services.Application.Courses
 
           public Task<CourseSubscribeInputModel> CapturePaymentAsync(int id, string token)
           {
-               return _courseService.CapturePaymentAsync(id,token);
+               return _courseService.CapturePaymentAsync(id, token);
+          }
+
+          public Task<int?> GetCourseVoteAsync(int courseId)
+          {
+               return _courseService.GetCourseVoteAsync(courseId);
+          }
+
+          public Task VoteCourseAsync(CourseVoteInputModel inputModel)
+          {
+               return _courseService.VoteCourseAsync(inputModel);
           }
      }
 }

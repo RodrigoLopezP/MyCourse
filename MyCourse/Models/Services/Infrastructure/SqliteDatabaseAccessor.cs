@@ -121,9 +121,23 @@ namespace MyCourse.Models.Services.Infrastructure
 
           private async Task<SqliteConnection> GetOpenedConnection(CancellationToken token)
           {
-               var conn = new SqliteConnection(connectionStrOpts.CurrentValue.Default);
-               await conn.OpenAsync(token);
-               return conn;
+               //prova per retries secondi a fare conn al db, dopo quel tempo l'errore si propaga agli strati èiù in alto
+               int retries = 10;
+               while (true)
+               {
+                    try
+                    {
+                         retries--;
+                         SqliteConnection conn = new(connectionStrOpts.CurrentValue.Default);
+                         await conn.OpenAsync(token);
+                         return conn;
+                    }
+                    catch (Exception) when (retries > 0)
+                    {
+
+                         await Task.Delay(1000);
+                    }
+               }
           }
 
      }

@@ -38,14 +38,17 @@ namespace MyCourse.Models.Services.Application.Courses
           private readonly IEmailClient _emailClient;
           private readonly LinkGenerator _linkGenerator;
           private readonly IPaymentGateway _paymentGateway;
+          private readonly ITransactionLogger _transactionLogger;
           private readonly IHttpContextAccessor _httpContextAccessor;
           public AdoNetCourseService(ILogger<AdoNetCourseService> logger, IDatabaseAccessor db, IImagePersister imagePersister,
                                     IOptionsMonitor<CoursesOptions> coursesOptions, IHttpContextAccessor httpContextAccessor,
-                                    IEmailClient emailClient, LinkGenerator linkGenerator, IPaymentGateway paymentGateway)
+                                    IEmailClient emailClient, LinkGenerator linkGenerator, IPaymentGateway paymentGateway,
+                                         ITransactionLogger transactionLogger)
           {
                _emailClient = emailClient;
                this._linkGenerator = linkGenerator;
                this._paymentGateway = paymentGateway;
+               this._transactionLogger = transactionLogger;
                _httpContextAccessor = httpContextAccessor;
                _logger = logger;
                _coursesOpts = coursesOptions;
@@ -301,6 +304,10 @@ namespace MyCourse.Models.Services.Application.Courses
                {
                     throw new CourseSubscriptionException(inputModel.CourseId);
                }
+               catch (Exception)
+               {
+                    await _transactionLogger.LogTransactionAsync(inputModel);
+               }
           }
 
           public Task<bool> IsCourseSubscribedAsync(int courseId, string userId)
@@ -334,6 +341,28 @@ namespace MyCourse.Models.Services.Application.Courses
           public Task<CourseSubscribeInputModel> CapturePaymentAsync(int id, string token)
           {
                throw new NotImplementedException();
+          }
+
+          public async Task<int?> GetCourseVoteAsync(int id)
+          {
+               string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+               string vote = await db.QueryScalarAsync<string>($"SELECT Vote FROM Subscriptions WHERE CourseId={id} AND UserId={userId}");
+               return string.IsNullOrEmpty(vote) ? null : Convert.ToInt32(vote);
+          }
+
+          public async Task VoteCourseAsync(CourseVoteInputModel inputModel)
+          {
+               if (inputModel.Vote < 1 || inputModel.Vote > 5)
+               {
+                    throw new InvalidVoteException(inputModel.Vote);
+               }
+
+               string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+               int updatedRows = await db.CommandAsync($"UPDATE Subscriptions SET Vote={inputModel.Vote} WHERE CourseId={inputModel.Id} AND UserId={userId}");
+               if (updatedRows == 0)
+               {
+                    throw new CourseSubscriptionNotFoundException(inputModel.Id);
+               }
           }
      }
 }

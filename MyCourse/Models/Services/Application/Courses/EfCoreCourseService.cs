@@ -29,6 +29,7 @@ namespace MyCourse.Models.Services.Application.Courses
           private readonly IImagePersister imagePersister;
           private readonly LinkGenerator _linkGenerator;
           private readonly IPaymentGateway _paymentGateway;
+          private readonly ITransactionLogger _transactionLogger;
           private readonly MyCourseDbContext dbContext;
           private readonly IOptionsMonitor<CoursesOptions> _coursesOpts;
           private readonly IHttpContextAccessor _httpContextAccessor;
@@ -38,7 +39,8 @@ namespace MyCourse.Models.Services.Application.Courses
              ILogger<EfCoreCourseService> logger,
               IImagePersister imagePersister,
               LinkGenerator linkGenerator,
-               IPaymentGateway paymentGateway)
+               IPaymentGateway paymentGateway,
+                 ITransactionLogger transactionLogger)
           {
                _httpContextAccessor = httpContextAccessor;
                _coursesOpts = coursesOptions;
@@ -47,7 +49,7 @@ namespace MyCourse.Models.Services.Application.Courses
                this.imagePersister = imagePersister;
                this._linkGenerator = linkGenerator;
                this._paymentGateway = paymentGateway;
-
+               this._transactionLogger = transactionLogger;
           }
 
           public async Task<CourseDetailViewModel> GetCourseAsync(int id)
@@ -294,6 +296,10 @@ namespace MyCourse.Models.Services.Application.Courses
                {
                     throw new CourseSubscriptionException(inputModel.CourseId);
                }
+               catch (Exception)
+               {
+                    await _transactionLogger.LogTransactionAsync(inputModel);
+               }
           }
 
           public Task<bool> IsCourseSubscribedAsync(int courseId, string userId)
@@ -327,6 +333,36 @@ namespace MyCourse.Models.Services.Application.Courses
           public async Task<CourseSubscribeInputModel> CapturePaymentAsync(int id, string token)
           {
                return await _paymentGateway.CapturePaymentAsync(token);
+          }
+
+          public async Task<int?> GetCourseVoteAsync(int courseId)
+          {
+               string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+               Subscription subscription = await dbContext.Subscriptions.SingleOrDefaultAsync(subscription => subscription.CourseId == courseId && subscription.UserId == userId);
+               if (subscription == null)
+               {
+                    throw new CourseSubscriptionNotFoundException(courseId);
+               }
+
+               return subscription.Vote;
+          }
+
+          public async Task VoteCourseAsync(CourseVoteInputModel inputModel)
+          {
+               if (inputModel.Vote < 1 || inputModel.Vote > 5)
+               {
+                    throw new InvalidVoteException(inputModel.Vote);
+               }
+
+               string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+               Subscription subscription = await dbContext.Subscriptions.SingleOrDefaultAsync(subscription => subscription.CourseId == inputModel.Id && subscription.UserId == userId);
+               if (subscription == null)
+               {
+                    throw new CourseSubscriptionNotFoundException(inputModel.Id);
+               }
+
+               subscription.Vote = inputModel.Vote;
+               await dbContext.SaveChangesAsync();
           }
      }
 }

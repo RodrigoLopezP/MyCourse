@@ -113,11 +113,13 @@ namespace MyCourse
                                           string connectionString = Configuration
                                              .GetSection("ConnectionStrings")
                                              .GetValue<string>("Default");
-                                          optionsBuilder.UseSqlite(connectionString);
+                                          optionsBuilder.UseSqlite(connectionString,options=>{
+                                             // options.EnableRetryOnFailure(3);//in SQLite questa opzione non esiste, dato che questo db è un file che si trova nello stesso posto dell'applicazione
+                                          });
                                      });
                          break;
                }
-
+               services.AddSingleton<ITransactionLogger, LocalTransactionLogger>();
                //Aggiunto servizio EF a posto di Adonet, deve essere aggiunto anche il servizio di db context 
                // services.AddDbContext<MyCourseDbContext>();    //usa ciclo di vita Scoped, ma registra anche un servizio di loggin, tra altre cose // sez11-lez69 RIMPIAZZATO CON addDbContextPool, per migliorare le prestazioni
                //services.AddScoped<MyCourseDbContext>();        //Metodo alternativo per indicare il servizio DbContext

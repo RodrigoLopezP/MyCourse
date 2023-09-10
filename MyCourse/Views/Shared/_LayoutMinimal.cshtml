@@ -1,0 +1,57 @@
+@inject IAuthorizationService authService
+@{
+    /*Qua è stata creata una policy, dando i permessi solo a coloro che sono admin
+    E' possibile fare anche la stessa cosa nello startup, questo è un metodo da usare se devi farlo "AL VOLO"
+    */
+    AuthorizationPolicy policy = new AuthorizationPolicyBuilder().RequireRole(nameof(Role.Administrator)).Build();
+    AuthorizationResult authorizationResult = await authService.AuthorizeAsync(User, policy);
+    bool isAdmin = authorizationResult.Succeeded;
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css"
+            integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.6.3/css/all.min.css">
+    </environment>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap-4.2.1/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="~/lib/font-awesome-5.x/css/all.min.css">
+    </environment>
+    <link rel="stylesheet" href="~/style.css">
+    <title>@ViewBag.Title</title>
+</head>
+
+<body>
+   
+        @RenderBody()
+  
+    <environment exclude="Development">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js"
+            integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js"
+            integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+            crossorigin="anonymous"></script>
+    </environment>
+    <environment include="Development">
+        <script src="~/lib/jquery/jquery.min.js"></script>
+        <script src="~/lib/popper/popper.min.js"></script>
+        <script src="~/lib/bootstrap-4.2.1/dist/js/bootstrap.min.js"></script>
+    </environment>
+
+    <!--Dove ho bisogno (required false) posso richiamare la sezione SCRIPTS e metterci roba per 'lheader, tipo come ho fatto su Courses Create cshtml
+dove metto la reference delle librerie jquery della validazione utente ma solo per quella pagina-->
+
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>
