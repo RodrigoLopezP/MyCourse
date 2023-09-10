@@ -113,8 +113,9 @@ namespace MyCourse
                                           string connectionString = Configuration
                                              .GetSection("ConnectionStrings")
                                              .GetValue<string>("Default");
-                                          optionsBuilder.UseSqlite(connectionString,options=>{
-                                             // options.EnableRetryOnFailure(3);//in SQLite questa opzione non esiste, dato che questo db è un file che si trova nello stesso posto dell'applicazione
+                                          optionsBuilder.UseSqlite(connectionString, options =>
+                                          {
+                                               // options.EnableRetryOnFailure(3);//in SQLite questa opzione non esiste, dato che questo db è un file che si trova nello stesso posto dell'applicazione
                                           });
                                      });
                          break;
@@ -180,11 +181,14 @@ namespace MyCourse
           }
 
           // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-          public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime lifetime)
+          public void Configure(WebApplication app)
           {
+
+               IWebHostEnvironment env = app.Environment;
+               IHostApplicationLifetime lifetime = app.Lifetime;
                if (env.IsEnvironment("Development"))
                {
-                    app.UseDeveloperExceptionPage();
+                    //app.UseDeveloperExceptionPage();//viene usato di default da .NET6
 
                     lifetime.ApplicationStarted.Register(() =>
                     {
@@ -215,18 +219,10 @@ namespace MyCourse
 
                app.UseResponseCaching();//Sez 12 - 84 - Response Caching
 
-               // Sez 15 - 103  EndPoint Middleware in uso - aggiornamento a net core 3.0
-               app.UseEndpoints(routeBuilder =>
-               {
-                    routeBuilder.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-                    //controller -> indica il file dove andrà a cercare il metodo. Es. CoursesController => nel URL ci dovrà essere scritto "Courses"
-                    //action -> nome del metodo
-                    //id -> il metodo deve avere un param di input = id . Altrimenti non riceverà niente, sarà null
-
-                    routeBuilder.MapRazorPages().RequireAuthorization();// Attiva configurazione RazorPages
-                    //RequireAuthorization: usando AuthorizFilter(default) invece di questo, l'auth viene fatto 2 volte, il ché potrebbe causare problemi di prestazioni in caso di numerose richieste
-               });
-
+               //Endpoint Middleware da .net6
+               app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}")
+                    .RequireAuthorization();
+               app.MapRazorPages().RequireAuthorization();       
           }
      }
 }

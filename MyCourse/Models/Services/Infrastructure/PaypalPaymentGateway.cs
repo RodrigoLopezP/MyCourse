@@ -13,7 +13,7 @@ using MyCourse.Models.ViewModels;
 using Org.BouncyCastle.Asn1.Ocsp;
 using PayPalCheckoutSdk.Core;
 using PayPalCheckoutSdk.Orders;
-using PayPalHttp;
+using HttpResponse= PayPalHttp.HttpResponse;//con ImplicitUsings nel csproj, si era creata una ambiguita tra due using, così è stato risolto
 
 namespace MyCourse.Models.Services.Infrastructure
 {

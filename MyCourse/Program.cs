@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿// using Microsoft.AspNetCore.Builder; // AGGIUNGENDO in myCourse il tag ImplicitUsings enable .NET aggiunge per noi gli using implicatamente
+//nella cartella obg globalUsings g cs
 
 namespace MyCourse
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static void Main(string[] args)//magari da riga di commando vengono passati degli argomenti quando viene eseguita l'applicazione
         {
-            // string ciao = args.FirstOrDefault();
-            CreateWebHostBuilder(args).Build().Run();
-        }
+            WebApplicationBuilder builder= WebApplication.CreateBuilder(args);
 
-        
-        public static IHostBuilder CreateWebHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webHostBuilder => {
-                    webHostBuilder.UseStartup<Startup>();
-                });
+            Startup startup=new (builder.Configuration);
+
+            //Aggiungere i servizi per la dependency injection (metodo ConfigureServices)
+            startup.ConfigureServices(builder.Services);
+
+            WebApplication app= builder.Build();
+
+            //Usiamo i middleware (metodo Configure)
+            startup.Configure(app);
+            app.Run();
+
+        }
     }
 }
