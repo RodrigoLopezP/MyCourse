@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Routing.Constraints;
@@ -9,19 +10,31 @@ using Microsoft.Extensions.Localization;
 using MyCourse.Migrations;
 using MyCourse.Models.Entities;
 using MyCourse.Models.Enums;
+using MyCourse.Models.ValueTypes;
 
 namespace MyCourse.Models.Services.Infrastructure
 {
-    public partial class MyCourseDbContext : IdentityDbContext<ApplicationUser> // senza il <> in modo implicito usa il predefinito IdentityUser, che non ha la prop FullName che abbiam creato in Entities/ApplicationUser, che usiamo ad esempio in Identity/Account/Register.cshtml.cs
-    {
-        public MyCourseDbContext(DbContextOptions<MyCourseDbContext> options)
-            : base(options)
-        {
-        }
+     public partial class MyCourseDbContext : IdentityDbContext<ApplicationUser> // senza il <> in modo implicito usa il predefinito IdentityUser, che non ha la prop FullName che abbiam creato in Entities/ApplicationUser, che usiamo ad esempio in Identity/Account/Register.cshtml.cs
+     {
+          public MyCourseDbContext(DbContextOptions<MyCourseDbContext> options)
+              : base(options)
+          {
+          }
 
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<Lesson> Lessons { get; set; }
         public virtual DbSet<Subscription> Subscriptions { get; set; }
+          protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+          {
+               // Pre-convention model configuration goes here
+               configurationBuilder.Properties<Currency>().HaveConversion<string>();
+               configurationBuilder.Properties<decimal>().HaveConversion<float>();
+               /*
+               abbiamo levato gli owns one aggiunte in questo metodo COME dovevo esere tradotte le variaibli di questo ownedType sul database
+               anche prima di .net 6 si poteva fare questa cosa dello scrivere nel OnModelCreating - modelBuilder Owned , solo che non era abilitato
+               il poter indicare come dovevan essere "tradotte" le prop della classe, in questo caso della classe MONEY 
+               */
+          }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //il codice .UseSqlite è stato spostato in Startup.cs
@@ -31,6 +44,8 @@ namespace MyCourse.Models.Services.Infrastructure
         {
             //Ereditiamo il mapping del identityDbContext
             base.OnModelCreating(modelBuilder);
+            //Mapping per gli owned types
+            modelBuilder.Owned<Money>();
 
             modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
@@ -40,32 +55,6 @@ namespace MyCourse.Models.Services.Infrastructure
                 entity.HasKey(course => course.Id); //Superfluo se la propietà si chiama proprio "Id", oppure "CousesId", in quel caso EF capisce che è una PK
                                                     //In caso di PK con più colonne, si deve scrive il riga di codice commentata qua sotto
                                                     //entity.HasKey(course=> new {course.Id, course.Author});
-
-                /*-----vvv--Mapping per gli owned types--vvvvv-----------------(cosa sono? controllare documentazione lezione 11)--*/
-                /*
-                Le righe sotto sono superflue, in teoria basterebbe scrivere
-                 entity.OwnsOne(course => course.CurrentPrice);
-                 In caso che le propietà si chiamino CurrentPrice_qualcosa
-                */
-                entity.OwnsOne(course => course.CurrentPrice, builder =>
-                   {
-                       builder.Property(money => money.Currency) //SU c# CURRENCY è una ENUM, sul DB questa è un campo txt
-                            .HasConversion<string>()  //per convertire questa stringa dal db a una ENUM
-                            .HasColumnName("CurrentPrice_Currency");
-                       builder.Property(money => money.Amount)
-                            .HasConversion<float>() //Questo indica al meccanismo delle migration che la colonna della tabella dovrà essere creata di tipo numerico
-                            .HasColumnName("CurrentPrice_Amount");
-                   });
-
-                //qua sotto viene usata la versione ridotta--vvvv------------------------
-                entity.OwnsOne(course => course.FullPrice, builder =>
-                   {
-                       builder.Property(money => money.Currency).HasConversion<string>();//per convertire questa stringa dal db a una ENUM
-                       builder.Property(money => money.Amount)
-                           .HasConversion<float>();//Questo indica al meccanismo delle migration che la colonna della tabella dovrà essere creata di tipo numerico
-                   });
-                //-fine versione ridotta--------------------------------------------------------------------
-
 
                 //-Inizio Mapping per le relazioni-vvvv----------------------
                 entity.HasOne(course => course.AuthorUser)
@@ -87,8 +76,9 @@ namespace MyCourse.Models.Services.Infrastructure
                 entity.HasMany(course => course.SubscribedUsers)
                 .WithMany(user => user.SubscribedCourses)
                 .UsingEntity<Subscription>(
-                    entity => entity.HasOne(subscription => subscription.User).WithMany().HasForeignKey(courseStud => courseStud.UserId),
-                    entity => entity.HasOne(subscription => subscription.Course).WithMany().HasForeignKey(courseStudent => courseStudent.CourseId),
+                    //in EfCore 6 riesce queste righe sono sottointese, le capisce da solo vedendo che in un ogni una classe dellaltro
+                    // entity => entity.HasOne(subscription => subscription.User).WithMany().HasForeignKey(courseStud => courseStud.UserId),
+                    // entity => entity.HasOne(subscription => subscription.Course).WithMany().HasForeignKey(courseStudent => courseStudent.CourseId),
                     entity =>
                     {
                         entity.ToTable("Subscriptions");

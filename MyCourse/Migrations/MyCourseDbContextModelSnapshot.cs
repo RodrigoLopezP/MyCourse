@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyCourse.Models.Services.Infrastructure;
 
+#nullable disable
+
 namespace MyCourse.Migrations
 {
     [DbContext(typeof(MyCourseDbContext))]
@@ -13,8 +15,7 @@ namespace MyCourse.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
+            modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -39,7 +40,7 @@ namespace MyCourse.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("AspNetRoles");
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -62,7 +63,7 @@ namespace MyCourse.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims");
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -85,7 +86,7 @@ namespace MyCourse.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims");
+                    b.ToTable("AspNetUserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -109,7 +110,7 @@ namespace MyCourse.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins");
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -124,7 +125,7 @@ namespace MyCourse.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles");
+                    b.ToTable("AspNetUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -145,7 +146,7 @@ namespace MyCourse.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens");
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("MyCourse.Models.Entities.ApplicationUser", b =>
@@ -212,7 +213,7 @@ namespace MyCourse.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("AspNetUsers");
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("MyCourse.Models.Entities.Course", b =>
@@ -258,7 +259,7 @@ namespace MyCourse.Migrations
                     b.HasIndex("Title")
                         .IsUnique();
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("MyCourse.Models.Entities.Lesson", b =>
@@ -292,7 +293,7 @@ namespace MyCourse.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Lessons");
+                    b.ToTable("Lessons", (string)null);
                 });
 
             modelBuilder.Entity("MyCourse.Models.Entities.Subscription", b =>
@@ -319,7 +320,7 @@ namespace MyCourse.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -379,7 +380,7 @@ namespace MyCourse.Migrations
                         .WithMany("AuthoredCourses")
                         .HasForeignKey("AuthorId");
 
-                    b.OwnsOne("MyCourse.Models.ValueTypes.Money", "CurrentPrice", b1 =>
+                    b.OwnsOne("MyCourse.Models.Entities.Course.CurrentPrice#MyCourse.Models.ValueTypes.Money", "CurrentPrice", b1 =>
                         {
                             b1.Property<int>("CourseId")
                                 .HasColumnType("INTEGER");
@@ -395,13 +396,13 @@ namespace MyCourse.Migrations
 
                             b1.HasKey("CourseId");
 
-                            b1.ToTable("Courses");
+                            b1.ToTable("Courses", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CourseId");
                         });
 
-                    b.OwnsOne("MyCourse.Models.ValueTypes.Money", "FullPrice", b1 =>
+                    b.OwnsOne("MyCourse.Models.Entities.Course.FullPrice#MyCourse.Models.ValueTypes.Money", "FullPrice", b1 =>
                         {
                             b1.Property<int>("CourseId")
                                 .HasColumnType("INTEGER");
@@ -415,7 +416,7 @@ namespace MyCourse.Migrations
 
                             b1.HasKey("CourseId");
 
-                            b1.ToTable("Courses");
+                            b1.ToTable("Courses", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CourseId");
@@ -453,7 +454,7 @@ namespace MyCourse.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("MyCourse.Models.ValueTypes.Money", "Paid", b1 =>
+                    b.OwnsOne("MyCourse.Models.Entities.Subscription.Paid#MyCourse.Models.ValueTypes.Money", "Paid", b1 =>
                         {
                             b1.Property<int>("SubscriptionCourseId")
                                 .HasColumnType("INTEGER");
@@ -470,7 +471,7 @@ namespace MyCourse.Migrations
 
                             b1.HasKey("SubscriptionCourseId", "SubscriptionUserId");
 
-                            b1.ToTable("Subscriptions");
+                            b1.ToTable("Subscriptions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("SubscriptionCourseId", "SubscriptionUserId");
