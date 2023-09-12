@@ -1,11 +1,13 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using MyCourse.Models.Entities;
+using MyCourse.Models.Enums;
 
 namespace MyCourse.Areas.Identity.Pages.Account.Manage
 {
@@ -43,6 +45,13 @@ namespace MyCourse.Areas.Identity.Pages.Account.Manage
             if (user == null)
             {
                 return NotFound($"Non è stato possibile trovare il profilo utente con ID '{_userManager.GetUserId(User)}'.");
+            }
+            //Denied possibilty to deleted an account that it has a Teacher role
+            IList<Claim> claims = await _userManager.GetClaimsAsync(user);
+            if (claims.Any(claim => claim.Type == ClaimTypes.Role && claim.Value == nameof(Role.Teacher)))
+            {
+                TempData["ConfirmationMessage"] = $"Non puoi eliminare il tuo account autonomamente, contatta il nostro supporto.";
+                return RedirectToPage("PersonalData");
             }
 
             RequirePassword = await _userManager.HasPasswordAsync(user);

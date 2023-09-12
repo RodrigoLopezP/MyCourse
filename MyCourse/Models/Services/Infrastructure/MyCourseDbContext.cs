@@ -81,6 +81,7 @@ namespace MyCourse.Models.Services.Infrastructure
                     // entity => entity.HasOne(subscription => subscription.Course).WithMany().HasForeignKey(courseStudent => courseStudent.CourseId),
                     entity =>
                     {
+                        entity.HasQueryFilter(subscription => subscription.Course.Status != Enums.CourseStatus.Deleted);
                         entity.ToTable("Subscriptions");
                         entity.OwnsOne(subscription => subscription.Paid, builder =>
                         {
@@ -149,7 +150,7 @@ namespace MyCourse.Models.Services.Infrastructure
 
                 entity.Property(lesson => lesson.RowVersion).IsRowVersion();
                 entity.Property(lesson => lesson.Order).HasDefaultValue(1000).ValueGeneratedNever();
-
+                entity.HasQueryFilter(lesson => lesson.Course.Status != Enums.CourseStatus.Deleted);
                 #region Mapping generato automaticamente dal tool di reverse engineering
                 /*
                 entity.Property(e => e.Id).ValueGeneratedNever();

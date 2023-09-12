@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyCourse.Models.Services.Infrastructure;
 
@@ -10,9 +11,10 @@ using MyCourse.Models.Services.Infrastructure;
 namespace MyCourse.Migrations
 {
     [DbContext(typeof(MyCourseDbContext))]
-    partial class MyCourseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230912105610_ConsentFields")]
+    partial class ConsentFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");

@@ -72,6 +72,11 @@ namespace MyCourse.Areas.Identity.Pages.Account
             [Display(Name = "Conferma password")]
             [Compare("Password", ErrorMessage = "La password e la conferma password devono corrispondere.")]
             public string ConfirmPassword { get; set; }
+
+            [Compare(nameof(ExpectedTrue), ErrorMessage = "Il consenso per la finalità ecommerce è obbligatorio")]
+            public bool EcommerceConsent { get; set; }
+            public bool NewsletterConsent { get; set; }
+            public bool ExpectedTrue => true;
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -86,8 +91,15 @@ namespace MyCourse.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                //var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email, FullName = Input.FullName };
+                //var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };//classe di base con
+                var user = new ApplicationUser
+                {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    FullName = Input.FullName,
+                    EcommerceConsent = DateTimeOffset.Now,
+                    NewsletterConsent = Input.NewsletterConsent ? DateTimeOffset.Now : null
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
