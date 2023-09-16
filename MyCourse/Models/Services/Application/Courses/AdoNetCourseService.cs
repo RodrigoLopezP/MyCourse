@@ -364,5 +364,20 @@ namespace MyCourse.Models.Services.Application.Courses
                     throw new CourseSubscriptionNotFoundException(inputModel.Id);
                }
           }
-     }
+
+        public async Task<List<CourseDetailViewModel>> GetCoursesByAuthorAsync(string authorId)
+        {
+            FormattableString query = $@"SELECT Id FROM Courses WHERE AuthorId={authorId} AND Status<>{nameof(CourseStatus.Deleted)}";
+            DataSet dataSet = await db.QueryAsync(query);
+            DataTable dataTable = dataSet.Tables[0];
+            List<CourseDetailViewModel> courseList = new();
+            foreach (DataRow courseRow in dataTable.Rows)
+            {
+                CourseDetailViewModel course = await GetCourseAsync(courseRow.Field<int>("Id"));
+                courseList.Add(course);
+            }
+
+            return courseList;
+        }
+    }
 }

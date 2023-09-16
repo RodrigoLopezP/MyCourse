@@ -364,5 +364,14 @@ namespace MyCourse.Models.Services.Application.Courses
                subscription.Vote = inputModel.Vote;
                await dbContext.SaveChangesAsync();
           }
+        public Task<List<CourseDetailViewModel>> GetCoursesByAuthorAsync(string authorId)
+        {
+            return  dbContext.Courses
+                            .AsNoTracking()
+                            .Include(course => course.Lessons)
+                            .Where(course => course.AuthorId == authorId)
+                            .Select(course => CourseDetailViewModel.FromEntity(course))
+                            .ToListAsync();
+        }
      }
 }

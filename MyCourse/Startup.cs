@@ -29,6 +29,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using AspNetCore.ReCaptcha;
 using MyCourse.Models.Authorization;
+using MyCourse.Models.Services.Worker;
 
 namespace MyCourse
 {
@@ -161,6 +162,13 @@ namespace MyCourse
                services.AddScoped<IAuthorizationHandler, CourseAuthorRequirementHandler>();
                services.AddScoped<IAuthorizationHandler, CourseSubscriberRequirementHandler>();
                services.AddScoped<IAuthorizationHandler, CourseLimitRequirementHandler>();
+
+               //Hosted services (workers)
+               services.AddSingleton<UserDataHostedService>();//risolvere due istanze singleton della stessa classe
+               services.AddSingleton<IHostedService>(x=>x.GetRequiredService<UserDataHostedService>());
+               services.AddSingleton<IUserDataService>(x=>x.GetRequiredService<UserDataHostedService>());
+               
+               services.AddHostedService<ClearDataHostedService>();
 
                //Policies
                services.AddAuthorization(options =>
