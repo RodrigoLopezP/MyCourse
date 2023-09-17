@@ -115,8 +115,8 @@ namespace MyCourse.Models.Services.Application.Courses
                string direction = coursesFilters.Ascending ? "ASC" : "DESC";
 
                FormattableString query = $@"SELECT Id, Title, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency FROM Courses 
-               WHERE Title LIKE {"%" + coursesFilters.Search + "%"} AND Status<>{nameof(CourseStatus.Deleted)} ORDER BY {(Sql)orderby} {(Sql)direction} LIMIT {coursesFilters.Limit} OFFSET {coursesFilters.Offset}; 
-            SELECT COUNT(*) FROM Courses WHERE Title LIKE {"%" + coursesFilters.Search + "%"} AND Status<>{nameof(CourseStatus.Deleted)}";
+               WHERE Title LIKE {"%" + coursesFilters.Search + "%"} AND Status={nameof(CourseStatus.Published)} ORDER BY {(Sql)orderby} {(Sql)direction} LIMIT {coursesFilters.Limit} OFFSET {coursesFilters.Offset}; 
+            SELECT COUNT(*) FROM Courses WHERE Title LIKE {"%" + coursesFilters.Search + "%"} AND Status={nameof(CourseStatus.Published)}";
                DataSet dataSet = await db.QueryAsync(query);
                var dataTable = dataSet.Tables[0];
                var courseList = new List<CourseViewModel>();
@@ -371,19 +371,34 @@ namespace MyCourse.Models.Services.Application.Courses
                }
           }
 
-        public async Task<List<CourseDetailViewModel>> GetCoursesByAuthorAsync(string authorId)
+        public async Task<List<CourseViewModel>> GetCoursesByAuthorAsync(string authorId)
         {
-            FormattableString query = $@"SELECT Id FROM Courses WHERE AuthorId={authorId} AND Status<>{nameof(CourseStatus.Deleted)}";
-            DataSet dataSet = await db.QueryAsync(query);
-            DataTable dataTable = dataSet.Tables[0];
-            List<CourseDetailViewModel> courseList = new();
-            foreach (DataRow courseRow in dataTable.Rows)
-            {
-                CourseDetailViewModel course = await GetCourseAsync(courseRow.Field<int>("Id"));
-                courseList.Add(course);
-            }
+               FormattableString query = $"SELECT Id, Title, ImagePath, Author, AuthorId, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, Status FROM Courses WHERE AuthorId={authorId} AND Status<>{nameof(CourseStatus.Deleted)};";
+               DataSet dataSet = await db.QueryAsync(query);
+               DataTable dataTable = dataSet.Tables[0];
+               List<CourseViewModel> courseList = new();
+               foreach (DataRow courseRow in dataTable.Rows)
+               {
+                    CourseViewModel courseViewModel = CourseViewModel.FromDataRow(courseRow);
+                    courseList.Add(courseViewModel);
+               }
 
-            return courseList;
+               return courseList;
         }
-    }
+
+          public async Task<List<CourseViewModel>> GetCoursesBySubscriberAsync(string subscriberId)
+          {
+               FormattableString query = $@"SELECT Id, Title, ImagePath, Author, AuthorId, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, Status FROM Courses INNER JOIN Subscriptions ON Courses.Id=Subscriptions.CourseId WHERE Status<>{nameof(CourseStatus.Deleted)} AND Subscriptions.UserId={subscriberId}";
+               DataSet dataSet = await db.QueryAsync(query);
+               DataTable dataTable = dataSet.Tables[0];
+               List<CourseViewModel> courseList = new();
+               foreach (DataRow courseRow in dataTable.Rows)
+               {
+                    CourseViewModel courseViewModel = CourseViewModel.FromDataRow(courseRow);
+                    courseList.Add(courseViewModel);
+               }
+
+               return courseList;
+          }
+     }
 }

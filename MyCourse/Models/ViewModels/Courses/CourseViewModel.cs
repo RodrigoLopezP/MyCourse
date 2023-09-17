@@ -19,6 +19,9 @@ namespace MyCourse.Models.ViewModels
         public double Rating { get; set; }
         public Money FullPrice { get; set; }
         public Money CurrentPrice { get; set; }
+        public string AuthorId { get; set; }
+        public CourseStatus Status { get; set; }
+
 
         public static CourseViewModel FromDataRecord(IDataRecord dataRecord) 
         {
@@ -27,6 +30,7 @@ namespace MyCourse.Models.ViewModels
                 Title = Convert.ToString(dataRecord["Title"]),
                 ImagePath = Convert.ToString(dataRecord["ImagePath"]),
                 Author = Convert.ToString(dataRecord["Author"]),
+                AuthorId = Convert.ToString(dataRecord["AuthorId"]),
                 Rating = Convert.ToDouble(dataRecord["Rating"]),
                 FullPrice = new Money(
                     Enum.Parse<Currency>(Convert.ToString(dataRecord["FullPrice_Currency"])),
@@ -48,7 +52,7 @@ namespace MyCourse.Models.ViewModels
                 ImagePath = Convert.ToString(courseRow["ImagePath"]),
                 Author = Convert.ToString(courseRow["Author"]),
                 Rating = Convert.ToDouble(courseRow["Rating"]),
-
+                AuthorId = Convert.ToString(courseRow["AuthorId"]),
                 FullPrice = new Money(
                     Enum.Parse<Currency>(Convert.ToString(courseRow["FullPrice_Currency"])),
                     Convert.ToDecimal(courseRow["FullPrice_Amount"])
@@ -75,7 +79,8 @@ namespace MyCourse.Models.ViewModels
                 Author = course.Author,
                 Rating = course.Rating,
                 CurrentPrice = course.CurrentPrice,
-                FullPrice = course.FullPrice
+                FullPrice = course.FullPrice,
+                 AuthorId = course.AuthorId,
             };
         }
     }

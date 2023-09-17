@@ -102,7 +102,8 @@ namespace MyCourse.Models.Services.Application.Courses
                #region IQueryable con la quale prendiamo tutti i risultati della intera tabella
                IQueryable<Course> queryEF = baseQuery
                .AsNoTracking()//EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
-               .Where(x => x.Title.ToLower().Contains(coursesFilters.Search.ToLower()));
+               .Where(x => x.Title.ToLower().Contains(coursesFilters.Search.ToLower()))
+               .Where(y=> y.Status==CourseStatus.Published);
 
                #endregion
                //Con ToList eseguiamo effettivamente la query sul db per ottenere il risultato
@@ -376,14 +377,24 @@ namespace MyCourse.Models.Services.Application.Courses
                subscription.Vote = inputModel.Vote;
                await dbContext.SaveChangesAsync();
           }
-        public Task<List<CourseDetailViewModel>> GetCoursesByAuthorAsync(string authorId)
+        public Task<List<CourseViewModel>> GetCoursesByAuthorAsync(string authorId)
         {
             return  dbContext.Courses
                             .AsNoTracking()
                             .Include(course => course.Lessons)
                             .Where(course => course.AuthorId == authorId)
-                            .Select(course => CourseDetailViewModel.FromEntity(course))
+                            .Select(course => CourseViewModel.FromEntity(course))
                             .ToListAsync();
         }
+
+          public Task<List<CourseViewModel>> GetCoursesBySubscriberAsync(string subscriberId)
+          {
+               return dbContext.Courses
+                         .AsNoTracking()
+                         .Include(course => course.SubscribedUsers)
+                         .Where(course => course.SubscribedUsers.Any(u => u.Id == subscriberId))
+                         .Select(course => CourseViewModel.FromEntity(course))
+                         .ToListAsync();
+          }
      }
 }

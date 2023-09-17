@@ -15,6 +15,7 @@ using MyCourse.Models.Services.Application.Lessons;
 using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ValueTypes;
 using MyCourse.Models.ViewModels;
+using MyCourse.Models.ViewModels.Courses;
 
 namespace MyCourse.Controllers
 {
@@ -186,6 +187,21 @@ namespace MyCourse.Controllers
                await courseService.VoteCourseAsync(inputModel);
                TempData["ConfirmationMessage"] = "Grazie per aver votato!";
                return RedirectToAction(nameof(Detail), new { id = inputModel.Id });
+          }
+
+          [Authorize]
+          public async Task<IActionResult> Personal()
+          {
+               string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+               PersonalCoursesViewModel viewModel = new()
+               {
+                    AuthoredCourses = await courseService.GetCoursesByAuthorAsync(userId),
+                    SubscribedCourses = await courseService.GetCoursesBySubscriberAsync(userId)
+               };
+
+               ViewData["Title"] = "I miei corsi";
+               return View(viewModel);
           }
      }
 }

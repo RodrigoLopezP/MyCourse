@@ -148,9 +148,15 @@ namespace MyCourse.Models.Services.Application.Courses
           {
                return _courseService.VoteCourseAsync(inputModel);
           }
-        public Task<List<CourseDetailViewModel>> GetCoursesByAuthorAsync(string authorId)
-        {
-            return _courseService.GetCoursesByAuthorAsync(authorId);
-        }
+          public Task<List<CourseViewModel>> GetCoursesByAuthorAsync(string authorId)
+          {
+               return _courseService.GetCoursesByAuthorAsync(authorId);
+          }
+
+          public Task<List<CourseViewModel>> GetCoursesBySubscriberAsync(string subscriberId)
+          {
+               return _courseService.GetCoursesBySubscriberAsync(subscriberId);
+          }
+
      }
 }

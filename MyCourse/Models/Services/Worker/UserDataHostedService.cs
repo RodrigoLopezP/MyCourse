@@ -29,11 +29,12 @@ namespace MyCourse.Models.Services.Worker
         private readonly LinkGenerator linkGenerator;
         private readonly IHostEnvironment env;
         private readonly IEmailClient emailClient;
-
+        private readonly IServer server;
         public UserDataHostedService(ILogger<UserDataHostedService> logger,
                                     IServiceProvider serviceProvider,
                                     LinkGenerator linkGenerator,
                                     IHostEnvironment env,
+                                    IServer server,
                                     IEmailClient emailClient)
         {
             this.serviceProvider = serviceProvider;
@@ -41,6 +42,7 @@ namespace MyCourse.Models.Services.Worker
             this.env = env;
             this.emailClient = emailClient;
             this.logger = logger;
+            this.server = server;
         }
         public void EnqueueUserDataDownload(string userId)
         {
@@ -97,45 +99,50 @@ namespace MyCourse.Models.Services.Worker
         }
         private async Task<string> CreateZipFileAsync(string userId, ICourseService courseService, ILessonService lessonService , CancellationToken stoppingToken)
         {
-            stoppingToken.ThrowIfCancellationRequested();
+         stoppingToken.ThrowIfCancellationRequested();
 
-            Guid zipFileId = Guid.NewGuid();
-            string zipFilePath = GetUserDataZipFileLocation(userId, zipFileId);
+        Guid zipFileId = Guid.NewGuid();
+        string zipFilePath = GetUserDataZipFileLocation(userId, zipFileId);
 
-            List<CourseDetailViewModel> courses = await courseService.GetCoursesByAuthorAsync(userId);
+        using FileStream file = File.OpenWrite(zipFilePath);
+        using ZipArchive zip = new(file, ZipArchiveMode.Create);
+        
+        List<CourseViewModel> courses = await courseService.GetCoursesByAuthorAsync(userId);
 
-            using Stream file = File.OpenWrite(zipFilePath);
-            using ZipArchive zip = new(file, ZipArchiveMode.Create);
-            foreach (CourseDetailViewModel courseDetail in courses)
+        foreach (CourseViewModel course in courses)
+        {
+            CourseDetailViewModel courseDetail = await courseService.GetCourseAsync(course.Id);
+            await AddZipEntry(zip, $"Corsi/{course.Id}/Descrizione.txt", $"{course.Title}\r\n{courseDetail.Description}", stoppingToken);
+            
+            using FileStream imageStream = File.OpenRead(Path.Combine(env.ContentRootPath, "wwwroot", "Courses", $"{courseDetail.Id}.jpg"));
+            await AddZipEntry(zip, $"Corsi/{course.Id}/Image.jpg", imageStream, stoppingToken);
+
+            foreach (LessonViewModel lesson in courseDetail.Lessons)
             {
-                stoppingToken.ThrowIfCancellationRequested();
-
-                await AddZipEntry(zip, "Corso.txt", $"{courseDetail.Title}\r\n{courseDetail.Description}");
-
-                foreach (LessonViewModel lesson in courseDetail.Lessons)
-                {
-                    stoppingToken.ThrowIfCancellationRequested();
-
-                    LessonDetailViewModel lessonDetail = await lessonService.GetLessonAsync(lesson.Id);
-                    await AddZipEntry(zip, $"Lezioni/{lessonDetail.Id}.txt", $"{lessonDetail.Title}\r\n{lessonDetail.Description}");
-                }
+                LessonDetailViewModel lessonDetail = await lessonService.GetLessonAsync(lesson.Id);
+                await AddZipEntry(zip, $"Corsi/{course.Id}/Lezioni/{lessonDetail.Id}.txt", $"{lessonDetail.Title}\r\n{lessonDetail.Description}", stoppingToken);
             }
-
-            IServer server = serviceProvider.GetRequiredService<IServer>();
-            IServerAddressesFeature feature = server.Features.Get<IServerAddressesFeature>();
-            Uri serverUri = new Uri(feature.Addresses.First());
-
-            string zipDownloadUrl = linkGenerator.GetUriByAction(action: nameof(UserDataController.Download), controller: "UserData", values: new { id = zipFileId }, scheme: serverUri.Scheme, host: new HostString(serverUri.Host, serverUri.Port));
-            return zipDownloadUrl;
         }
-        private async Task AddZipEntry(ZipArchive zip, string entryName, string entryContent)
+
+        IServerAddressesFeature feature = server.Features.Get<IServerAddressesFeature>();
+        Uri serverUri = new Uri(feature.Addresses.First());
+
+        string zipDownloadUrl = linkGenerator.GetUriByAction(action: nameof(UserDataController.Download), controller: "UserData", values: new { id = zipFileId }, scheme: serverUri.Scheme, host: new HostString(serverUri.Host, serverUri.Port));
+        return zipDownloadUrl;
+        }
+        private async Task AddZipEntry(ZipArchive zip, string entryName, string entryContent, CancellationToken stoppingToken)
         {
             ZipArchiveEntry entry = zip.CreateEntry(entryName, CompressionLevel.NoCompression);// nessuna compressione per evitare che l'attività occupi troppa ram 
             using Stream entryStream = entry.Open();
             using StreamWriter streamWriter = new(entryStream);
             await streamWriter.WriteAsync(entryContent);
         }
-
+          private async Task AddZipEntry(ZipArchive zip, string entryName, Stream entryContent, CancellationToken stoppingToken)
+          {
+               ZipArchiveEntry entry = zip.CreateEntry(entryName, CompressionLevel.NoCompression);
+               using Stream entryStream = entry.Open();
+               await entryContent.CopyToAsync(entryStream);
+          }
         private async Task EmailZipFileLinkToUser(ApplicationUser user, string zipFileUrl, CancellationToken stoppingToken)
         {
             stoppingToken.ThrowIfCancellationRequested();
