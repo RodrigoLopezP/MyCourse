@@ -9,18 +9,27 @@ using MyCourse.Models.ValueTypes;
 
 namespace MyCourse.Models.ViewModels
 {
-    public class CourseDetailViewModel : CourseViewModel
+    public class CourseDetailViewModel
     {
-        public string Description { get; set; }
-        public List<LessonViewModel> Lessons { get; set; }
-        public string RowVersion { get; set; }
+          public int Id { get; set; }
+          public string Title { get; set; }
+          public string ImagePath { get; set; }
+          public string Author { get; set; }
+          public string AuthorId { get; set; }
+          public double Rating { get; set; }
+          public Money FullPrice { get; set; }
+          public Money CurrentPrice { get; set; }
+          public string Description { get; set; }
+          public CourseStatus Status { get; set; }
+          public string RowVersion { get; set; }
+          public List<LessonViewModel> Lessons { get; set; } = new List<LessonViewModel>();
 
         public TimeSpan TotalCourseDuration
         {
             get => TimeSpan.FromSeconds(Lessons?.Sum(l => l.Duration.TotalSeconds) ?? 0);
         }
 
-        public static new CourseDetailViewModel FromDataRow(DataRow courseRow)
+        public static  CourseDetailViewModel FromDataRow(DataRow courseRow)
         {
             var courseDetailViewModel = new CourseDetailViewModel
             {
@@ -51,7 +60,7 @@ namespace MyCourse.Models.ViewModels
             return courseDetailViewModel;
         }
 
-        public static new CourseDetailViewModel FromDataRecord(IDataRecord dataRecord)
+        public static  CourseDetailViewModel FromDataRecord(IDataRecord dataRecord)
         {
             var courseDetailViewModel = new CourseDetailViewModel
             {
@@ -59,6 +68,7 @@ namespace MyCourse.Models.ViewModels
                 Description = Convert.ToString(dataRecord["Description"]),
                 ImagePath = Convert.ToString(dataRecord["ImagePath"]),
                 Author = Convert.ToString(dataRecord["Author"]),
+                AuthorId = Convert.ToString(dataRecord["AuthorId"]),
                 Rating = Convert.ToDouble(dataRecord["Rating"]),
                 FullPrice = new Money(
                     Enum.Parse<Currency>(Convert.ToString(dataRecord["FullPrice_Currency"])),
@@ -74,13 +84,14 @@ namespace MyCourse.Models.ViewModels
             return courseDetailViewModel;
         }
     
-     public static new CourseDetailViewModel FromEntity(Course course)
+     public static  CourseDetailViewModel FromEntity(Course course)
         {
             return new CourseDetailViewModel {
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
                 Author = course.Author,
+                AuthorId = course.AuthorId,
                 ImagePath = course.ImagePath,
                 Rating = course.Rating,
                 CurrentPrice = course.CurrentPrice,

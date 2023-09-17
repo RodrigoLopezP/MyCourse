@@ -40,7 +40,8 @@ namespace MyCourse.Controllers
 
                return View(ciao);
           }
-          [AllowAnonymous]
+          
+          [Authorize(Policy = nameof(Policy.CourseViewer))]
           public async Task<IActionResult> Detail(int id)
           {
                CourseDetailViewModel viewModel = await courseService.GetCourseAsync(id);

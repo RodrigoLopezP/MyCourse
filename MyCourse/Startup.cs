@@ -162,12 +162,13 @@ namespace MyCourse
                services.AddScoped<IAuthorizationHandler, CourseAuthorRequirementHandler>();
                services.AddScoped<IAuthorizationHandler, CourseSubscriberRequirementHandler>();
                services.AddScoped<IAuthorizationHandler, CourseLimitRequirementHandler>();
+               services.AddScoped<IAuthorizationHandler, CourseViewerRequirementHandler>();
 
                //Hosted services (workers)
                services.AddSingleton<UserDataHostedService>();//risolvere due istanze singleton della stessa classe
-               services.AddSingleton<IHostedService>(x=>x.GetRequiredService<UserDataHostedService>());
-               services.AddSingleton<IUserDataService>(x=>x.GetRequiredService<UserDataHostedService>());
-               
+               services.AddSingleton<IHostedService>(x => x.GetRequiredService<UserDataHostedService>());
+               services.AddSingleton<IUserDataService>(x => x.GetRequiredService<UserDataHostedService>());
+
                services.AddHostedService<ClearDataHostedService>();
 
                //Policies
@@ -184,6 +185,10 @@ namespace MyCourse
                     options.AddPolicy(nameof(Policy.CourseSubscriber), builder =>
                     {
                          builder.Requirements.Add(new CourseSubscriberRequirement());
+                    });
+                    options.AddPolicy(nameof(Policy.CourseViewer), builder =>
+                    {
+                         builder.Requirements.Add(new CourseViewerRequirement());
                     });
                });
           }
@@ -230,7 +235,7 @@ namespace MyCourse
                //Endpoint Middleware da .net6
                app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}")
                     .RequireAuthorization();
-               app.MapRazorPages().RequireAuthorization();       
+               app.MapRazorPages().RequireAuthorization();
           }
      }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Migrations;
 using MyCourse.Models.Enums;
+using MyCourse.Models.Exceptions.Application;
 using MyCourse.Models.ValueTypes;
 
 namespace MyCourse.Models.Entities
@@ -43,7 +44,6 @@ namespace MyCourse.Models.Entities
                //LOGICA DI VALIDAZIONE
                Status = newStatus;
           }
-
           public void ChangeAuthor(string newAuthor, string newAuthorId)
           {
                if (string.IsNullOrWhiteSpace(newAuthor))
@@ -105,6 +105,22 @@ namespace MyCourse.Models.Entities
                     throw new ArgumentException("Email is required");
                }
                Email = newEmail;
+          }
+          public void Delete()
+          {
+               if (SubscribedUsers.Any())
+               {
+                    throw new CourseDeletionException(Id);
+               }
+               ChangeStatus(CourseStatus.Deleted);
+          }
+          public void Publish()
+          {
+               ChangeStatus(CourseStatus.Published);
+          }
+          public void UnPublish()
+          {
+               ChangeStatus(CourseStatus.Draft);
           }
      }
 }

@@ -4,6 +4,7 @@ namespace MyCourse.Models.Enums
      {
           CourseAuthor,
           CourseSubscriber,
-          CourseLimit
+          CourseLimit,
+          CourseViewer
      }
 }

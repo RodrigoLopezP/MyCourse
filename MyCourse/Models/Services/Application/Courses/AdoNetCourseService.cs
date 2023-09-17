@@ -83,7 +83,7 @@ namespace MyCourse.Models.Services.Application.Courses
           {
                _logger.LogInformation("Course {id} requested", id);
 
-               FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion FROM Courses WHERE Id={id} AND Status<>{nameof(CourseStatus.Deleted)}
+               FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, CurrentPrice_Amount, CurrentPrice_Currency, RowVersion, Status FROM Courses WHERE Id={id} AND Status<>{nameof(CourseStatus.Deleted)}
             ; SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id} ORDER BY [Order], {id}";
 
                DataSet dataSet = await db.QueryAsync(query);
@@ -231,7 +231,13 @@ namespace MyCourse.Models.Services.Application.Courses
 
           public async Task DeleteCourseAsync(CourseDeleteInputModel inputModel)
           {
-               int affectedRows = await this.db.CommandAsync($"UPDATE Courses SET Status={nameof(CourseStatus.Deleted)} WHERE Id={inputModel.Id} AND Status<>{nameof(CourseStatus.Deleted)}");
+               int subscribersCount = await db.QueryScalarAsync<int>($"SELECT COUNT(*) FROM Subscriptions WHERE CourseId={inputModel.Id}");
+               if (subscribersCount > 0)
+               {
+                    throw new CourseDeletionException(inputModel.Id);
+               }
+
+               int affectedRows = await db.CommandAsync($"UPDATE Courses SET Status={nameof(CourseStatus.Deleted)} WHERE Id={inputModel.Id} AND Status<>{nameof(CourseStatus.Deleted)}");
                if (affectedRows == 0)
                {
                     throw new CourseNotFoundException(inputModel.Id);

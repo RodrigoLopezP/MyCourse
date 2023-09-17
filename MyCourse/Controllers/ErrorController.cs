@@ -38,6 +38,10 @@ namespace MyCourse.Controllers
                     ViewData["Title"] = "Non è stato possibile iscriverti al corso";
                     Response.StatusCode = 400;
                     return View();
+                    case CourseDeletionException exc:
+                         ViewData["Title"] = "Impossibile eliminare il corso dato che ha già degli iscritti";
+                         Response.StatusCode = 400;
+                         return View("CourseDeletionError");
                 default:
                     ViewBag.Title = "Error";
                     return View();

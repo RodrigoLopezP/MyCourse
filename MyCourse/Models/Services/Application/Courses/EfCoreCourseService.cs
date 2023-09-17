@@ -59,7 +59,7 @@ namespace MyCourse.Models.Services.Application.Courses
                .Where(course => course.Id == id)
                .AsNoTracking()                                         //EF no farà il log tracking, utile per aumentare le prestazione. Usare solo se facciamo delle SELECT
                .Select(course => CourseDetailViewModel.FromEntity(course)); //qui non server ASYNC perché interagiamo effettivamente con il db con .SINGLEASYNC()
-               { }
+               
                CourseDetailViewModel dettaglioCorso = await queryLinq.SingleAsync();
                // restituisce 1 elem, se ci sono 0 o più di uno = ECCEZIONE
                //.firstAsync();// restituisce primo elem, se ci sono più di uno OK, raccatta comunque il primo
@@ -213,8 +213,17 @@ namespace MyCourse.Models.Services.Application.Courses
                course.ChangePrice(inputModel.FullPrice, inputModel.CurrentPrice);
                course.ChangeEmail(inputModel.Email);
                course.ChangeStatus(CourseStatus.Published);
-               dbContext.Entry(course).Property(course => course.RowVersion).OriginalValue = inputModel.RowVersion;
+               
+               if (inputModel.IsPublished)
+               {
+                    course.Publish();
+               }
+               else{
+                    course.UnPublish();
+               }
 
+               dbContext.Entry(course).Property(course => course.RowVersion).OriginalValue = inputModel.RowVersion;
+               
                //cambia img del corso se è presente una nuova
                if (inputModel.Image != null)
                {
@@ -248,14 +257,17 @@ namespace MyCourse.Models.Services.Application.Courses
 
           public async Task DeleteCourseAsync(CourseDeleteInputModel inputModel)
           {
-               Course course = await dbContext.Courses.FindAsync(inputModel.Id);
+               Course course = await dbContext.Courses
+                                     .Include(course => course.SubscribedUsers.Take(1))//BASTA controllare che abbiamo almeno 1 subscriber
+                                     .Where(course => course.Id == inputModel.Id)
+                                     .SingleOrDefaultAsync();
 
                if (course == null)
                {
                     throw new CourseNotFoundException(inputModel.Id);
                }
 
-               course.ChangeStatus(CourseStatus.Deleted);
+               course.Delete();
                await dbContext.SaveChangesAsync();
           }
 

@@ -41,6 +41,10 @@ namespace MyCourse.Models.InputModels
           [Display(Name = "Nuova immagine...")]
           public IFormFile Image { get; set; }
           public string RowVersion { get; set; }
+
+          [Display(Name = "Pubblicato")]
+          public bool IsPublished { get; set; }
+
           public static CourseEditInputModel FromDataRow(DataRow courseRow)
           {
                var courseEditInputModel = new CourseEditInputModel
@@ -49,6 +53,7 @@ namespace MyCourse.Models.InputModels
                     Title = Convert.ToString(courseRow["Title"]),
                     ImagePath = Convert.ToString(courseRow["ImagePath"]),
                     Description = Convert.ToString(courseRow["Description"]),
+                    IsPublished = Enum.Parse<CourseStatus>(Convert.ToString(courseRow["Status"])) == CourseStatus.Published,
                     Email = Convert.ToString(courseRow["Email"]),
                     FullPrice = new Money(
                         Enum.Parse<Currency>(Convert.ToString(courseRow["FullPrice_Currency"])),
@@ -73,7 +78,8 @@ namespace MyCourse.Models.InputModels
                     CurrentPrice = course.CurrentPrice,
                     FullPrice = course.FullPrice,
                     Description = course.Description,
-                    RowVersion=course.RowVersion
+                    RowVersion=course.RowVersion,
+                    IsPublished = course.Status == CourseStatus.Published
                };
           }
           /*
