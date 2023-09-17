@@ -20,7 +20,11 @@ namespace MyCourse.Models.Services.Infrastructure
             this.logger = logger;
             this.smtpOptionsMonitor = smtpOptionsMonitor;
         }
-        public async Task SendEmailAsync(string recipientEmail, string subject, string htmlMessage, string replyToEmail)
+          public Task SendEmailAsync(string email, string subject, string htmlMessage)
+          {
+               return SendEmailAsync(email, string.Empty, subject, htmlMessage);
+          }
+        public async Task SendEmailAsync(string recipientEmail, string replyToEmail, string subject, string htmlMessage, CancellationToken token = default)
         {
             try
             {
@@ -52,9 +56,5 @@ namespace MyCourse.Models.Services.Infrastructure
             }
         }
 
-          public Task SendEmailAsync(string email, string subject, string htmlMessage)
-          {
-               return SendEmailAsync(email, string.Empty, subject, htmlMessage);
-          }
      }
 }

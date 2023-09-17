@@ -1,8 +1,15 @@
 {
     "version": "0.2.0",
-    "configurations": [
-        
+    "configurations": [        
         {
+        // "launchBrowser":{
+        //     "enabled": true,
+        //     "args": "${auto-detect-url}",
+        //     "windows": {
+        //         "command": "cmd.exe",
+        //         "args": "/C start \"\" \"C:/Program Files (x86)/Google/Chrome/Application/chrome.exe\" ${auto-detect-url}"
+        //     }
+        // },
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md

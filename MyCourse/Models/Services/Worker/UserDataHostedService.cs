@@ -49,7 +49,8 @@ namespace MyCourse.Models.Services.Worker
 
         public IEnumerable<string> EnumerateAllUserDataZipFileLocations()
         {
-            throw new NotImplementedException();
+               string zipRootDirectoryPath = GetZipRootDirectoryPath();
+               return Directory.EnumerateFiles(zipRootDirectoryPath, "*.zip");
         }
 
         public string GetUserDataZipFileLocation(string userId, Guid zipFileId)
@@ -66,43 +67,42 @@ namespace MyCourse.Models.Services.Worker
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                try
-                {
-                    string userId = await queue.ReceiveAsync(stoppingToken);
-                    using (IServiceScope serviceScope = serviceProvider.CreateScope())
+               while (!stoppingToken.IsCancellationRequested)
+               {
+                    string userId = null;
+                    try
                     {
-                        /*
-                        Dato che non è possibile usare un servizio scoped (courseS e lessonS e userM)
-                        in un servizio di tipo Singleton UserDataHostedService(questa classe è registrata così in Startup)
-                        bisogna creare i servizi e distruggerli qui. Negli altri casi nell applicazione NET lo faceva implicitamente per noi
-                        */
-                        IServiceProvider serviceProvider = serviceScope.ServiceProvider;
-                        ICourseService courseService = serviceProvider.GetRequiredService<ICourseService>();
-                        ILessonService lessonService = serviceProvider.GetRequiredService<ILessonService>();
-                        UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                         userId = await queue.ReceiveAsync(stoppingToken);
 
-                        ApplicationUser user = await userManager.FindByIdAsync(userId);
+                         using (IServiceScope serviceScope = serviceProvider.CreateScope())
+                         {
+                              IServiceProvider serviceProvider = serviceScope.ServiceProvider;
+                              ICourseService courseService = serviceProvider.GetRequiredService<ICourseService>();
+                              ILessonService lessonService = serviceProvider.GetRequiredService<ILessonService>();
+                              UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                              ApplicationUser user = await userManager.FindByIdAsync(userId);
 
+                              string zipFileUrl = await CreateZipFileAsync(userId, courseService, lessonService, stoppingToken);
+                              await SendZipFileLinkToUserAsync(user.Email, zipFileUrl, stoppingToken);
+                         }
                     }
-                }
-                catch (Exception exc)
-                {
-                    logger.LogError(exc, "Si è verificato un errore durante l'elaborazione del file zip");
-                }
-            }
+                    catch (Exception exc)
+                    {
+                         if (!stoppingToken.IsCancellationRequested)
+                         {
+                              logger.LogError(exc, "Error while preparing data for user {userId}", userId);
+                         }
+                    }
+               }
         }
-        private async Task<string> CreateZipFile(ApplicationUser user, IServiceProvider serviceProvider, CancellationToken stoppingToken)
+        private async Task<string> CreateZipFileAsync(string userId, ICourseService courseService, ILessonService lessonService , CancellationToken stoppingToken)
         {
             stoppingToken.ThrowIfCancellationRequested();
 
             Guid zipFileId = Guid.NewGuid();
-            string zipFilePath = GetUserDataZipFileLocation(user.Id, zipFileId);
+            string zipFilePath = GetUserDataZipFileLocation(userId, zipFileId);
 
-            ICourseService courseService = serviceProvider.GetRequiredService<ICourseService>();
-            ILessonService lessonService = serviceProvider.GetRequiredService<ILessonService>();
-            List<CourseDetailViewModel> courses = await courseService.GetCoursesByAuthorAsync(user.Id);
+            List<CourseDetailViewModel> courses = await courseService.GetCoursesByAuthorAsync(userId);
 
             using Stream file = File.OpenWrite(zipFilePath);
             using ZipArchive zip = new(file, ZipArchiveMode.Create);
@@ -141,5 +141,11 @@ namespace MyCourse.Models.Services.Worker
             stoppingToken.ThrowIfCancellationRequested();
             await emailClient.SendEmailAsync(user.Email, "I tuoi corsi", $"Il file zip contenente i dati dei corsi video è pronto. Lo puoi scaricare da <a href=\"{zipFileUrl}\">{zipFileUrl}</a>");
         }
+
+          private async Task SendZipFileLinkToUserAsync(string userEmail, string zipFileUrl, CancellationToken stoppingToken)
+          {
+               stoppingToken.ThrowIfCancellationRequested();
+               await emailClient.SendEmailAsync(userEmail, null, "I tuoi corsi", $"Il file zip contenente i dati dei corsi video è pronto. Lo puoi scaricare da <a href=\"{zipFileUrl}\">{zipFileUrl}</a>", stoppingToken);
+          }
     }
 }
