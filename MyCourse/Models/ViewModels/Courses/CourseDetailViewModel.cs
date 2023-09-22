@@ -98,7 +98,8 @@ namespace MyCourse.Models.ViewModels
                 FullPrice = course.FullPrice,
                 Lessons = course.Lessons
                                     .Select(lesson => LessonViewModel.FromEntity(lesson))
-                                    .ToList()
+                                    .ToList(),
+                Status=course.Status
             };
         }
     }

@@ -368,13 +368,17 @@ namespace MyCourse.Models.Services.Application.Courses
                }
 
                string userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-               Subscription subscription = await dbContext.Subscriptions.SingleOrDefaultAsync(subscription => subscription.CourseId == inputModel.Id && subscription.UserId == userId);
+               Subscription subscription = await dbContext.Subscriptions.SingleOrDefaultAsync
+                                             (subscription =>
+                                              subscription.CourseId == inputModel.Id 
+                                              && subscription.UserId == userId);
                if (subscription == null)
                {
                     throw new CourseSubscriptionNotFoundException(inputModel.Id);
                }
 
                subscription.Vote = inputModel.Vote;
+               dbContext.Subscriptions.Update(subscription);
                await dbContext.SaveChangesAsync();
           }
         public Task<List<CourseViewModel>> GetCoursesByAuthorAsync(string authorId)
