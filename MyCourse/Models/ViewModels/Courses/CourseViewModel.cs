@@ -81,6 +81,7 @@ namespace MyCourse.Models.ViewModels
                 CurrentPrice = course.CurrentPrice,
                 FullPrice = course.FullPrice,
                  AuthorId = course.AuthorId,
+                Status=course.Status
             };
         }
     }
