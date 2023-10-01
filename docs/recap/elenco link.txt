@@ -1,0 +1,221 @@
+Elenco dei link apparsi nelle lezioni
+Dalle lezioni del corso
+
+Demo del progetto MyCourse
+https://my-course.azurewebsites.net
+
+Scaricare .NET Core
+https://www.microsoft.com/net/download
+
+Vieni a trovarci su ASPItalia.com
+https://www.aspitalia.com
+
+Catalogo dei pacchetti NuGet
+https://www.nuget.org
+
+Per approfondire .NET Standard
+https://bit.ly/dot-net-standard
+
+Confronto delle edizioni di Visual Studio
+https://bit.ly/confronto-vs
+
+
+Scaricare Visual Studio Code
+https://code.visualstudio.com
+
+Issue GitHub su Edit & Continue
+https://bit.ly/edit-and-continue
+
+Filippo Liverani: la salute del programmatore
+https://vimeo.com/115789061
+
+Event storming
+https://www.eventstorming.com/
+
+Installare Git
+https://git-scm.com/downloads
+
+Introduzione a GitFlow
+https://bit.ly/git-flow-intro
+
+Introduzione a Git di Gian Maria Ricci
+https://bit.ly/git-mva-intro
+
+Repository dell'applicazione MyCourse
+https://github.com/ItalyDotNet/MyCourse
+
+
+ASP.NET Blog
+https://blogs.msdn.microsoft.com/webdev
+
+Migrare da ASP.NET Core 2.1 a 2.2
+https://bit.ly/aggiornare-asp-net-core
+
+
+Generare codice HTML con Emmet
+https://docs.emmet.io/cheat-sheet/
+
+Per Visual Studio c'è l'estensione ZenCoding
+https://bit.ly/vs-zen-coding
+
+
+Sito ufficiale di Bootstrap
+https://getbootstrap.com
+
+Per Visual Studio ce n'è una per Bootstrap v3
+https://bit.ly/vs-bootstrap
+
+
+Usare LibMan per ottenere librerie client
+http://aspit.co/bqz
+
+Elenco dei tag helper disponibili
+https://bit.ly/tag-helper
+
+Implementazione di Money
+https://bit.ly/money-type
+
+Formattare un valore TimeSpan
+https://bit.ly/timespan-format
+
+Cos'è il Garbage Collector?
+https://bit.ly/garbage-collector
+
+Discussione su transient e scoped
+https://bit.ly/transient-e-scoped
+
+Thread-safety: evitare le race condition
+https://bit.ly/thread-safety
+
+Esempi di connection string
+https://connectionstrings.com
+
+Issue GitHub su Microsoft.Data.Sqlite
+https://bit.ly/bug-provider-sqlite
+
+AutoMapper
+https://automapper.org/
+
+Usi del simbolo @ in C#
+https://bit.ly/verbatim-identifier
+
+Discussione SQL vs LINQ su forum.aspitalia.com
+https://bit.ly/sql-era-più-semplice
+
+Documentazione sugli extension methods
+https://bit.ly/extension-methods
+
+Il pattern repository
+https://bit.ly/pattern-repository
+
+
+Convenzioni usate da Entity Framework Core
+https://bit.ly/convenzioni-efcore
+
+Opinione di Microsoft su segregazione delle interfacce in EFCore
+https://bit.ly/interfacce-efcore
+
+Eager loading di entità correlate
+https://bit.ly/eager-loading
+
+JSON
+https://bit.ly/sintassi-json
+
+
+Classe WebHost
+https://bit.ly/classe-webhost
+
+Classe GenericHost
+https://bit.ly/generic-host
+
+Fonti di configurazione di ASP.NET Core
+https://bit.ly/fonti-di-configurazione
+
+
+Don't let ASP.NET Core Console Logging Slow your App down
+https://bit.ly/log-console
+
+
+Implement an official FileLogger
+https://bit.ly/file-logger-ufficiale
+
+Il pattern Decorator
+https://bit.ly/pattern-decorator
+
+
+Come fare un test di carico
+https://bit.ly/test-di-carico
+
+Stima dell'occupazione di RAM di un oggetto
+https://bit.ly/stima-occupazione-ram
+
+Criteri di caching usati dal ResponseCacheMiddleware
+https://bit.ly/criteri-cache
+
+Response cache su cache distribuita
+https://bit.ly/response-distributed-cache
+
+Creare un value provider personalizzato
+https://bit.ly/value-provider
+
+Il paradosso della scelta di Barry Schwarz
+https://bit.ly/paradosso-della-scelta
+
+Il null coalescing operator
+https://bit.ly/null-coalescing-operator
+
+Accessibilità con ARIA
+https://bit.ly/accessibilità-aria
+
+L'operatore ternario condizionale
+https://bit.ly/operatore-ternario
+
+Usare la libreria System.Linq.Dynamic.Core
+https://bit.ly/libreria-dynamic-linq
+
+Creare Tag Helper personalizzati
+https://bit.ly/creare-taghelper
+
+Documentazione su View components
+https://bit.ly/view-components
+
+Implementazione esplicita delle interfacce
+https://bit.ly/implementazione-esplicita
+
+Guida ai principi SOLID
+https://bit.ly/principi-solid
+
+
+Dalle lezioni bonus
+
+Documentazione di AutoMapper
+https://docs.automapper.org/en/stable/
+
+
+Sintassi di query e sintassi di metodi in LINQ
+https://bit.ly/sintassi-linq
+
+
+Creazione e configurazione di un modello
+https://bit.ly/creazione-modello
+
+
+The Twelve-Factor App
+https://12factor.net/
+
+Cosa fa un DevOps engineer?
+https://bit.ly/intro-devops
+
+Formattare l'output
+https://bit.ly/serilog-output
+
+Documentazione di ndjson-cli
+https://bit.ly/ndjson
+
+Retry con Entity Framework Core
+https://bit.ly/retry-efcore
+
+Pacchetto System.Linq.Dynamic.Core
+https://bit.ly/nuget-dynamic-linq
+
+
