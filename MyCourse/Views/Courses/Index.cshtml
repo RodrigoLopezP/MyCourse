@@ -1,0 +1,140 @@
+@model CourseListViewModel
+<div class="row">
+    <div class="col-md-8">
+        <h1>@ViewBag.Title</h1>
+    </div>
+    <div class="col-md-4 d-flex align-items-center">
+        <form asp-controller="Courses" asp-action="Index" method="get">
+            <div class="input-group">
+                <input class="form-control" type="text" name="search" placeholder="Cerca..."
+                    value="@Model.Input.Search">
+                <div class="input-group-append">
+                    <button class="input-group-text"><i class="fas fa-dog"></i></button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-5"><a asp-route-orderby="Title" asp-route-search="@Model.Input.Search"
+            asp-route-ascending="@(Model.Input.OrderBy== "Title" ? !Model.Input.Ascending:true)">Titolo
+            @if (Model.Input.OrderBy == "Title")
+            {
+                <i class="fas fa-caret-@(Model.Input.Ascending? "up": "down" )"></i>
+            } </a>
+    </div>
+    <div class=" col-md-2"><a asp-route-orderby="Rating" asp-route-search="@Model.Input.Search"
+            asp-route-ascending="@(Model.Input.OrderBy == "Rating" ? !Model.Input.Ascending : true)">Valutazione
+            @if (Model.Input.OrderBy == "Rating")
+            {
+                <i class="fas fa-caret-@(Model.Input.Ascending? "up": "down" )"></i>
+            }</a>
+    </div>
+    <div class="col-md-2"><a asp-route-orderby="CurrentPrice" asp-route-search="@Model.Input.Search"
+            asp-route-ascending="@(Model.Input.OrderBy == "CurrentPrice" ? !Model.Input.Ascending : true)">Prezzo
+            @if (Model.Input.OrderBy == "CurrentPrice")
+            {
+                <i class="fas fa-caret-@(Model.Input.Ascending? "up": "down" )"></i>
+            }</a>
+    </div>
+    <div class="col-md-2"></div>
+</div>
+@foreach (CourseViewModel course in Model.Courses.Results)
+{
+    <hr>
+    <div class="row course">
+        <div class="col-md-1">
+            <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
+        </div>
+        <div class="col-md-5">
+            <h2>@course.Title</h2>
+            <author>di @course.Author</author>
+        </div>
+        <div class="col-md-2 rating" title="@course.Rating">
+            @for (int i = 1; i <= 5; i++)
+            {
+                if (course.Rating >= i)
+                {
+                    <i class="fas fa-star"></i>
+                }
+                else if (course.Rating > i - 1)
+                {
+                    <i class="fas fa-star-half-alt"></i>
+                }
+                else
+                {
+                    <i class="far fa-star"></i>
+                }
+            }
+        </div>
+        <div class="col-md-2 price">
+            @course.FullPrice
+            @if (!course.CurrentPrice.Equals(course.FullPrice))
+            {
+                <br>
+                <s>@course.CurrentPrice</s>
+            }
+        </div>
+        <div class="col-md-2">
+            <a class="btn btn-outline-primary" asp-action="Detail" asp-route-id="@course.Id"> Dettaglio</a>
+        </div>
+    </div>
+    <hr>
+}
+
+@{
+    int totPages = (int)Math.Ceiling(Model.Courses.TotalCount / (decimal)Model.Input.Limit);
+    <!--ottengo quante pagine far visualizzare-->
+    int currentPage = Model.Input.Page;
+}
+
+<nav aria-label="Paginazione">
+    <ul class="pagination d-flex justify-content-center" >
+        <!---Se la pagina corrente è maggiore a 1, allora ci sarà il btn per la pag prec. il math max è per assicurasi che nessuno metta nella url query meno1 o meno3--->
+        @if (Math.Max(currentPage, 1) > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-route-page="@(currentPage-1)">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </li>
+        }
+        <!-- dalla pag corrente -4, fino alla pag corrente +4 , fammi vedere dei buttons con in numerini-->
+        @for (int p = Math.Max(1, currentPage - 4); p <= Math.Min(totPages, currentPage + 4); p++)
+        {
+            if (p == currentPage)
+            {
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" asp-route-page="@p"
+                    asp-route-search="@Model.Input.Search"
+                    asp-route-orderby="@Model.Input.OrderBy"
+                    asp-route-ascending="@Model.Input.Ascending"
+                    >Page @p <span class="sr-only">(current)</span></a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-route-page="@p"
+                    asp-route-search="@Model.Input.Search"
+                    asp-route-orderby="@Model.Input.OrderBy"
+                    asp-route-ascending="@Model.Input.Ascending"
+                    >@p</a>
+                </li>
+            }
+        }
+        <!---Se la pagina corrente è minore al max di pag, allora ci sarà il btn per la prx pag--->
+        @if (currentPage<totPages) 
+        {
+        <li class="page-item">
+            <a class="page-link" asp-route-page="@(currentPage+1)"
+                    asp-route-search="@Model.Input.Search"
+                    asp-route-orderby="@Model.Input.OrderBy"
+                    asp-route-ascending="@Model.Input.Ascending">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </li>
+        }
+    </ul>
+</nav>

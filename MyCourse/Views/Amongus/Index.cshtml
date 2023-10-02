@@ -1,0 +1,13 @@
+<h1>Ciao</h1>
+<p>Il percorso che ha fatto questa pagina è il seguente: </p>
+<lu>
+    <li>Startup.cs</li>
+    <li>nella funzione Configure(), viene usato <code>app.UseMvc(routeBuilder...</code> ecc. ecc.</li>
+    <li><code>routeBuilder.MapRoute(default", "{controller=Home}/{action=Index}/{id?}"</code>. In questo caso, controller=Amongus ,</li>
+    <li>Si viene rimandati alla Controllers/Amongus , precisamente nella sua funzione Index la quale, come vediamo nel punto sopra, è quello di defalit</li>
+    <li>Dalla funzione Index() veniamo rimandato alla sua corrispettiva  view. Per convenzione, MVC ricerca nella cartella <code>/Views</code> il nome del controller senza il "Controller", e il nome del file <code>.cshtml</code> come il nome della funzione.
+        <br>
+        <b>Esempio:</b> il controller è AmongusController.cs? Allora cercherà la view nella cartella <code>Views/Amongus/Index.cshtml</code>
+        </li>
+</lu>
+<p>Fine. Questa pagina non dovrebbe essere raggiungibile da nessuna parte, quindi vai via.</p>

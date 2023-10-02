@@ -1,0 +1,107 @@
+@model HomeViewModel
+<div class="jumbotron">
+    <h1 class="display-4">Benvenuto su MyCourse!</h1>
+    <div class="row">
+        <div class="col-md-7">
+            <p class="lead d-flex align-items-center">Siamo tipo Udemy però più brutto!<br>Ti invitiamo a seguire i nostri corsi, grazie ai quali imparerai un sacco di cose! Ad esempio, lo sapevi che in termi di ibridazione Vaporeon è . . .</p>
+            
+        </div>
+    </div>
+    <hr class="my-4">
+    <p><a asp-controller="Courses" asp-action="Index" class="btn btn-primary"> Sfoglia il catalogo dei nostri corsi <i class="fab fa-accessible-icon"></i></a></p>
+    <p></p>
+</div>
+<section>
+    <h2>Aggiunti di recente</h2>
+@foreach (CourseViewModel course in Model.MostRecentCourses)
+{
+    <hr>
+    <div class="row course">
+        <div class="col-md-1">
+            <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
+        </div>
+        <div class="col-md-5">
+            <h2>@course.Title</h2>
+            <author>di @course.Author</author>
+        </div>
+        <div class="col-md-2 rating" title="@course.Rating">
+            @for (int i = 1; i <= 5; i++)
+            {
+                if (course.Rating >= i)
+                {
+                    <i class="fas fa-star"></i>
+                }
+                else if (course.Rating > i - 1)
+                {
+                    <i class="fas fa-star-half-alt"></i>
+                }
+                else
+                {
+                    <i class="far fa-star"></i>
+                }
+            }
+        </div>
+        <div class="col-md-2 price">
+            @course.FullPrice
+            @if (!course.CurrentPrice.Equals(course.FullPrice))
+            {
+                <br>
+                <s>@course.CurrentPrice</s>
+            }
+        </div>
+        <div class="col-md-2">
+            <a class="btn btn-outline-primary"  asp-controller="Courses" asp-action="Detail" asp-route-id="@course.Id"> Dettaglio</a>
+        </div>
+    </div>
+    <hr>
+}
+
+</section>
+
+
+
+<section>
+    <h2>Più votati</h2>
+@foreach (CourseViewModel course in Model.BestRatingCourses)
+{
+    <hr>
+    <div class="row course">
+        <div class="col-md-1">
+            <img class="img-fluid" src="@course.ImagePath" height="60" alt="Img corso 1">
+        </div>
+        <div class="col-md-5">
+            <h2>@course.Title</h2>
+            <author>di @course.Author</author>
+        </div>
+        <div class="col-md-2 rating" title="@course.Rating">
+            @for (int i = 1; i <= 5; i++)
+            {
+                if (course.Rating >= i)
+                {
+                    <i class="fas fa-star"></i>
+                }
+                else if (course.Rating > i - 1)
+                {
+                    <i class="fas fa-star-half-alt"></i>
+                }
+                else
+                {
+                    <i class="far fa-star"></i>
+                }
+            }
+        </div>
+        <div class="col-md-2 price">
+            @course.FullPrice
+            @if (!course.CurrentPrice.Equals(course.FullPrice))
+            {
+                <br>
+                <s>@course.CurrentPrice</s>
+            }
+        </div>
+        <div class="col-md-2">
+            <a class="btn btn-outline-primary" asp-controller="Courses" asp-action="Detail" asp-route-id="@course.Id"> Dettaglio</a>
+        </div>
+    </div>
+    <hr>
+}
+</section>
